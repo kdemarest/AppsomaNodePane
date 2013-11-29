@@ -1,0 +1,86 @@
+.container {
+    height: 95%;
+    margin: auto;
+    min-width: 900px;
+    padding: 10px;
+    position: absolute;
+    width: 97%;
+}
+.todoList {
+    border: 1px solid;
+    float: left;
+    height: 100%;
+    width: 300px;
+}
+.list {
+    /*overflow: auto;*/
+    height: 100%;
+    position: relative;
+}
+.nodePaneContainer {
+    border: 1px solid;
+    overflow: hidden;
+    height: 100%;
+    margin-left: 320px;
+    width: -webkit-calc(93% - 255px);
+    width: -moz-calc(93% - 255px);
+    width: calc(93% - 255px);
+}
+.clear {
+    clear: both;
+}
+.dragElement {
+    padding: 10px;
+}
+.drangNode {
+    overflow: visible;
+    width: 90px;
+    height: 90px;
+}
+g.node circle {
+    stroke:gray;
+    cursor:pointer;
+}
+g.node circle.inner {
+    fill : white;
+}
+g.node.hover circle.inner {
+    fill : aliceblue;
+}
+g.node circle.outer {
+    stroke-width : 0px;
+    stroke-dasharray: 4px;
+    stroke-opacity : 0.5;
+    fill : transparent;
+}
+g.node.selected circle.outer {
+    stroke-width : 1px;
+}
+g.node text {
+    font : 12px sans-serif;
+    font-weight : bold;
+    pointer-events : none;
+}
+path.transition, path.dragline {
+    fill : none;
+    stroke : #000;
+    stroke-width: 1px;
+    cursor : default;
+    marker-end : url(#end-arrow);
+}
+path.dragline {
+    pointer-events: none;
+}
+path.dragline.hidden {
+    stroke-width: 0;
+}
+/* disable text selection */
+svg *::selection {
+    background : transparent;
+}
+svg *::-moz-selection {
+    background:transparent;
+}
+svg *::-webkit-selection {
+    background:transparent;
+}
