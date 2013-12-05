@@ -1,4 +1,10 @@
+var translates = [0,0];
+var scale = 1;
+var ToolList = {};
+var isLinkDraw = false;
+var selectNode,drop;
 
+var NodePanData ={step_list:[],connections:[]};
 $(document).ready(function () {
     var nodes = [];
     var selected = {};
@@ -6,7 +12,7 @@ $(document).ready(function () {
     var nodedrag = false;
 
     $( window ).resize(function() {
-           restart();
+        restart();
     });
 
     $('.dragElement').draggable({
@@ -20,8 +26,8 @@ $(document).ready(function () {
             selected.id = this.id
             var dragSVG = '<svg xmlns="http://www.w3.org/2000/svg" class="drangNode">' +
                 '<g class="node" transform="translate(44,44)">' +
-                '<circle r="44" class="outer"/>' +
-                '<circle r="40" class="inner"/>' +
+                '<circle r="45" class="outer"/>' +
+                '<circle r="37" class="inner"/>' +
                 '<text text-anchor="middle" y="4">' + this.id + '</text>' +
                 '</g>' +
                 '</svg>';
@@ -36,7 +42,7 @@ $(document).ready(function () {
         over: function (event, ui) {
             var posX = event.originalEvent.clientX - $(this).offset().left;
             var posY = event.originalEvent.clientY - $(this).offset().top;
-            console.log(posX, posY);
+//            console.log(posX, posY);
         },
 
         out: function (event, ui) {
@@ -46,19 +52,18 @@ $(document).ready(function () {
         drop: function (event, ui) {
             var posX = event.originalEvent.clientX - $(this).offset().left;
             var posY = event.originalEvent.clientY - $(this).offset().top;
-            nodes.push({
-                x: posX,
-                y: posY,
-                label: selected.id,
-                transitions: []
-            });
+            var obj = ToolList[selected.id];
+            obj.x = posX;
+            obj.y = posY;
+            NodePanData.step_list.push(obj);
             restart();
         }
     });
 
-
+    /* Svg element that holds data*/
     var svg = d3.select('#nodePane')
         .append("svg")
+        .attr("id","nodeEditor")
         .attr("width", function () {
             return $(".nodePaneContainer").width();
         })
@@ -68,58 +73,58 @@ $(document).ready(function () {
         .call(d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", zoom))
         .append("g");
 
+    /* Zoom function*/
     function zoom() {
-        if(!nodedrag){
+        if(!nodedrag && !isLinkDraw){
+            translates = d3.event.translate;
+            scale = d3.event.scale;
+//            console.log(d3.event.translate,d3.event.scale);
             svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
         }
+
     }
+//    var drag_line = svg.append("line")
+//        .attr("class", "drag_line")
+//        .attr("x1", 0)
+//        .attr("y1", 0)
+//        .attr("x2", 0)
+//        .attr("y2", 0);
 
     var gStates = svg.selectAll("g.node")
-        .data(nodes);
+        .data(NodePanData.step_list);
+    var link = svg.selectAll("g.link");
+//    var transitions = function () {
+//        return NodePanData.step_list.reduce(function (initial, state) {
+//            return initial.concat(
+//                state.transitions.map(function (transition) {
+//                    return {
+//                        source: state,
+//                        target: transition.target
+//                    };
+//                }));
+//        }, []);
+//    };
 
-    var transitions = function () {
-        return nodes.reduce(function (initial, state) {
-            return initial.concat(
-                state.transitions.map(function (transition) {
-                    return {
-                        source: state,
-                        target: transition.target
-                    };
-                }));
-        }, []);
-    };
 
 
+//    var diagonal = d3.svg.diagonal()
+//        .projection(function(d) { return [d.y, d.x]; });
 
-    var computeTransitionPath = /*d3.svg.diagonal.radial()*/
-        function (d) {
-            var deltaX = d.target.x - d.source.x,
-                deltaY = d.target.y - d.source.y,
-                dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
-                normX = deltaX / dist,
-                normY = deltaY / dist,
-                sourcePadding = radius + 2; //d.left ? 17 : 12,
-            targetPadding = radius + 6; //d.right ? 17 : 12,
-            sourceX = d.source.x + (sourcePadding * normX),
-                sourceY = d.source.y + (sourcePadding * normY),
-                targetX = d.target.x - (targetPadding * normX),
-                targetY = d.target.y - (targetPadding * normY);
-            return 'M' + sourceX + ',' + sourceY + 'L' + targetX + ',' + targetY;
-        };
+//    svg.selectAll("g.link")
+//        .data(NodePanData.step_list)
+//        .enter().append("path")
+//        .attr("class", "link")
+//        .attr("d", diagonal);
 
-    //    var gTransitions = svg.append( 'g')
-    //            .selectAll( "path.transition")
-    //            .data( transitions)
-    //        ;
+        var gTransitions = svg.append('g')
+                .selectAll( "path.transition")
+                .data(NodePanData.step_list)
 
-    var startState, endState;
+
     var drag = d3.behavior.drag()
         .on("drag", function (d, i) {
+            if(isLinkDraw) return;
             nodedrag = true;
-            if (startState) {
-                return;
-            }
-
             var selection = d3.selectAll('.selected');
 
             if (selection[0].indexOf(this) == -1) {
@@ -137,45 +142,23 @@ $(document).ready(function () {
             // so that its stays on top
             this.parentNode.appendChild(this);
 
-            //            gTransitions.attr( 'd', computeTransitionPath);
+            //gTransitions.attr( 'd', computeTransitionPath);
             d3.event.sourceEvent.stopPropagation();
         })
         .on("dragend", function (d) {
-            //            if( startState && endState) {
-            //                startState.transitions.push( { label : "transition label 1", target : endState});
-            //                restart();
-            //            }
-            //
-            //            startState = undefined;
+
             nodedrag = false;
             d3.event.sourceEvent.stopPropagation();
         });
 
     svg.on("mousedown", function () {
-        if (!d3.event.ctrlKey) {
-            d3.selectAll('g.selected').classed("selected", false);
-        }
-    })
-        .on("mousemove", function () {
-            var p = d3.mouse(this),
-                s = svg.select("rect.selection");
-
-            if (!s.empty()) {
-                d3.selectAll('g.node.selection.selected').classed("selected", false);
-                d3.selectAll('g.node >circle.inner').each(function (state_data, i) {
-                    if (!d3.select(this).classed("selected") &&
-                        // inner circle inside selection frame
-                        state_data.x - radius >= d.x && state_data.x + radius <= d.x + d.width && state_data.y - radius >= d.y && state_data.y + radius <= d.y + d.height) {
-
-                        d3.select(this.parentNode)
-                            .classed("selection", true)
-                            .classed("selected", true);
-                    }
-                });
-            } else if (startState) {
-                var state = d3.select('g.node.selected');
-                endState = (!state.empty() && state.data()[0]) || undefined;
+            if (!d3.event.ctrlKey) {
+                d3.selectAll('g.selected').classed("selected", false);
             }
+        })
+        .on("mousemove", function () {
+
+
         })
         .on("mouseup", function () {
             d3.selectAll('g.node.selection').classed("selection", false);
@@ -186,15 +169,43 @@ $(document).ready(function () {
             }
         });
 
-    restart();
+
+//    function getHeight(){
+//        max_height = d3.max(NodePanData.step_list, function(d){
+//            return d.x;
+//        });
+//
+//        max_width = d3.max(NodePanData.step_list, function(d){
+//            return d.y;
+//        });
+//
+//        min_height = d3.min(NodePanData.step_list, function(d){
+//            return d.x;
+//        });
+//
+//        min_width = d3.min(NodePanData.step_list, function(d){
+//            return d.y;
+//        });
+//
+////        console.log(max_height+" <> "+min_height);
+////        console.log(max_width+" <> "+min_width);
+////        viewBox="0 0 793 1122"
+////        console.log(max_height,max_width,min_height,min_width);
+//    }
+
+    function updateSVG(){
+        svg.attr("transform", "translate("+translates[0]+","+translates[1]+")scale("+scale+")");
+    }
 
     function restart() {
+        updateSVG();
         svg.attr("width", function () {
             return $(".nodePaneContainer").width();
         }).attr("height", function () {
-                return $(".nodePaneContainer").height();
-         });
-        gStates = gStates.data(nodes);
+            return $(".nodePaneContainer").height();
+        });
+
+        gStates = gStates.data(NodePanData.step_list);
 
         var gState = gStates.enter()
             .append("g")
@@ -208,20 +219,13 @@ $(document).ready(function () {
 
         gState.append("circle")
             .attr({
-                r: radius + 4,
+                r: radius + 5,
                 class: 'outer'
-            })
-            .on("mousedown", function (d) {
-//                startState = d, endState = undefined;
-                // force element to be an top
-                this.parentNode.parentNode.appendChild(this.parentNode);
-//                console.log("mousedown", startState);
             });
-
 
         gState.append("circle")
             .attr({
-                r: radius,
+                r: radius - 3,
                 class: 'inner'
             })
             .on("click", function (d, i) {
@@ -232,9 +236,7 @@ $(document).ready(function () {
                 if (!e.ctrlKey) {
                     d3.selectAll('g.selected').classed("selected", false);
                 }
-
                 d3.select(g).classed("selected", !isSelected);
-
                 // reappend dragged element as last
                 // so that its stays on top
                 g.parentNode.appendChild(g);
@@ -246,27 +248,173 @@ $(document).ready(function () {
                 d3.select(this.parentNode).classed("hover", false);
             });
 
-
         gState.append("text")
             .attr({
                 'text-anchor': 'middle',
-                y: 4
+                y: (radius + 20)
             })
             .text(function (d) {
-                return d.label;
+                return d.name;
             });
 
         gState.append("title").text(function (d) {
-            return d.label;
+            return d.name;
         });
 
-        gStates.exit().remove();
+        var getStartingPoint = function(n,isinput){
+            var sp;
+            if(isinput){
+                sp = 11;
+                if(n>1){
+                    var t = parseInt(n/2);
+                    sp = sp - (t*0.45);
+                }
+            }else{
+                sp= 1.5
+                if(n>1){
+                    var t = parseInt(n/2);
+                    sp = sp + (t*0.45);
+                }
+            }
+            return sp;
+        }
 
-        //        gTransitions = gTransitions.data( transitions);
-        //        gTransitions.enter().append( 'path')
-        //            .attr( 'class', 'transition')
-        //            .attr( 'd', computeTransitionPath)
-        //        ;
-        //        gTransitions.exit().remove();
+        var addPath = function(){
+            if(selectNode && drop){
+                console.log(selectNode,drop);
+                NodePanData.connections.push({source: selectNode, target: drop});
+                console.log(NodePanData.connections)
+                restart();
+            }
+        }
+
+        var inputs = gStates.selectAll('.extraCircle')
+                .data(function(d){
+                if(d.inputList){
+                    var r = radius+15;
+                    var a = getStartingPoint(d.inputList.length,true);
+                    for(t in d.inputList){
+                        d.inputList[t].x = r*Math.sin(a);
+                        d.inputList[t].y = r*Math.cos(a);
+                        a = a + 0.45;
+                    }
+                    return d.inputList;
+                }
+                return [];
+            }).enter()
+                .append("g")
+                .attr({
+                    "transform": function (d) {
+                        return "translate(" + [d.x, d.y] + ")";
+                    },
+                    'class': 'extraCircle'
+                }).on("mousedown", function (d) {
+                    isLinkDraw =true;
+//                    drop = d;
+//                    g = this.parentNode;
+//                    d3.select(g)
+                    var point = d3.mouse(this.parentNode);
+                    drop = {x: point[0], y: point[1]};
+                    console.log("mousedoun"+ d.id)
+                }) .on("mouseup", function (d) {
+                        isLinkDraw =false;
+//                        drop = d;
+                    var point = d3.mouse(this.parentNode);
+                    drop = {x: point[0], y: point[1]};
+                        addPath();
+//                    NodePanData.step_list.push();
+                        console.log("mouseUp"+ d.id);
+                    });
+
+        inputs.append('circle')
+            .attr("r", function(d,i) { return 8; });
+        inputs.append("text")
+            .attr({
+                'text-anchor': 'end',
+                y:5,
+                x:-10
+            })
+            .text(function (d) {
+                return d.name;
+            });
+
+
+        var output = gStates.selectAll('.outPuts')
+            .data(function(d){
+                if(d.outputList){
+                    var r = radius+15;
+                    var a = getStartingPoint(d.outputList.length,false);
+                    for(t in d.outputList){
+                        d.outputList[t].x = r*Math.sin(a);
+                        d.outputList[t].y = r*Math.cos(a);
+                        a = a + 0.45;
+                    }
+                    return d.outputList;
+                }
+                return [];
+            }).enter()
+            .append("g")
+            .attr({
+                "transform": function (d) {
+                    return "translate(" + [d.x, d.y] + ")";
+                },
+                'class': 'outPuts'
+            }).on("mousedown", function (d) {
+                isLinkDraw =true;
+//                selectNode = d;
+                console.log("mousedoun")
+                var point = d3.mouse(this.parentNode);
+                selectNode = {x: point[0], y: point[1]};
+            }) .on("mouseup", function (d) {
+                isLinkDraw =false;
+//                selectNode = d;
+                var point = d3.mouse(this.parentNode);
+                selectNode = {x: point[0], y: point[1]};
+                addPath();
+                console.log("mouseUp")
+            });
+
+        output.append('circle')
+            .attr("r", function(d,i) { return 8; });
+        output.append("text")
+            .attr({
+                'text-anchor': 'start',
+                y:5,
+                x:10
+            })
+            .text(function (d) {
+                return d.name;
+            });
+
+
+        gStates.exit().remove();
+        link = link.data(NodePanData.connections);
+
+        link.enter().insert("line")
+            .attr("class", "link");
+//            .on("mousedown",
+//            function(d) {
+//                mousedown_link = d;
+//                if (mousedown_link == selected_link) selected_link = null;
+//                else selected_link = mousedown_link;
+//                selected_node = null;
+//                redraw();
+//            })
+
+        link.exit().remove();
+
+//        link.classed("link_selected", function(d) { return d === selected_link; });
+//        gTransitions = gTransitions.data(transitions);
+//        gTransitions.enter().append( 'path')
+//            .attr( 'class', 'transition')
+//            .attr( 'd', computeTransitionPath)
+//        ;
+//        gTransitions.exit().remove();
     };
+
+    d3.json("data/todos.json", function(error, json) {
+//        console.log(json);
+        ToolList = json.todos;
+        restart();
+    });
 });

@@ -1,0 +1,286 @@
+{"todos": [
+    {
+      "id": 336357,
+      "name": "Reference Genome",
+      "type": "data_io.input_file",
+      "params": {
+        "path": [
+          "/Projects/31/ucsc.hg19.fasta"
+        ],
+        "descriptionText": "We recommend inputting the most recent build of the human genome (hg19). To use this file in an analysis, make sure you copy if from Public Resources > Files to your project. "
+      },
+      "inputList":[
+          {
+            "id": 336357,
+            "name": "Genome2",
+            "type": "1"
+          },
+          {
+            "id": 3363566,
+            "name": "Genome3",
+            "type": "1"
+          },
+          {
+            "id": 336357123,
+            "name": " Genome4",
+            "type": "1"
+          },
+          {
+            "id": 336357213,
+            "name": " Genome5",
+            "type": "1"
+          }
+      ],
+      "outputList":[
+          {
+            "id": 33635721321,
+            "name": " Genome Out 2",
+            "type": "2"
+          }
+      ]
+    },
+    {
+      "id": 608683,
+      "name": "Splice Junction Annotations",
+      "type": "data_io.input_file",
+      "params": {
+        "path": [
+          "/Projects/31/human_hg19_genes.gtf"
+        ],
+        "descriptionText": "This must be compatible with your Reference Genome FASTA. "
+      },
+      "inputList":[
+          {
+            "id": 33635127,
+            "name": "Reference Genome2",
+            "type": "2"
+          }          
+      ],
+      "outputList":[
+          {
+            "id": 33631121,
+            "name": "Reference Genome Out 3",
+            "type": "3"
+          }
+      ]
+    },
+    {
+      "id": 1189999,
+      "name": "Reads",
+      "type": "data_io.batch_input",
+      "params": {
+        "descriptionText": ""
+      },
+       "inputList":[
+          {
+            "id": 33635127,
+            "name": "Reference Genome2",
+            "type": "2"
+          }          
+      ],
+      "outputList":[
+          {
+            "id": 33631121,
+            "name": "Reference Genome Out 3",
+            "type": "3"
+          }
+      ]
+    },
+    {
+      "id": 966436,
+      "name": "Bowtie 2",
+      "type": "bowtie2",
+      "params": {
+        "alignment_mode": "--local",
+        "b2_preset": "--very-sensitive",
+        "b2_qc_filter": true
+      },
+      "inputList":[
+          {
+            "id": 3363115127,
+            "name": "Reference Genome2",
+            "type": "2"
+          }          
+      ],
+      "outputList":[
+          {
+            "id": 3363341121,
+            "name": "Reference Genome Out 3",
+            "type": "3"
+          }
+      ]
+    },
+    {
+      "id": 1188222,
+      "name": "SAM to BAM",
+      "type": "samtools.sam2bam",
+      "params": {},
+      "inputList":[
+          {
+            "id": 3363512117,
+            "name": "Reference Genome2",
+            "type": "2"
+          }          
+      ],
+      "outputList":[
+          {
+            "id": 3363112781,
+            "name": "Reference Genome Out 3",
+            "type": "3"
+          }
+      ]
+    },
+    {
+      "id": 1203088,
+      "name": "Picard Sort",
+      "type": "picard.sort",
+      "params": {},
+      "inputList":[
+          {
+            "id": 3316351273,
+            "name": "Reference Genome2",
+            "type": "2"
+          }          
+      ],
+      "outputList":[
+          {
+            "id": 3223631121,
+            "name": "Reference Genome Out 3",
+            "type": "3"
+          }
+      ]
+    },
+    {
+      "id": 1212993,
+      "name": "Picard Merge",
+      "type": "picard.merge",
+      "params": {},
+      "inputList":[
+          {
+            "id": 33635127388,
+            "name": "Reference Genome2",
+            "type": "2"
+          }          
+      ],
+      "outputList":[
+          {
+            "id": 33631121666,
+            "name": "Reference Genome Out 3",
+            "type": "3"
+          }
+      ]
+    },
+    {
+      "id": 1359558,
+      "name": "Picard Index",
+      "type": "picard.bamindex",
+      "params": {},
+      "inputList":[
+          {
+            "id": 33635156827,
+            "name": "Reference Genome2",
+            "type": "2"
+          }          
+      ],
+      "outputList":[
+          {
+            "id": 33631789121,
+            "name": "Reference Genome Out 3",
+            "type": "3"
+          }
+      ]
+    },
+    {
+      "id": 1373879,
+      "name": "AlignmentSummaryMetrics",
+      "type": "picard.CollectAlignmentSummaryMetrics",
+      "params": {}
+    },
+    {
+      "id": 1380335,
+      "name": "Metrics",
+      "type": "data_io.output_file",
+      "params": {},
+      "inputList":[
+          {
+            "id": 33635474127,
+            "name": "Reference Genome2",
+            "type": "2"
+          }          
+      ],
+      "outputList":[
+          {
+            "id": 33631963121,
+            "name": "Reference Genome Out 3",
+            "type": "3"
+          }
+      ]
+    },
+    {
+      "id": 1383254,
+      "name": "Aligned Reads",
+      "type": "data_io.output_file",
+      "params": {},
+      "inputList":[
+          {
+            "id": 33631115127,
+            "name": "Reference Genome2",
+            "type": "2"
+          }          
+      ],
+      "outputList":[
+          {
+            "id": 3363122121,
+            "name": "Reference Genome Out 3",
+            "type": "3"
+          }
+      ]
+    },
+    {
+      "id": 1611848,
+      "name": "Picard Mark Duplicates",
+      "type": "picard.dedupe",
+      "params": {}
+    },
+    {
+      "id": 1931395,
+      "name": "Picard Sort",
+      "type": "picard.sort",
+      "params": {}
+    },
+    {
+      "id": 283331,
+      "name": "STAR",
+      "type": "star",
+      "params": {
+        "clip3pAdapterSeq": "GGCCAAGGCG",
+        "outReadsUnmapped": "Fastx"
+      }
+    },
+    {
+      "id": 450814,
+      "name": "Set Metadata",
+      "type": "sbgtools.metaedit",
+      "params": {
+        "file_type": "fastq"
+      }
+    },
+    {
+      "id": 537571,
+      "name": "SAMtools SAM to BAM",
+      "type": "samtools.sam2bam",
+      "params": {}
+    },
+    {
+      "id": 575792,
+      "name": "Chimeric Output",
+      "type": "data_io.output_file",
+      "params": {}
+    },
+    {
+      "id": 658245,
+      "name": "Splice Junctions Output",
+      "type": "data_io.output_file",
+      "params": {}
+    }
+  ]}
