@@ -73,10 +73,18 @@ g.node.hover text{
     opacity: 1;
 }
 
+g.extraCircle.hover text{
+    opacity: 1;
+}
+
+g.outPuts.hover text{
+    opacity: 1;
+}
+
 path.transition, path.dragline {
     fill : none;
     stroke : #000;
-    stroke-width: 1px;
+    stroke-width: 5px;
     cursor : default;
     marker-end : url(#end-arrow);
 }
@@ -84,7 +92,7 @@ path.dragline {
     pointer-events: none;
 }
 path.dragline.hidden {
-    stroke-width: 0;
+    stroke-width: 0px;
 }
 /* disable text selection */
 svg *::selection {

@@ -9,7 +9,7 @@
         ],
         "descriptionText": "We recommend inputting the most recent build of the human genome (hg19). To use this file in an analysis, make sure you copy if from Public Resources > Files to your project. "
       },
-      "inputList":[
+      "input_list":[
           {
             "id": 336357,
             "name": "Genome2",
@@ -31,7 +31,7 @@
             "type": "1"
           }
       ],
-      "outputList":[
+      "output_list":[
           {
             "id": 33635721321,
             "name": " Genome Out 2",
@@ -49,14 +49,14 @@
         ],
         "descriptionText": "This must be compatible with your Reference Genome FASTA. "
       },
-      "inputList":[
+      "input_list":[
           {
             "id": 33635127,
             "name": "Reference Genome2",
             "type": "2"
           }          
       ],
-      "outputList":[
+      "output_list":[
           {
             "id": 33631121,
             "name": "Reference Genome Out 3",
@@ -71,14 +71,14 @@
       "params": {
         "descriptionText": ""
       },
-       "inputList":[
+       "input_list":[
           {
             "id": 33635127,
             "name": "Reference Genome2",
             "type": "2"
           }          
       ],
-      "outputList":[
+      "output_list":[
           {
             "id": 33631121,
             "name": "Reference Genome Out 3",
@@ -95,14 +95,14 @@
         "b2_preset": "--very-sensitive",
         "b2_qc_filter": true
       },
-      "inputList":[
+      "input_list":[
           {
             "id": 3363115127,
             "name": "Reference Genome2",
             "type": "2"
           }          
       ],
-      "outputList":[
+      "output_list":[
           {
             "id": 3363341121,
             "name": "Reference Genome Out 3",
@@ -115,14 +115,14 @@
       "name": "SAM to BAM",
       "type": "samtools.sam2bam",
       "params": {},
-      "inputList":[
+      "input_list":[
           {
             "id": 3363512117,
             "name": "Reference Genome2",
             "type": "2"
           }          
       ],
-      "outputList":[
+      "output_list":[
           {
             "id": 3363112781,
             "name": "Reference Genome Out 3",
@@ -135,14 +135,14 @@
       "name": "Picard Sort",
       "type": "picard.sort",
       "params": {},
-      "inputList":[
+      "input_list":[
           {
             "id": 3316351273,
             "name": "Reference Genome2",
             "type": "2"
           }          
       ],
-      "outputList":[
+      "output_list":[
           {
             "id": 3223631121,
             "name": "Reference Genome Out 3",
@@ -155,14 +155,14 @@
       "name": "Picard Merge",
       "type": "picard.merge",
       "params": {},
-      "inputList":[
+      "input_list":[
           {
             "id": 33635127388,
             "name": "Reference Genome2",
             "type": "2"
           }          
       ],
-      "outputList":[
+      "output_list":[
           {
             "id": 33631121666,
             "name": "Reference Genome Out 3",
@@ -175,14 +175,14 @@
       "name": "Picard Index",
       "type": "picard.bamindex",
       "params": {},
-      "inputList":[
+      "input_list":[
           {
             "id": 33635156827,
             "name": "Reference Genome2",
             "type": "2"
           }          
       ],
-      "outputList":[
+      "output_list":[
           {
             "id": 33631789121,
             "name": "Reference Genome Out 3",
@@ -201,14 +201,14 @@
       "name": "Metrics",
       "type": "data_io.output_file",
       "params": {},
-      "inputList":[
+      "input_list":[
           {
             "id": 33635474127,
             "name": "Reference Genome2",
             "type": "2"
           }          
       ],
-      "outputList":[
+      "output_list":[
           {
             "id": 33631963121,
             "name": "Reference Genome Out 3",
@@ -221,14 +221,14 @@
       "name": "Aligned Reads",
       "type": "data_io.output_file",
       "params": {},
-      "inputList":[
+      "input_list":[
           {
             "id": 33631115127,
             "name": "Reference Genome2",
             "type": "2"
           }          
       ],
-      "outputList":[
+      "output_list":[
           {
             "id": 3363122121,
             "name": "Reference Genome Out 3",

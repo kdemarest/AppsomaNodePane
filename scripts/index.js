@@ -2,7 +2,7 @@ var translates = [0,0];
 var scale = 1;
 var ToolList = {};
 var isLinkDraw = false;
-var selectNode,drop;
+var source_node,target_node,output_node,input_node;
 
 var NodePanData ={step_list:[],connections:[]};
 $(document).ready(function () {
@@ -42,7 +42,6 @@ $(document).ready(function () {
         over: function (event, ui) {
             var posX = event.originalEvent.clientX - $(this).offset().left;
             var posY = event.originalEvent.clientY - $(this).offset().top;
-//            console.log(posX, posY);
         },
 
         out: function (event, ui) {
@@ -70,7 +69,7 @@ $(document).ready(function () {
         .attr("height", function () {
             return $(".nodePaneContainer").height();
         })
-        .call(d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", zoom))
+        .call(d3.behavior.zoom().scaleExtent([1,4]).on("zoom", zoom))
         .append("g");
 
     /* Zoom function*/
@@ -78,48 +77,71 @@ $(document).ready(function () {
         if(!nodedrag && !isLinkDraw){
             translates = d3.event.translate;
             scale = d3.event.scale;
-//            console.log(d3.event.translate,d3.event.scale);
             svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
         }
 
     }
-//    var drag_line = svg.append("line")
-//        .attr("class", "drag_line")
-//        .attr("x1", 0)
-//        .attr("y1", 0)
-//        .attr("x2", 0)
-//        .attr("y2", 0);
+
+    var drag_line = svg.append('g').append('path')
+            .attr('class','dragline hidden')
+            .attr('d', 'M0,0L0,0');
+
+    d3.select('#nodeEditor').on('mousemove', function(){
+        if(isLinkDraw){
+            var p = d3.mouse(this);
+            var sourceX,sourceY;
+            if(source_node){
+                sourceX = (source_node.x+output_node.x);
+                sourceY = (source_node.y+output_node.y);
+            }else{
+                sourceX = (target_node.x+input_node.x);
+                sourceY = (target_node.y+input_node.y);
+            }
+
+            var nobj = {
+                source : {
+                    x: sourceX,
+                    y: sourceY
+                },
+                target : {
+                    x: p[0],
+                    y: p[1]
+                }
+            }
+            drag_line.attr('d',diagonal.apply(this, [nobj]));
+        }
+    }).on("mouseup", function () {
+           if(isLinkDraw){
+               resetParameters();
+           }
+        });
 
     var gStates = svg.selectAll("g.node")
         .data(NodePanData.step_list);
-    var link = svg.selectAll("g.link");
-//    var transitions = function () {
-//        return NodePanData.step_list.reduce(function (initial, state) {
-//            return initial.concat(
-//                state.transitions.map(function (transition) {
-//                    return {
-//                        source: state,
-//                        target: transition.target
-//                    };
-//                }));
-//        }, []);
-//    };
+    var diagonal = d3.svg.diagonal();
+    var computeTransitionPath = function( d) {
+        sourceX = (d.source.x+d.output.x),
+            sourceY = (d.source.y+d.output.y),
+            targetX = (d.target.x+d.input.x),
+            targetY = (d.target.y+d.input.y);
 
+        var nobj = {
+            source : {
+                x: sourceX,
+                y: sourceY
+            },
+            target : {
+                x: targetX,
+                y: targetY
+            }
+        }
+        return diagonal.apply(this, [nobj]);
+//        return 'M' + sourceX + ',' + sourceY + 'L' + targetX + ',' + targetY;
+    };
 
-
-//    var diagonal = d3.svg.diagonal()
-//        .projection(function(d) { return [d.y, d.x]; });
-
-//    svg.selectAll("g.link")
-//        .data(NodePanData.step_list)
-//        .enter().append("path")
-//        .attr("class", "link")
-//        .attr("d", diagonal);
-
-        var gTransitions = svg.append('g')
-                .selectAll( "path.transition")
-                .data(NodePanData.step_list)
-
+    var gTransitions = svg.append('g')
+            .selectAll("path.transition")
+            .data(NodePanData.step_list)
 
     var drag = d3.behavior.drag()
         .on("drag", function (d, i) {
@@ -142,11 +164,10 @@ $(document).ready(function () {
             // so that its stays on top
             this.parentNode.appendChild(this);
 
-            //gTransitions.attr( 'd', computeTransitionPath);
+            gTransitions.attr( 'd', computeTransitionPath);
             d3.event.sourceEvent.stopPropagation();
         })
         .on("dragend", function (d) {
-
             nodedrag = false;
             d3.event.sourceEvent.stopPropagation();
         });
@@ -157,7 +178,6 @@ $(document).ready(function () {
             }
         })
         .on("mousemove", function () {
-
 
         })
         .on("mouseup", function () {
@@ -170,31 +190,37 @@ $(document).ready(function () {
         });
 
 
-//    function getHeight(){
-//        max_height = d3.max(NodePanData.step_list, function(d){
-//            return d.x;
-//        });
-//
-//        max_width = d3.max(NodePanData.step_list, function(d){
-//            return d.y;
-//        });
-//
-//        min_height = d3.min(NodePanData.step_list, function(d){
-//            return d.x;
-//        });
-//
-//        min_width = d3.min(NodePanData.step_list, function(d){
-//            return d.y;
-//        });
-//
-////        console.log(max_height+" <> "+min_height);
-////        console.log(max_width+" <> "+min_width);
-////        viewBox="0 0 793 1122"
-////        console.log(max_height,max_width,min_height,min_width);
-//    }
-
     function updateSVG(){
         svg.attr("transform", "translate("+translates[0]+","+translates[1]+")scale("+scale+")");
+    }
+    function resetParameters(){
+        source_node = undefined;
+        target_node = undefined;
+        input_node = undefined;
+        output_node = undefined;
+        isLinkDraw = false;
+        var nobj = {
+            source : {
+                x: 0,
+                y: 0
+            },
+            target : {
+                x: 0,
+                y: 0
+            }
+        }
+        drag_line
+            .classed('hidden', true)
+            .attr('d',diagonal.apply(this, [nobj]));
+    }
+    var addPath = function(){
+        if(source_node && target_node && input_node && output_node){
+            if(source_node != target_node){
+                NodePanData.connections.push({source: source_node, target: target_node,output:output_node,input:input_node});
+                restart();
+            }
+        }
+        resetParameters();
     }
 
     function restart() {
@@ -214,6 +240,36 @@ $(document).ready(function () {
                     return "translate(" + [d.x, d.y] + ")";
                 },
                 'class': 'node'
+            }).on("mousedown", function (d) {
+                source_node = d;
+                if(isLinkDraw){
+                    var p = d3.mouse( this);
+                    var sourceX,sourceY;
+                    if(source_node){
+                        sourceX = (source_node.x+output_node.x);
+                        sourceY = (source_node.y+output_node.y);
+                    }else{
+                        sourceX = (target_node.x+input_node.x);
+                        sourceY = (target_node.y+input_node.y);
+                    }
+
+                    var nobj = {
+                        source : {
+                            x: sourceX,
+                            y: sourceY
+                        },
+                        target : {
+                            x: sourceX,
+                            y: sourceY
+                        }
+                    }
+                    drag_line
+                        .classed('hidden', false)
+                        .attr('d',diagonal.apply(this, [nobj]));
+                }
+            }).on("mouseup", function (d) {
+                target_node = d;
+                addPath();
             })
             .call(drag);
 
@@ -279,26 +335,19 @@ $(document).ready(function () {
             return sp;
         }
 
-        var addPath = function(){
-            if(selectNode && drop){
-                console.log(selectNode,drop);
-                NodePanData.connections.push({source: selectNode, target: drop});
-                console.log(NodePanData.connections)
-                restart();
-            }
-        }
+
 
         var inputs = gStates.selectAll('.extraCircle')
                 .data(function(d){
-                if(d.inputList){
+                if(d.input_list){
                     var r = radius+15;
-                    var a = getStartingPoint(d.inputList.length,true);
-                    for(t in d.inputList){
-                        d.inputList[t].x = r*Math.sin(a);
-                        d.inputList[t].y = r*Math.cos(a);
+                    var a = getStartingPoint(d.input_list.length,true);
+                    for(t in d.input_list){
+                        d.input_list[t].x = r*Math.sin(a);
+                        d.input_list[t].y = r*Math.cos(a);
                         a = a + 0.45;
                     }
-                    return d.inputList;
+                    return d.input_list;
                 }
                 return [];
             }).enter()
@@ -310,24 +359,20 @@ $(document).ready(function () {
                     'class': 'extraCircle'
                 }).on("mousedown", function (d) {
                     isLinkDraw =true;
-//                    drop = d;
-//                    g = this.parentNode;
-//                    d3.select(g)
-                    var point = d3.mouse(this.parentNode);
-                    drop = {x: point[0], y: point[1]};
-                    console.log("mousedoun"+ d.id)
+                    output_node = d;
                 }) .on("mouseup", function (d) {
-                        isLinkDraw =false;
-//                        drop = d;
-                    var point = d3.mouse(this.parentNode);
-                    drop = {x: point[0], y: point[1]};
-                        addPath();
-//                    NodePanData.step_list.push();
-                        console.log("mouseUp"+ d.id);
-                    });
+                    isLinkDraw =false;
+                    input_node = d;
+                });
 
         inputs.append('circle')
-            .attr("r", function(d,i) { return 8; });
+            .attr("r", function(d,i) { return 8; })
+            .on("mouseover", function () {
+                d3.select(this.parentNode).classed("hover", true);
+            })
+            .on("mouseout", function () {
+                d3.select(this.parentNode).classed("hover", false);
+            });
         inputs.append("text")
             .attr({
                 'text-anchor': 'end',
@@ -341,15 +386,15 @@ $(document).ready(function () {
 
         var output = gStates.selectAll('.outPuts')
             .data(function(d){
-                if(d.outputList){
+                if(d.output_list){
                     var r = radius+15;
-                    var a = getStartingPoint(d.outputList.length,false);
-                    for(t in d.outputList){
-                        d.outputList[t].x = r*Math.sin(a);
-                        d.outputList[t].y = r*Math.cos(a);
+                    var a = getStartingPoint(d.output_list.length,false);
+                    for(t in d.output_list){
+                        d.output_list[t].x = r*Math.sin(a);
+                        d.output_list[t].y = r*Math.cos(a);
                         a = a + 0.45;
                     }
-                    return d.outputList;
+                    return d.output_list;
                 }
                 return [];
             }).enter()
@@ -361,21 +406,20 @@ $(document).ready(function () {
                 'class': 'outPuts'
             }).on("mousedown", function (d) {
                 isLinkDraw =true;
-//                selectNode = d;
-                console.log("mousedoun")
-                var point = d3.mouse(this.parentNode);
-                selectNode = {x: point[0], y: point[1]};
+                output_node = d;
             }) .on("mouseup", function (d) {
                 isLinkDraw =false;
-//                selectNode = d;
-                var point = d3.mouse(this.parentNode);
-                selectNode = {x: point[0], y: point[1]};
-                addPath();
-                console.log("mouseUp")
+                input_node = d;
             });
 
         output.append('circle')
-            .attr("r", function(d,i) { return 8; });
+            .attr("r", function(d,i) { return 8; })
+            .on("mouseover", function () {
+                d3.select(this.parentNode).classed("hover", true);
+            })
+            .on("mouseout", function () {
+                d3.select(this.parentNode).classed("hover", false);
+            });
         output.append("text")
             .attr({
                 'text-anchor': 'start',
@@ -388,28 +432,13 @@ $(document).ready(function () {
 
 
         gStates.exit().remove();
-        link = link.data(NodePanData.connections);
 
-        link.enter().insert("line")
-            .attr("class", "link");
-//            .on("mousedown",
-//            function(d) {
-//                mousedown_link = d;
-//                if (mousedown_link == selected_link) selected_link = null;
-//                else selected_link = mousedown_link;
-//                selected_node = null;
-//                redraw();
-//            })
-
-        link.exit().remove();
-
-//        link.classed("link_selected", function(d) { return d === selected_link; });
-//        gTransitions = gTransitions.data(transitions);
-//        gTransitions.enter().append( 'path')
-//            .attr( 'class', 'transition')
-//            .attr( 'd', computeTransitionPath)
-//        ;
-//        gTransitions.exit().remove();
+        gTransitions = gTransitions.data( NodePanData.connections);
+        gTransitions.enter().append( 'path')
+            .attr( 'class', 'transition')
+            .attr( 'd', computeTransitionPath)
+        ;
+        gTransitions.exit().remove();
     };
 
     d3.json("data/todos.json", function(error, json) {
