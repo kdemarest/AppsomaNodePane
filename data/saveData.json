@@ -1,0 +1,424 @@
+{
+  "NodePanData": {
+    "step_list": [
+      {
+        "id": 336357,
+        "name": "Reference Genome",
+        "type": "data_io.input_file",
+        "params": {
+          "path": [
+            "/Projects/31/ucsc.hg19.fasta"
+          ],
+          "descriptionText": "We recommend inputting the most recent build of the human genome (hg19). To use this file in an analysis, make sure you copy if from Public Resources > Files to your project. "
+        },
+        "input_list": [
+          {
+            "id": 336357,
+            "name": "Genome2",
+            "type": "1",
+            "x": -34.378885689108515,
+            "y": -42.9312499093051
+          },
+          {
+            "id": 3363566,
+            "name": "Genome3",
+            "type": "1",
+            "x": -49.629982047735254,
+            "y": -23.703689205300428
+          },
+          {
+            "id": 336357123,
+            "name": " Genome4",
+            "type": "1",
+            "x": -54.99946136028869,
+            "y": 0.2434133893426955
+          },
+          {
+            "id": 336357213,
+            "name": " Genome5",
+            "type": "1",
+            "x": -49.41822917792472,
+            "y": 24.142050967515377
+          }
+        ],
+        "output_list": [
+          {
+            "id": 33635721321,
+            "name": " Genome Out 2",
+            "type": "2",
+            "x": 54.86222426322299,
+            "y": 3.89054609172366
+          }
+        ],
+        "x": 298,
+        "y": 206
+      },
+      {
+        "id": 1189999,
+        "name": "Reads",
+        "type": "data_io.batch_input",
+        "params": {
+          "descriptionText": ""
+        },
+        "input_list": [
+          {
+            "id": 33635127,
+            "name": "Reference Genome2",
+            "type": "2",
+            "x": -54.99946136028869,
+            "y": 0.2434133893427932
+          }
+        ],
+        "output_list": [
+          {
+            "id": 33631121,
+            "name": "Reference Genome Out 3",
+            "type": "3",
+            "x": 54.86222426322299,
+            "y": 3.89054609172366
+          }
+        ],
+        "x": 82,
+        "y": 85
+      },
+      {
+        "id": 1203088,
+        "name": "Picard Sort",
+        "type": "picard.sort",
+        "params": {},
+        "input_list": [
+          {
+            "id": 3316351273,
+            "name": "Reference Genome2",
+            "type": "2",
+            "x": -54.99946136028869,
+            "y": 0.2434133893427932
+          }
+        ],
+        "output_list": [
+          {
+            "id": 3223631121,
+            "name": "Reference Genome Out 3",
+            "type": "3",
+            "x": 54.86222426322299,
+            "y": 3.89054609172366
+          }
+        ],
+        "x": 75,
+        "y": 279
+      },
+      {
+        "id": 1212993,
+        "name": "Picard Merge",
+        "type": "picard.merge",
+        "params": {},
+        "input_list": [
+          {
+            "id": 33635127388,
+            "name": "Reference Genome2",
+            "type": "2",
+            "x": -54.99946136028869,
+            "y": 0.2434133893427932
+          }
+        ],
+        "output_list": [
+          {
+            "id": 33631121666,
+            "name": "Reference Genome Out 3",
+            "type": "3",
+            "x": 54.86222426322299,
+            "y": 3.89054609172366
+          }
+        ],
+        "x": 498,
+        "y": 88
+      }
+    ],
+    "connections": [
+      {
+        "source": {
+          "id": 1189999,
+          "name": "Reads",
+          "type": "data_io.batch_input",
+          "params": {
+            "descriptionText": ""
+          },
+          "input_list": [
+            {
+              "id": 33635127,
+              "name": "Reference Genome2",
+              "type": "2",
+              "x": -54.99946136028869,
+              "y": 0.2434133893427932
+            }
+          ],
+          "output_list": [
+            {
+              "id": 33631121,
+              "name": "Reference Genome Out 3",
+              "type": "3",
+              "x": 54.86222426322299,
+              "y": 3.89054609172366
+            }
+          ],
+          "x": 82,
+          "y": 85
+        },
+        "target": {
+          "id": 336357,
+          "name": "Reference Genome",
+          "type": "data_io.input_file",
+          "params": {
+            "path": [
+              "/Projects/31/ucsc.hg19.fasta"
+            ],
+            "descriptionText": "We recommend inputting the most recent build of the human genome (hg19). To use this file in an analysis, make sure you copy if from Public Resources > Files to your project. "
+          },
+          "input_list": [
+            {
+              "id": 336357,
+              "name": "Genome2",
+              "type": "1",
+              "x": -34.378885689108515,
+              "y": -42.9312499093051
+            },
+            {
+              "id": 3363566,
+              "name": "Genome3",
+              "type": "1",
+              "x": -49.629982047735254,
+              "y": -23.703689205300428
+            },
+            {
+              "id": 336357123,
+              "name": " Genome4",
+              "type": "1",
+              "x": -54.99946136028869,
+              "y": 0.2434133893426955
+            },
+            {
+              "id": 336357213,
+              "name": " Genome5",
+              "type": "1",
+              "x": -49.41822917792472,
+              "y": 24.142050967515377
+            }
+          ],
+          "output_list": [
+            {
+              "id": 33635721321,
+              "name": " Genome Out 2",
+              "type": "2",
+              "x": 54.86222426322299,
+              "y": 3.89054609172366
+            }
+          ],
+          "x": 298,
+          "y": 206
+        },
+        "output": {
+          "id": 33631121,
+          "name": "Reference Genome Out 3",
+          "type": "3",
+          "x": 54.86222426322299,
+          "y": 3.89054609172366
+        },
+        "input": {
+          "id": 336357,
+          "name": "Genome2",
+          "type": "1",
+          "x": -34.378885689108515,
+          "y": -42.9312499093051
+        }
+      },
+      {
+        "source": {
+          "id": 1203088,
+          "name": "Picard Sort",
+          "type": "picard.sort",
+          "params": {},
+          "input_list": [
+            {
+              "id": 3316351273,
+              "name": "Reference Genome2",
+              "type": "2",
+              "x": -54.99946136028869,
+              "y": 0.2434133893427932
+            }
+          ],
+          "output_list": [
+            {
+              "id": 3223631121,
+              "name": "Reference Genome Out 3",
+              "type": "3",
+              "x": 54.86222426322299,
+              "y": 3.89054609172366
+            }
+          ],
+          "x": 75,
+          "y": 279
+        },
+        "target": {
+          "id": 336357,
+          "name": "Reference Genome",
+          "type": "data_io.input_file",
+          "params": {
+            "path": [
+              "/Projects/31/ucsc.hg19.fasta"
+            ],
+            "descriptionText": "We recommend inputting the most recent build of the human genome (hg19). To use this file in an analysis, make sure you copy if from Public Resources > Files to your project. "
+          },
+          "input_list": [
+            {
+              "id": 336357,
+              "name": "Genome2",
+              "type": "1",
+              "x": -34.378885689108515,
+              "y": -42.9312499093051
+            },
+            {
+              "id": 3363566,
+              "name": "Genome3",
+              "type": "1",
+              "x": -49.629982047735254,
+              "y": -23.703689205300428
+            },
+            {
+              "id": 336357123,
+              "name": " Genome4",
+              "type": "1",
+              "x": -54.99946136028869,
+              "y": 0.2434133893426955
+            },
+            {
+              "id": 336357213,
+              "name": " Genome5",
+              "type": "1",
+              "x": -49.41822917792472,
+              "y": 24.142050967515377
+            }
+          ],
+          "output_list": [
+            {
+              "id": 33635721321,
+              "name": " Genome Out 2",
+              "type": "2",
+              "x": 54.86222426322299,
+              "y": 3.89054609172366
+            }
+          ],
+          "x": 298,
+          "y": 206
+        },
+        "output": {
+          "id": 3223631121,
+          "name": "Reference Genome Out 3",
+          "type": "3",
+          "x": 54.86222426322299,
+          "y": 3.89054609172366
+        },
+        "input": {
+          "id": 336357213,
+          "name": " Genome5",
+          "type": "1",
+          "x": -49.41822917792472,
+          "y": 24.142050967515377
+        }
+      },
+      {
+        "source": {
+          "id": 336357,
+          "name": "Reference Genome",
+          "type": "data_io.input_file",
+          "params": {
+            "path": [
+              "/Projects/31/ucsc.hg19.fasta"
+            ],
+            "descriptionText": "We recommend inputting the most recent build of the human genome (hg19). To use this file in an analysis, make sure you copy if from Public Resources > Files to your project. "
+          },
+          "input_list": [
+            {
+              "id": 336357,
+              "name": "Genome2",
+              "type": "1",
+              "x": -34.378885689108515,
+              "y": -42.9312499093051
+            },
+            {
+              "id": 3363566,
+              "name": "Genome3",
+              "type": "1",
+              "x": -49.629982047735254,
+              "y": -23.703689205300428
+            },
+            {
+              "id": 336357123,
+              "name": " Genome4",
+              "type": "1",
+              "x": -54.99946136028869,
+              "y": 0.2434133893426955
+            },
+            {
+              "id": 336357213,
+              "name": " Genome5",
+              "type": "1",
+              "x": -49.41822917792472,
+              "y": 24.142050967515377
+            }
+          ],
+          "output_list": [
+            {
+              "id": 33635721321,
+              "name": " Genome Out 2",
+              "type": "2",
+              "x": 54.86222426322299,
+              "y": 3.89054609172366
+            }
+          ],
+          "x": 298,
+          "y": 206
+        },
+        "target": {
+          "id": 1212993,
+          "name": "Picard Merge",
+          "type": "picard.merge",
+          "params": {},
+          "input_list": [
+            {
+              "id": 33635127388,
+              "name": "Reference Genome2",
+              "type": "2",
+              "x": -54.99946136028869,
+              "y": 0.2434133893427932
+            }
+          ],
+          "output_list": [
+            {
+              "id": 33631121666,
+              "name": "Reference Genome Out 3",
+              "type": "3",
+              "x": 54.86222426322299,
+              "y": 3.89054609172366
+            }
+          ],
+          "x": 498,
+          "y": 88
+        },
+        "output": {
+          "id": 33635721321,
+          "name": " Genome Out 2",
+          "type": "2",
+          "x": 54.86222426322299,
+          "y": 3.89054609172366
+        },
+        "input": {
+          "id": 33635127388,
+          "name": "Reference Genome2",
+          "type": "2",
+          "x": -54.99946136028869,
+          "y": 0.2434133893427932
+        }
+      }
+    ]
+  }
+}

@@ -72,12 +72,41 @@ $(document).ready(function () {
         .call(d3.behavior.zoom().scaleExtent([1,4]).on("zoom", zoom))
         .append("g");
 
+    var defs = svg.append( 'defs' );
+    var filter = defs.append( 'filter' )
+                .attr( 'id', 'dropShadow' )
+    filter.append( 'feGaussianBlur' )
+        .attr( 'in', 'SourceAlpha' )
+        .attr( 'stdDeviation', 5 ) // !!! important parameter - blur
+        .attr( 'result', 'blur' );
+    filter.append( 'feOffset' )
+        .attr( 'in', 'blur' )
+        .attr( 'dx', 2 ) // !!! important parameter - x-offset
+        .attr( 'dy', 2 ) // !!! important parameter - y-offset
+        .attr( 'result', 'offsetBlur' );
+    var feMerge = filter.append( 'feMerge' );
+    feMerge.append( 'feMergeNode' )
+        .attr( 'in", "offsetBlur' )
+    feMerge.append( 'feMergeNode' )
+        .attr( 'in', 'SourceGraphic' );
+//    <filter id="dropShadow">
+//        <feGaussianBlur in="SourceAlpha" stdDeviation="5" />
+//        <feOffset dx="2" dy="2" />
+//        <feMerge>
+//            <feMergeNode />
+//            <feMergeNode in="SourceGraphic" />
+//        </feMerge>
+//    </filter>
+//
+//    <circle cx="60"  cy="60" r="50" fill="green"
+//    filter="url(#dropShadow)" />
     /* Zoom function*/
     function zoom() {
         if(!nodedrag && !isLinkDraw){
             translates = d3.event.translate;
             scale = d3.event.scale;
             svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+            restart();
         }
 
     }
@@ -104,8 +133,8 @@ $(document).ready(function () {
                     y: sourceY
                 },
                 target : {
-                    x: p[0],
-                    y: p[1]
+                    x: p[0]-translates[0],
+                    y: p[1]-translates[1]
                 }
             }
             drag_line.attr('d',diagonal.apply(this, [nobj]));
@@ -278,6 +307,7 @@ $(document).ready(function () {
                 r: radius + 5,
                 class: 'outer'
             });
+    //.attr( 'filter', 'url(#dropshadow)' ) ;
 
         gState.append("circle")
             .attr({
@@ -305,6 +335,7 @@ $(document).ready(function () {
             });
 
         gState.append("text")
+            .attr("class","nodeName")
             .attr({
                 'text-anchor': 'middle',
                 y: (radius + 20)
@@ -442,8 +473,22 @@ $(document).ready(function () {
     };
 
     d3.json("data/todos.json", function(error, json) {
-//        console.log(json);
         ToolList = json.todos;
+    });
+
+    d3.json("data/saveData.json", function(error, json) {
+        NodePanData.step_list = json.NodePanData.step_list;
         restart();
+        for(x in json.NodePanData.connections){
+            var temp = json.NodePanData.connections[x];
+            source_node_t = NodePanData.step_list.filter(function(e){
+                return e.id == temp.source.id;
+            });
+            target_node_t = NodePanData.step_list.filter(function(e){
+                return e.id == temp.target.id;
+            });
+            NodePanData.connections.push({source: source_node_t[0], target: target_node_t[0],output:temp.output,input:temp.input});
+            restart();
+        }
     });
 });

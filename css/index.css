@@ -54,10 +54,11 @@ g.node.hover circle.inner {
     fill : aliceblue;
 }
 g.node circle.outer {
-    stroke-width : 0px;
+    stroke-width : px;
     /*stroke-dasharray: 4px;*/
-    stroke-opacity : 0.5;
-    fill : rgba(0,0,0,0.3);
+    /*stroke-opacity : 0.5;*/
+    /*fill : rgba(0,0,0,0.3);*/
+    fill : gray;
 }
 g.node.selected circle.outer {
     stroke-width : 1px;
@@ -69,6 +70,9 @@ g.node text {
     pointer-events : none;
     opacity: 0;
 }
+g.node text.nodeName{
+    opacity: 1 !important;
+}
 g.node.hover text{
     opacity: 1;
 }
@@ -77,8 +81,16 @@ g.extraCircle.hover text{
     opacity: 1;
 }
 
+g.extraCircle.hover circle{
+    fill:green;
+}
+
 g.outPuts.hover text{
     opacity: 1;
+}
+
+g.outPuts.hover circle{
+    fill:red;
 }
 
 path.transition, path.dragline {
