@@ -181,11 +181,11 @@ $(document).ready(function () {
             if (selection[0].indexOf(this) == -1) {
                 selection.classed("selected", false);
                 d3.selectAll('.tool').select('image')
-                    .attr("xlink:href","/images/container_default.png");
+                    .attr("xlink:href","images/container_default.png");
                 selection = d3.select(this);
                 selection.classed("selected", true);
                 selection.select('.tool').select('image')
-                    .attr("xlink:href","/images/container_selected.png");
+                    .attr("xlink:href","images/container_selected.png");
             }
 
             selection.attr("transform", function (d, i) {
@@ -223,7 +223,7 @@ $(document).ready(function () {
         .on("mouseout", function () {
             if (d3.event.relatedTarget && d3.event.relatedTarget.tagName == 'HTML') {
                 d3.selectAll('.tool').select('image')
-                    .attr("xlink:href","/images/container_default.png");
+                    .attr("xlink:href","images/container_default.png");
                 d3.selectAll('g.node.selection').classed("selection", false);
             }
         });
@@ -323,7 +323,7 @@ $(document).ready(function () {
                 .attr("class","tool");
 
         node.append("image")
-            .attr("xlink:href", "/images/container_default.png")
+            .attr("xlink:href", "images/container_default.png")
             .attr("x", -50)
             .attr("y", -50)
             .attr("width", 100)
@@ -340,12 +340,12 @@ $(document).ready(function () {
 
                 if (!e.ctrlKey) {
                     d3.selectAll('g.selected.tool').select('image')
-                        .attr("xlink:href","/images/container_default.png");
+                        .attr("xlink:href","images/container_default.png");
                     d3.selectAll('g.selected.tool').classed("selected", false);
                 }
                 d3.select(g).classed("selected", !isSelected);
                 d3.selectAll('g.selected.tool').select('image')
-                    .attr("xlink:href","/images/container_selected.png");
+                    .attr("xlink:href","images/container_selected.png");
 
 
 //                d3.select(g).classed("selected", !isSelected);
@@ -422,7 +422,7 @@ $(document).ready(function () {
                 });
 
         inputs.append("image")
-            .attr("xlink:href", "/images/terminal_default.png")
+            .attr("xlink:href", "images/terminal_default.png")
             .attr("x", -8)
             .attr("y", -8)
             .attr("width", 16)
@@ -478,7 +478,7 @@ $(document).ready(function () {
             });
 
         output.append("image")
-            .attr("xlink:href", "/images/terminal_default.png")
+            .attr("xlink:href", "images/terminal_default.png")
             .attr("x", -8)
             .attr("y", -8)
             .attr("width", 16)

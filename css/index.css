@@ -129,5 +129,5 @@ svg *::-webkit-selection {
 }
 
 #nodePane{
- background:url(/images/canvas-bg.png) repeat ;
+ background:url("../images/canvas-bg.png") repeat ;
 }
