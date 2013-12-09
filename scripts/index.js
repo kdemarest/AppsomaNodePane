@@ -180,8 +180,12 @@ $(document).ready(function () {
 
             if (selection[0].indexOf(this) == -1) {
                 selection.classed("selected", false);
+                d3.selectAll('.tool').select('image')
+                    .attr("xlink:href","/images/container_default.png");
                 selection = d3.select(this);
                 selection.classed("selected", true);
+                selection.select('.tool').select('image')
+                    .attr("xlink:href","/images/container_selected.png");
             }
 
             selection.attr("transform", function (d, i) {
@@ -203,6 +207,8 @@ $(document).ready(function () {
 
     svg.on("mousedown", function () {
             if (!d3.event.ctrlKey) {
+//                d3.selectAll('.tool').select('image')
+//                    .attr("xlink:href","/images/container_default.png");
                 d3.selectAll('g.selected').classed("selected", false);
             }
         })
@@ -210,10 +216,14 @@ $(document).ready(function () {
 
         })
         .on("mouseup", function () {
+//            d3.selectAll('.tool').select('image')
+//                .attr("xlink:href","/images/container_default.png");
             d3.selectAll('g.node.selection').classed("selection", false);
         })
         .on("mouseout", function () {
             if (d3.event.relatedTarget && d3.event.relatedTarget.tagName == 'HTML') {
+                d3.selectAll('.tool').select('image')
+                    .attr("xlink:href","/images/container_default.png");
                 d3.selectAll('g.node.selection').classed("selection", false);
             }
         });
@@ -270,7 +280,11 @@ $(document).ready(function () {
                 },
                 'class': 'node'
             }).on("mousedown", function (d) {
-                source_node = d;
+                if(output_node)
+                    source_node = d;
+                else
+                    target_node = d;
+
                 if(isLinkDraw){
                     var p = d3.mouse( this);
                     var sourceX,sourceY;
@@ -297,32 +311,44 @@ $(document).ready(function () {
                         .attr('d',diagonal.apply(this, [nobj]));
                 }
             }).on("mouseup", function (d) {
-                target_node = d;
+                if(target_node)
+                    source_node = d;
+                else
+                    target_node = d;
                 addPath();
             })
             .call(drag);
 
-        gState.append("circle")
+         var node = gState.append("g")
+                .attr("class","tool");
+
+        node.append("image")
+            .attr("xlink:href", "/images/container_default.png")
+            .attr("x", -50)
+            .attr("y", -50)
+            .attr("width", 100)
+            .attr("height", 100);
+
+        node.append("circle")
             .attr({
                 r: radius + 5,
                 class: 'outer'
-            });
-    //.attr( 'filter', 'url(#dropshadow)' ) ;
-
-        gState.append("circle")
-            .attr({
-                r: radius - 3,
-                class: 'inner'
-            })
-            .on("click", function (d, i) {
+            }).on("click", function (d, i) {
                 var e = d3.event,
                     g = this.parentNode,
                     isSelected = d3.select(g).classed("selected");
 
                 if (!e.ctrlKey) {
-                    d3.selectAll('g.selected').classed("selected", false);
+                    d3.selectAll('g.selected.tool').select('image')
+                        .attr("xlink:href","/images/container_default.png");
+                    d3.selectAll('g.selected.tool').classed("selected", false);
                 }
                 d3.select(g).classed("selected", !isSelected);
+                d3.selectAll('g.selected.tool').select('image')
+                    .attr("xlink:href","/images/container_selected.png");
+
+
+//                d3.select(g).classed("selected", !isSelected);
                 // reappend dragged element as last
                 // so that its stays on top
                 g.parentNode.appendChild(g);
@@ -334,7 +360,8 @@ $(document).ready(function () {
                 d3.select(this.parentNode).classed("hover", false);
             });
 
-        gState.append("text")
+
+        node.append("text")
             .attr("class","nodeName")
             .attr({
                 'text-anchor': 'middle',
@@ -344,7 +371,7 @@ $(document).ready(function () {
                 return d.name;
             });
 
-        gState.append("title").text(function (d) {
+        node.append("title").text(function (d) {
             return d.name;
         });
 
@@ -366,9 +393,7 @@ $(document).ready(function () {
             return sp;
         }
 
-
-
-        var inputs = gStates.selectAll('.extraCircle')
+        var inputs = gStates.selectAll('.inputs')
                 .data(function(d){
                 if(d.input_list){
                     var r = radius+15;
@@ -387,14 +412,21 @@ $(document).ready(function () {
                     "transform": function (d) {
                         return "translate(" + [d.x, d.y] + ")";
                     },
-                    'class': 'extraCircle'
+                    'class': 'inputs'
                 }).on("mousedown", function (d) {
                     isLinkDraw =true;
-                    output_node = d;
+                    input_node = d;
                 }) .on("mouseup", function (d) {
                     isLinkDraw =false;
                     input_node = d;
                 });
+
+        inputs.append("image")
+            .attr("xlink:href", "/images/terminal_default.png")
+            .attr("x", -8)
+            .attr("y", -8)
+            .attr("width", 16)
+            .attr("height", 16);
 
         inputs.append('circle')
             .attr("r", function(d,i) { return 8; })
@@ -404,6 +436,8 @@ $(document).ready(function () {
             .on("mouseout", function () {
                 d3.select(this.parentNode).classed("hover", false);
             });
+
+
         inputs.append("text")
             .attr({
                 'text-anchor': 'end',
@@ -415,7 +449,7 @@ $(document).ready(function () {
             });
 
 
-        var output = gStates.selectAll('.outPuts')
+        var output = gStates.selectAll('.outputs')
             .data(function(d){
                 if(d.output_list){
                     var r = radius+15;
@@ -434,14 +468,21 @@ $(document).ready(function () {
                 "transform": function (d) {
                     return "translate(" + [d.x, d.y] + ")";
                 },
-                'class': 'outPuts'
+                'class': 'outputs'
             }).on("mousedown", function (d) {
                 isLinkDraw =true;
                 output_node = d;
             }) .on("mouseup", function (d) {
                 isLinkDraw =false;
-                input_node = d;
+                output_node = d;
             });
+
+        output.append("image")
+            .attr("xlink:href", "/images/terminal_default.png")
+            .attr("x", -8)
+            .attr("y", -8)
+            .attr("width", 16)
+            .attr("height", 16);
 
         output.append('circle')
             .attr("r", function(d,i) { return 8; })
@@ -482,12 +523,18 @@ $(document).ready(function () {
         for(x in json.NodePanData.connections){
             var temp = json.NodePanData.connections[x];
             source_node_t = NodePanData.step_list.filter(function(e){
-                return e.id == temp.source.id;
-            });
+                return e.id == temp.source;
+            })[0];
             target_node_t = NodePanData.step_list.filter(function(e){
-                return e.id == temp.target.id;
-            });
-            NodePanData.connections.push({source: source_node_t[0], target: target_node_t[0],output:temp.output,input:temp.input});
+                return e.id == temp.target;
+            })[0];
+            output_node_t = source_node_t.output_list.filter(function(e){
+                return e.id == temp.output;
+            })[0];
+            input_node_t = target_node_t.input_list.filter(function(e){
+                return e.id == temp.input;
+            })[0];
+            NodePanData.connections.push({source: source_node_t, target: target_node_t,output:output_node_t,input:input_node_t});
             restart();
         }
     });
