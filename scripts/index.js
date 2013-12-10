@@ -70,7 +70,7 @@ $(document).ready(function () {
             return $(".nodePaneContainer").height();
         })
         .call(d3.behavior.zoom().scaleExtent([1,4]).on("zoom", zoom))
-        .append("g");
+        .append("g").attr("id","root");
 
     var defs = svg.append( 'defs' );
     var filter = defs.append( 'filter' )
@@ -95,15 +95,14 @@ $(document).ready(function () {
         if(!nodedrag && !isLinkDraw){
             translates = d3.event.translate;
             scale = d3.event.scale;
-            svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+            svg.select("#root").attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
             restart();
         }
-
     }
 
     var drag_line = svg.append('g').append('path')
             .attr('class','dragline hidden')
-            .attr('d', 'M0,0L0,0');
+            .attr('d', "M 0 0 C 0 0 0 0 0 0");
 
     d3.select('#nodeEditor').on('mousemove', function(){
         if(isLinkDraw){
@@ -117,17 +116,8 @@ $(document).ready(function () {
                 sourceY = (target_node.y+input_node.y);
             }
 
-            var nobj = {
-                source : {
-                    x: sourceX,
-                    y: sourceY
-                },
-                target : {
-                    x: p[0]-translates[0],
-                    y: p[1]-translates[1]
-                }
-            }
-            drag_line.attr('d',diagonal.apply(this, [nobj]));
+            var path = "M "+sourceX+" "+sourceY+" C"+p[0]+" "+sourceY+" "+sourceX+" "+p[1]+" "+p[0]+" "+p[1];
+            drag_line.attr('d',path);
         }
     }).on("mouseup", function () {
            if(isLinkDraw){
@@ -137,25 +127,14 @@ $(document).ready(function () {
 
     var gStates = svg.selectAll("g.node")
         .data(NodePanData.step_list);
-    var diagonal = d3.svg.diagonal();
+
     var computeTransitionPath = function( d) {
         sourceX = (d.source.x+d.output.x),
             sourceY = (d.source.y+d.output.y),
             targetX = (d.target.x+d.input.x),
             targetY = (d.target.y+d.input.y);
-
-        var nobj = {
-            source : {
-                x: sourceX,
-                y: sourceY
-            },
-            target : {
-                x: targetX,
-                y: targetY
-            }
-        }
-        return diagonal.apply(this, [nobj]);
-//        return 'M' + sourceX + ',' + sourceY + 'L' + targetX + ',' + targetY;
+//        M x1  y1C  x2  y1   x1  y2   x2 y2
+        return "M "+sourceX+" "+sourceY+" C"+targetX+" "+sourceY+" "+sourceX+" "+targetY+" "+targetX+" "+targetY;
     };
 
     var gTransitions = svg.append('g')
@@ -240,12 +219,14 @@ $(document).ready(function () {
         }
         drag_line
             .classed('hidden', true)
-            .attr('d',diagonal.apply(this, [nobj]));
+            .attr('d',"M 0 0 C 0 0 0 0 0 0");
     }
     var addPath = function(){
+        console.log()
         if(source_node && target_node && input_node && output_node){
             if(source_node != target_node){
-                NodePanData.connections.push({source: source_node, target: target_node,output:output_node,input:input_node});
+                var connection = {source: source_node, target: target_node,output:output_node,input:input_node};
+                NodePanData.connections.push(connection);
                 restart();
             }
         }
@@ -286,19 +267,10 @@ $(document).ready(function () {
                         sourceY = (target_node.y+input_node.y);
                     }
 
-                    var nobj = {
-                        source : {
-                            x: sourceX,
-                            y: sourceY
-                        },
-                        target : {
-                            x: sourceX,
-                            y: sourceY
-                        }
-                    }
+                    var path = "M "+sourceX+" "+sourceY+" C"+sourceX+" "+sourceY+" "+sourceX+" "+sourceY+" "+sourceX+" "+sourceY;
                     drag_line
                         .classed('hidden', false)
-                        .attr('d',diagonal.apply(this, [nobj]));
+                        .attr('d',path);
                 }
             }).on("mouseup", function (d) {
                 if(target_node)
