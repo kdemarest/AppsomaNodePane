@@ -38,9 +38,10 @@
     height: 90px;
 }
 g.node circle {
-    stroke:gray;
+    stroke:white;
     cursor:pointer;
 }
+
 g.node circle.inner {
     fill : white;
     stroke-width : 0px;
@@ -82,6 +83,10 @@ g.node text.nodeName{
 
 g.node.hover text{
     opacity: 1;
+}
+
+g.node.hover circle{
+    filter:url(#dropShadow);
 }
 
 g.inputs.hover text{

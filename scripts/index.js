@@ -89,17 +89,7 @@ $(document).ready(function () {
         .attr( 'in", "offsetBlur' )
     feMerge.append( 'feMergeNode' )
         .attr( 'in', 'SourceGraphic' );
-//    <filter id="dropShadow">
-//        <feGaussianBlur in="SourceAlpha" stdDeviation="5" />
-//        <feOffset dx="2" dy="2" />
-//        <feMerge>
-//            <feMergeNode />
-//            <feMergeNode in="SourceGraphic" />
-//        </feMerge>
-//    </filter>
-//
-//    <circle cx="60"  cy="60" r="50" fill="green"
-//    filter="url(#dropShadow)" />
+
     /* Zoom function*/
     function zoom() {
         if(!nodedrag && !isLinkDraw){
@@ -207,8 +197,8 @@ $(document).ready(function () {
 
     svg.on("mousedown", function () {
             if (!d3.event.ctrlKey) {
-//                d3.selectAll('.tool').select('image')
-//                    .attr("xlink:href","/images/container_default.png");
+                d3.selectAll('g.selected').select('.tool').select('image')
+                    .attr("xlink:href","/images/container_default.png");
                 d3.selectAll('g.selected').classed("selected", false);
             }
         })
@@ -316,6 +306,26 @@ $(document).ready(function () {
                 else
                     target_node = d;
                 addPath();
+            }).on("click", function (d, i) {
+                var e = d3.event,
+                    g = this;
+                isSelected = d3.select(g).classed("selected");
+
+                d3.selectAll('.tool').select('image')
+                    .attr("xlink:href","images/container_default.png");
+                d3.selectAll('g.selected').classed("selected", false);
+
+                d3.select(g).classed("selected", true);
+                d3.selectAll('g.selected').select('.tool').select('image')
+                    .attr("xlink:href","images/container_selected.png");
+
+                g.parentNode.appendChild(g);
+            })
+            .on("mouseover", function () {
+                d3.select(this).classed("hover", true);
+            })
+            .on("mouseout", function () {
+                d3.select(this).classed("hover", false);
             })
             .call(drag);
 
@@ -331,35 +341,9 @@ $(document).ready(function () {
 
         node.append("circle")
             .attr({
-                r: radius + 5,
+                r: radius + 2,
                 class: 'outer'
-            }).on("click", function (d, i) {
-                var e = d3.event,
-                    g = this.parentNode,
-                    isSelected = d3.select(g).classed("selected");
-
-                if (!e.ctrlKey) {
-                    d3.selectAll('g.selected.tool').select('image')
-                        .attr("xlink:href","images/container_default.png");
-                    d3.selectAll('g.selected.tool').classed("selected", false);
-                }
-                d3.select(g).classed("selected", !isSelected);
-                d3.selectAll('g.selected.tool').select('image')
-                    .attr("xlink:href","images/container_selected.png");
-
-
-//                d3.select(g).classed("selected", !isSelected);
-                // reappend dragged element as last
-                // so that its stays on top
-                g.parentNode.appendChild(g);
-            })
-            .on("mouseover", function () {
-                d3.select(this.parentNode).classed("hover", true);
-            })
-            .on("mouseout", function () {
-                d3.select(this.parentNode).classed("hover", false);
             });
-
 
         node.append("text")
             .attr("class","nodeName")
