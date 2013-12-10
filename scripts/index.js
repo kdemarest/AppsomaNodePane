@@ -196,6 +196,7 @@ $(document).ready(function () {
                     .attr("xlink:href","/images/container_default.png");
                 d3.selectAll('g.selected').classed("selected", false);
             }
+            d3.event.stopPropagation();
         })
         .on("mousemove", function () {
 
