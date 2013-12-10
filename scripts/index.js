@@ -45,7 +45,7 @@ $(document).ready(function () {
         },
 
         out: function (event, ui) {
-            console.log("out");
+           // console.log("out");
         },
 
         drop: function (event, ui) {
@@ -54,7 +54,9 @@ $(document).ready(function () {
             var obj = ToolList[selected.id];
             obj.x = posX;
             obj.y = posY;
-            NodePanData.step_list.push(obj);
+            var tempObj = JSON.parse(JSON.stringify(obj));
+            tempObj.id = obj.id+"D"+Date.now();
+            NodePanData.step_list.push(tempObj);
             restart();
         }
     });
@@ -95,7 +97,7 @@ $(document).ready(function () {
         if(!nodedrag && !isLinkDraw){
             translates = d3.event.translate;
             scale = d3.event.scale;
-            svg.select("#root").attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+            d3.select("#root").attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
             restart();
         }
     }
@@ -129,17 +131,31 @@ $(document).ready(function () {
         .data(NodePanData.step_list);
 
     var computeTransitionPath = function( d) {
-        sourceX = (d.source.x+d.output.x),
-            sourceY = (d.source.y+d.output.y),
-            targetX = (d.target.x+d.input.x),
-            targetY = (d.target.y+d.input.y);
+            var temp = d;
+            source_node_t = NodePanData.step_list.filter(function(e){
+                return e.id == temp.source;
+            })[0];
+            target_node_t = NodePanData.step_list.filter(function(e){
+                return e.id == temp.target;
+            })[0];
+            output_node_t = source_node_t.output_list.filter(function(e){
+                return e.id == temp.output;
+            })[0];
+            input_node_t = target_node_t.input_list.filter(function(e){
+                return e.id == temp.input;
+            })[0];
+
+            sourceX = (source_node_t.x+output_node_t.x),
+            sourceY = (source_node_t.y+output_node_t.y),
+            targetX = (target_node_t.x+input_node_t.x),
+            targetY = (target_node_t.y+input_node_t.y);
 //        M x1  y1C  x2  y1   x1  y2   x2 y2
         return "M "+sourceX+" "+sourceY+" C"+targetX+" "+sourceY+" "+sourceX+" "+targetY+" "+targetX+" "+targetY;
     };
 
     var gTransitions = svg.append('g')
             .selectAll("path.transition")
-            .data(NodePanData.step_list)
+            .data(NodePanData.step_list);
 
     var drag = d3.behavior.drag()
         .on("drag", function (d, i) {
@@ -199,7 +215,7 @@ $(document).ready(function () {
 
 
     function updateSVG(){
-        svg.attr("transform", "translate("+translates[0]+","+translates[1]+")scale("+scale+")");
+        d3.select("#root").attr("transform", "translate("+translates+")scale("+scale+")");
     }
     function resetParameters(){
         source_node = undefined;
@@ -207,27 +223,24 @@ $(document).ready(function () {
         input_node = undefined;
         output_node = undefined;
         isLinkDraw = false;
-        var nobj = {
-            source : {
-                x: 0,
-                y: 0
-            },
-            target : {
-                x: 0,
-                y: 0
-            }
-        }
         drag_line
             .classed('hidden', true)
             .attr('d',"M 0 0 C 0 0 0 0 0 0");
     }
     var addPath = function(){
-        console.log()
         if(source_node && target_node && input_node && output_node){
             if(source_node != target_node){
-                var connection = {source: source_node, target: target_node,output:output_node,input:input_node};
-                NodePanData.connections.push(connection);
-                restart();
+                var connection = {source: source_node.id, target: target_node.id,output:output_node.id,input:input_node.id};
+                connection.id = source_node.id+"_"+target_node.id+"_"+output_node.id+"_"+input_node.id;
+                var isExist = NodePanData.connections.filter(function(e){
+                    return e.id == connection.id;
+                });
+                if(isExist.length == 0){
+                    NodePanData.connections.push(connection);
+                    restart();
+                }else{
+                    alert("Link already exist");
+                }
             }
         }
         resetParameters();
@@ -249,7 +262,10 @@ $(document).ready(function () {
                 "transform": function (d) {
                     return "translate(" + [d.x, d.y] + ")";
                 },
-                'class': 'node'
+                'class': 'node',
+                'id': function(d){
+                    return d.id;
+                }
             }).on("mousedown", function (d) {
                 if(output_node)
                     source_node = d;
@@ -388,11 +404,14 @@ $(document).ready(function () {
             .attr("r", function(d,i) { return 8; })
             .on("mouseover", function () {
                 d3.select(this.parentNode).classed("hover", true);
+                d3.select(this.parentNode).select('image')
+                    .attr("xlink:href","images/terminal_drop.png");
             })
             .on("mouseout", function () {
                 d3.select(this.parentNode).classed("hover", false);
+                d3.select(this.parentNode).select('image')
+                    .attr("xlink:href","images/terminal_default.png");
             });
-
 
         inputs.append("text")
             .attr({
@@ -444,9 +463,13 @@ $(document).ready(function () {
             .attr("r", function(d,i) { return 8; })
             .on("mouseover", function () {
                 d3.select(this.parentNode).classed("hover", true);
+                d3.select(this.parentNode).select('image')
+                    .attr("xlink:href","images/terminal_drop.png");
             })
             .on("mouseout", function () {
                 d3.select(this.parentNode).classed("hover", false);
+                d3.select(this.parentNode).select('image')
+                    .attr("xlink:href","images/terminal_default.png");
             });
         output.append("text")
             .attr({
@@ -463,9 +486,9 @@ $(document).ready(function () {
 
         gTransitions = gTransitions.data( NodePanData.connections);
         gTransitions.enter().append( 'path')
+            .attr('id',function(d){ return d.id;})
             .attr( 'class', 'transition')
-            .attr( 'd', computeTransitionPath)
-        ;
+            .attr( 'd', computeTransitionPath);
         gTransitions.exit().remove();
     };
 
@@ -478,19 +501,10 @@ $(document).ready(function () {
         restart();
         for(x in json.NodePanData.connections){
             var temp = json.NodePanData.connections[x];
-            source_node_t = NodePanData.step_list.filter(function(e){
-                return e.id == temp.source;
-            })[0];
-            target_node_t = NodePanData.step_list.filter(function(e){
-                return e.id == temp.target;
-            })[0];
-            output_node_t = source_node_t.output_list.filter(function(e){
-                return e.id == temp.output;
-            })[0];
-            input_node_t = target_node_t.input_list.filter(function(e){
-                return e.id == temp.input;
-            })[0];
-            NodePanData.connections.push({source: source_node_t, target: target_node_t,output:output_node_t,input:input_node_t});
+            if(!temp.id){
+                temp.id = temp.source+"_"+temp.target+"_"+temp.output+"_"+temp.input;
+            }
+            NodePanData.connections.push(temp);
             restart();
         }
     });
