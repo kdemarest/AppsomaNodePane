@@ -3,13 +3,12 @@ var scale = 1;
 var ToolList = {};
 var isLinkDraw = false;
 var source_node,target_node,output_node,input_node;
-
+var nodedrag = false;
+var radius = 40;
 var NodePanData ={step_list:[],connections:[]};
+
 $(document).ready(function () {
-    var nodes = [];
     var selected = {};
-    var radius = 40;
-    var nodedrag = false;
 
     $( window ).resize(function() {
         restart();
@@ -119,6 +118,7 @@ $(document).ready(function () {
             .attr('d', "M 0 0 C 0 0 0 0 0 0");
 
     eventRect.on('mousemove', function() {
+
         if(isLinkDraw){
             var p = d3.mouse(this);
             var sourceX,sourceY;
@@ -146,9 +146,6 @@ $(document).ready(function () {
         d3.selectAll('g.selected').classed("selected", false);
     });
 
-    var gStates = svg.selectAll("g.node")
-        .data(NodePanData.step_list);
-
     var computeTransitionPath = function( d) {
             var temp = d;
             source_node_t = NodePanData.step_list.filter(function(e){
@@ -172,54 +169,7 @@ $(document).ready(function () {
         return "M "+sourceX+" "+sourceY+" C"+targetX+" "+sourceY+" "+sourceX+" "+targetY+" "+targetX+" "+targetY;
     };
 
-    var gTransitions = svg.append('g')
-            .selectAll("path.transition")
-            .data(NodePanData.step_list);
-
-    var gTransitions_b = svg.append('g')
-        .selectAll("path.transition_b")
-        .data(NodePanData.step_list);
-
-    var drag = d3.behavior.drag()
-        .on("drag", function (d, i) {
-            if(isLinkDraw) return;
-            nodedrag = true;
-            var selection = d3.selectAll('.selected');
-
-            if (selection[0].indexOf(this) == -1) {
-                selection.classed("selected", false);
-                d3.selectAll('.tool').select('image')
-                    .attr("xlink:href","images/container_default.png");
-                selection = d3.select(this);
-                selection.classed("selected", true);
-                selection.select('.tool').select('image')
-                    .attr("xlink:href","images/container_selected.png");
-            }
-
-            selection.attr("transform", function (d, i) {
-                d.x += d3.event.dx;
-                d.y += d3.event.dy;
-                return "translate(" + [d.x, d.y] + ")"
-            })
-            // reappend dragged element as last
-            // so that its stays on top
-            this.parentNode.appendChild(this);
-
-            gTransitions.attr( 'd', computeTransitionPath);
-            gTransitions_b.attr( 'd', computeTransitionPath);
-            d3.event.sourceEvent.stopPropagation();
-        })
-        .on("dragend", function (d) {
-            nodedrag = false;
-            d3.event.sourceEvent.stopPropagation();
-        });
-
     svg.on("mousedown", function () {
-            if (!d3.event.ctrlKey) {
-                d3.selectAll('g.selected').select('.tool').select('image')
-                    .attr("xlink:href","/images/container_default.png");
-                d3.selectAll('g.selected').classed("selected", false);
-            }
             d3.event.stopPropagation();
         })
         .on("mouseout", function () {
@@ -233,6 +183,7 @@ $(document).ready(function () {
     function updateSVG(){
         svg.attr("transform", "translate("+translates+")scale("+scale+")");
     }
+
     function resetParameters(){
         source_node = undefined;
         target_node = undefined;
@@ -262,13 +213,81 @@ $(document).ready(function () {
         resetParameters();
     }
 
+    function removeTool(id){
+        var relatedConnection = NodePanData.connections.filter(function(e){
+            return e.source == id || e.target == id;
+        });
+        for(v in relatedConnection){
+            var index = NodePanData.connections.indexOf(relatedConnection[v]);
+            NodePanData.connections.splice(index,1);
+        }
+        var removeNode,index_node;
+            for(b in NodePanData.step_list){
+                if(NodePanData.step_list[b].id == id){
+                    removeNode = NodePanData.step_list[b]
+                    index_node = b;
+                    break
+                }
+            }
+        NodePanData.step_list.splice(index_node,1);
+        restart();
+    }
+
     function restart() {
         updateSVG();
+
         svg.attr("width", function () {
             return $(".nodePaneContainer").width();
         }).attr("height", function () {
             return $(".nodePaneContainer").height();
         });
+
+        svg.selectAll("g.node").remove();
+        svg.selectAll("g.links").remove();
+        svg.selectAll("g.links_s").remove();
+
+        var gStates = svg.selectAll("g.node");
+
+        var gTransitions = svg.append('g').attr("class","links")
+            .selectAll("path.transition");
+
+        var gTransitions_b = svg.append('g').attr("class","links_s")
+            .selectAll("path.transition_b");
+
+        var drag = d3.behavior.drag()
+            .on("drag", function (d, i) {
+                if(isLinkDraw) return;
+                nodedrag = true;
+                var selection = d3.selectAll('.selected');
+
+                if (selection[0].indexOf(this) == -1) {
+                    selection.classed("selected", false);
+                    d3.selectAll('.tool').select('image')
+                        .attr("xlink:href","images/container_default.png");
+                    selection = d3.select(this);
+                    selection.classed("selected", true);
+                    selection.select('.tool').select('image')
+                        .attr("xlink:href","images/container_selected.png");
+                }
+
+                selection.attr("transform", function (d, i) {
+                    d.x += d3.event.dx;
+                    d.y += d3.event.dy;
+                    return "translate(" + [d.x, d.y] + ")"
+                })
+                // reappend dragged element as last
+                // so that its stays on top
+                if(this.parentNode)
+                    this.parentNode.appendChild(this);
+
+                gTransitions.attr( 'd', computeTransitionPath);
+                gTransitions_b.attr( 'd', computeTransitionPath);
+                d3.event.sourceEvent.stopPropagation();
+            })
+            .on("dragend", function (d) {
+                nodedrag = false;
+                d3.event.sourceEvent.stopPropagation();
+            });
 
         gStates = gStates.data(NodePanData.step_list);
 
@@ -323,7 +342,8 @@ $(document).ready(function () {
                 d3.selectAll('g.selected').select('.tool').select('image')
                     .attr("xlink:href","images/container_selected.png");
 
-                g.parentNode.appendChild(g);
+                if(g.parentNode)
+                    g.parentNode.appendChild(g);
             })
             .on("mouseover", function () {
                 d3.select(this).classed("hover", true);
@@ -333,7 +353,29 @@ $(document).ready(function () {
             })
             .call(drag);
 
-         var node = gState.append("g")
+        var controls = gState.append("g").attr("class","controls");
+
+        controls.append("image")
+            .attr("xlink:href","images/close_default.png")
+            .attr("x", -25)
+            .attr("y", -70)
+            .attr("width",22)
+            .attr("height",22)
+            .on("click", function(d) {
+                removeTool(d.id);
+            });
+
+        controls.append("image")
+            .attr("xlink:href","images/info_default.png")
+            .attr("x", 0)
+            .attr("y", -70)
+            .attr("width",22)
+            .attr("height",22)
+            .on("click", function(d) {
+
+            });
+
+        var node = gState.append("g")
                 .attr("class","tool");
 
         node.append("image")
@@ -384,7 +426,7 @@ $(document).ready(function () {
         var inputs = gStates.selectAll('.inputs')
                 .data(function(d){
                 if(d.input_list){
-                    var r = radius+15;
+                    var r = radius+5;
                     var a = getStartingPoint(d.input_list.length,true);
                     for(t in d.input_list){
                         d.input_list[t].x = r*Math.sin(a);
@@ -396,6 +438,7 @@ $(document).ready(function () {
                 return [];
             }).enter()
                 .append("g")
+                .attr('id',function(d){return d.id})
                 .attr({
                     "transform": function (d) {
                         return "translate(" + [d.x, d.y] + ")";
@@ -410,7 +453,9 @@ $(document).ready(function () {
                 });
 
         inputs.append("image")
-            .attr("xlink:href", "images/terminal_default.png")
+            .attr("xlink:href", function(d){
+                return "images/terminal_default.png";
+            })
             .attr("x", -8)
             .attr("y", -8)
             .attr("width", 16)
@@ -443,7 +488,7 @@ $(document).ready(function () {
         var output = gStates.selectAll('.outputs')
             .data(function(d){
                 if(d.output_list){
-                    var r = radius+15;
+                    var r = radius+5;
                     var a = getStartingPoint(d.output_list.length,false);
                     for(t in d.output_list){
                         d.output_list[t].x = r*Math.sin(a);
@@ -455,6 +500,7 @@ $(document).ready(function () {
                 return [];
             }).enter()
             .append("g")
+            .attr('id',function(d){return d.id})
             .attr({
                 "transform": function (d) {
                     return "translate(" + [d.x, d.y] + ")";
