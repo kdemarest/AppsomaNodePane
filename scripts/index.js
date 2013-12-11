@@ -422,7 +422,19 @@ $(document).ready(function () {
             }
             return sp;
         }
+        var getConnectionImage = function(d,isInput){
+            var type = "input";
+            if(!isInput) type = "output";
 
+            var conn = NodePanData.connections.filter(function(e){
+                return e[type] == d.id;
+            });
+            if(conn.length > 0){
+                return "images/terminal_connect.png";
+            }
+            return "images/terminal_default.png";
+
+        }
         var inputs = gStates.selectAll('.inputs')
                 .data(function(d){
                 if(d.input_list){
@@ -454,7 +466,7 @@ $(document).ready(function () {
 
         inputs.append("image")
             .attr("xlink:href", function(d){
-                return "images/terminal_default.png";
+                return getConnectionImage(d,true);
             })
             .attr("x", -8)
             .attr("y", -8)
@@ -471,7 +483,9 @@ $(document).ready(function () {
             .on("mouseout", function () {
                 d3.select(this.parentNode).classed("hover", false);
                 d3.select(this.parentNode).select('image')
-                    .attr("xlink:href","images/terminal_default.png");
+                    .attr("xlink:href", function(d){
+                        return getConnectionImage(d,true);
+                    });
             });
 
         inputs.append("text")
@@ -515,7 +529,9 @@ $(document).ready(function () {
             });
 
         output.append("image")
-            .attr("xlink:href", "images/terminal_default.png")
+            .attr("xlink:href", function(d){
+                return getConnectionImage(d,false);
+            })
             .attr("x", -8)
             .attr("y", -8)
             .attr("width", 16)
@@ -531,7 +547,9 @@ $(document).ready(function () {
             .on("mouseout", function () {
                 d3.select(this.parentNode).classed("hover", false);
                 d3.select(this.parentNode).select('image')
-                    .attr("xlink:href","images/terminal_default.png");
+                    .attr("xlink:href", function(d){
+                        return getConnectionImage(d,false);
+                    });
             });
 
         output.append("text")
