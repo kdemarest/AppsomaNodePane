@@ -142,7 +142,7 @@ $(document).ready(function () {
         }
     }).on("mousedown", function () {
         d3.selectAll('g.selected').select('.tool').select('image')
-            .attr("xlink:href","/images/container_default.png");
+            .attr("xlink:href","images/container_default.png");
         d3.selectAll('g.selected').classed("selected", false);
     });
 
