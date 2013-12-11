@@ -176,6 +176,10 @@ $(document).ready(function () {
             .selectAll("path.transition")
             .data(NodePanData.step_list);
 
+    var gTransitions_b = svg.append('g')
+        .selectAll("path.transition_b")
+        .data(NodePanData.step_list);
+
     var drag = d3.behavior.drag()
         .on("drag", function (d, i) {
             if(isLinkDraw) return;
@@ -202,6 +206,7 @@ $(document).ready(function () {
             this.parentNode.appendChild(this);
 
             gTransitions.attr( 'd', computeTransitionPath);
+            gTransitions_b.attr( 'd', computeTransitionPath);
             d3.event.sourceEvent.stopPropagation();
         })
         .on("dragend", function (d) {
@@ -501,6 +506,13 @@ $(document).ready(function () {
             .attr( 'class', 'transition')
             .attr( 'd', computeTransitionPath);
         gTransitions.exit().remove();
+
+        gTransitions_b = gTransitions_b.data( NodePanData.connections);
+        gTransitions_b.enter().append( 'path')
+            .attr('id',function(d){ return d.id;})
+            .attr( 'class', 'transition_b')
+            .attr( 'd', computeTransitionPath);
+        gTransitions_b.exit().remove();
     };
 
     d3.json("data/todos.json", function(error, json) {

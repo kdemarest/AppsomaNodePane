@@ -99,11 +99,18 @@ g.outputs.hover text{
 
 path.transition, path.dragline {
     fill : none;
-    stroke : #000;
-    stroke-width: 5px;
+    stroke : #c8c8c8;
+    stroke-width: 6px;
     cursor : default;
-    marker-end : url(#end-arrow);
 }
+
+path.transition_b{
+    fill : none;
+    stroke : #ebebeb;
+    stroke-width: 4px;
+    cursor : default;
+}
+
 path.dragline {
     pointer-events: none;
 }
