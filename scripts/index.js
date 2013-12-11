@@ -61,8 +61,7 @@ $(document).ready(function () {
         }
     });
 
-    /* Svg element that holds data*/
-    var svg = d3.select('#nodePane')
+    var viewport = d3.select('#nodePane')
         .append("svg")
         .attr("id","nodeEditor")
         .attr("width", function () {
@@ -70,7 +69,20 @@ $(document).ready(function () {
         })
         .attr("height", function () {
             return $(".nodePaneContainer").height();
+        });
+
+    var eventRect = viewport.append('rect')
+        .attr("width", function () {
+            return $(".nodePaneContainer").width();
         })
+        .attr("height", function () {
+            return $(".nodePaneContainer").height();
+        })
+        .attr('fill', 'none')
+        .attr('pointer-events', 'all');
+
+
+    var svg =  viewport
         .call(d3.behavior.zoom().scaleExtent([1,4]).on("zoom", zoom))
         .append("g").attr("id","root");
 
@@ -97,7 +109,7 @@ $(document).ready(function () {
         if(!nodedrag && !isLinkDraw){
             translates = d3.event.translate;
             scale = d3.event.scale;
-            d3.select("#root").attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+            svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
             restart();
         }
     }
@@ -106,7 +118,7 @@ $(document).ready(function () {
             .attr('class','dragline hidden')
             .attr('d', "M 0 0 C 0 0 0 0 0 0");
 
-    d3.select('#nodeEditor').on('mousemove', function(){
+    eventRect.on('mousemove', function() {
         if(isLinkDraw){
             var p = d3.mouse(this);
             var sourceX,sourceY;
@@ -118,14 +130,21 @@ $(document).ready(function () {
                 sourceY = (target_node.y+input_node.y);
             }
 
-            var path = "M "+sourceX+" "+sourceY+" C"+p[0]+" "+sourceY+" "+sourceX+" "+p[1]+" "+p[0]+" "+p[1];
+            var xn =  (p[0]/scale) - (translates[0]/scale);
+            var yn =  (p[1]/scale) - (translates[1]/scale);
+
+            var path = "M "+sourceX+" "+sourceY+" C"+xn+" "+sourceY+" "+sourceX+" "+yn+" "+xn+" "+yn;
             drag_line.attr('d',path);
         }
     }).on("mouseup", function () {
-           if(isLinkDraw){
-               resetParameters();
-           }
-        });
+        if(isLinkDraw){
+            resetParameters();
+        }
+    }).on("mousedown", function () {
+        d3.selectAll('g.selected').select('.tool').select('image')
+            .attr("xlink:href","/images/container_default.png");
+        d3.selectAll('g.selected').classed("selected", false);
+    });
 
     var gStates = svg.selectAll("g.node")
         .data(NodePanData.step_list);
@@ -198,14 +217,6 @@ $(document).ready(function () {
             }
             d3.event.stopPropagation();
         })
-        .on("mousemove", function () {
-
-        })
-        .on("mouseup", function () {
-//            d3.selectAll('.tool').select('image')
-//                .attr("xlink:href","/images/container_default.png");
-            d3.selectAll('g.node.selection').classed("selection", false);
-        })
         .on("mouseout", function () {
             if (d3.event.relatedTarget && d3.event.relatedTarget.tagName == 'HTML') {
                 d3.selectAll('.tool').select('image')
@@ -214,9 +225,8 @@ $(document).ready(function () {
             }
         });
 
-
     function updateSVG(){
-        d3.select("#root").attr("transform", "translate("+translates+")scale("+scale+")");
+        svg.attr("transform", "translate("+translates+")scale("+scale+")");
     }
     function resetParameters(){
         source_node = undefined;
@@ -472,6 +482,7 @@ $(document).ready(function () {
                 d3.select(this.parentNode).select('image')
                     .attr("xlink:href","images/terminal_default.png");
             });
+
         output.append("text")
             .attr({
                 'text-anchor': 'start',
@@ -481,7 +492,6 @@ $(document).ready(function () {
             .text(function (d) {
                 return d.name;
             });
-
 
         gStates.exit().remove();
 
