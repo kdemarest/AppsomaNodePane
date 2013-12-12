@@ -2,7 +2,7 @@ var translates = [0,0];
 var scale = 1;
 var ToolList = {};
 var isLinkDraw = false;
-var source_node,target_node,output_node,input_node;
+var source_node,target_node,output_node,input_node,selected_link;
 var nodedrag = false;
 var radius = 40;
 var NodePanData ={step_list:[],connections:[]};
@@ -85,7 +85,7 @@ $(document).ready(function () {
 
     var svg =  viewport
         .call(d3.behavior.zoom().scaleExtent([1,4]).on("zoom", zoom))
-        .append("g");
+        .append("g").attr('id','root');
 
     var defs = svg.append( 'defs' );
     var filter = defs.append( 'filter' )
@@ -118,6 +118,8 @@ $(document).ready(function () {
     var drag_line = svg.append('g').append('path')
             .attr('class','dragline hidden')
             .attr('d', "M 0 0 C 0 0 0 0 0 0");
+
+
 
     eventRect.on('mousemove', function() {
 
@@ -188,7 +190,16 @@ $(document).ready(function () {
         }).attr("height", function () {
             return $(".nodePaneContainer").height();
         });
+
+        eventRect.attr("width", function () {
+            return $(".nodePaneContainer").width();
+        })
+        .attr("height", function () {
+            return $(".nodePaneContainer").height();
+        })
         svg.attr("transform", "translate("+translates+")scale("+scale+")");
+//        var h = document.getElementById("root").getBBox().height;
+//        var w = document.getElementById("root").getBBox().width;
     }
 
     function resetParameters(){
@@ -196,6 +207,7 @@ $(document).ready(function () {
         target_node = undefined;
         input_node = undefined;
         output_node = undefined;
+        selected_link = undefined;
         isLinkDraw = false;
         drag_line
             .classed('hidden', true)
@@ -247,12 +259,24 @@ $(document).ready(function () {
         restart();
     }
 
+    function removeConnection(id){
+        var connection = NodePanData.connections.filter(function(e){
+            return e.id == id;
+        })[0];
+        if(connection){
+            var index = NodePanData.connections.indexOf(connection);
+            NodePanData.connections.splice(index,1);
+            restart();
+        }
+    }
+
     function restart() {
         updateSVG();
         // Remove all old elements from svg only node and links not the drag line and rect
         svg.selectAll("g.node").remove();
         svg.selectAll("g.links").remove();
         svg.selectAll("g.links_s").remove();
+        svg.selectAll("g.linkRemove").remove();
 
         // Init the element node, link link_b(shadow of link)
         var gStates = svg.selectAll("g.node");
@@ -587,13 +611,40 @@ $(document).ready(function () {
             .attr( 'd', computeTransitionPath);
         gTransitions.exit().remove();
 
+        var timer;
         //Shadow connections
         gTransitions_b = gTransitions_b.data( NodePanData.connections);
         gTransitions_b.enter().append( 'path')
             .attr('id',function(d){ return d.id;})
             .attr( 'class', 'transition_b')
-            .attr( 'd', computeTransitionPath);
+            .attr( 'd', computeTransitionPath)
+            .on("mouseover", function (d) {
+                if(!isLinkDraw && !nodedrag){
+                    clearTimeout(timer)
+                    selected_link = d;
+                    var p = d3.mouse(this);
+                    remove_line.attr("x", p[0]-15)
+                        .attr("y",p[1]-15);
+                    remove_line.classed("hidden", false);
+                    timer = setTimeout(function(){
+                        remove_line.attr("x",-50)
+                            .attr("y",-50);
+                        remove_line.classed("hidden", true);
+                    },1500);
+                }
+            });
         gTransitions_b.exit().remove();
+
+        var remove_line = svg.append('g').attr('class','linkRemove').append("image")
+            .attr('class','removeline hidden')
+            .attr("xlink:href","images/wire-cut.png")
+            .attr("x", -50)
+            .attr("y", -50)
+            .attr("width",32)
+            .attr("height",32)
+            .on("click", function(d) {
+                removeConnection(selected_link.id);
+            });
     };
 
     //=================================================================//

@@ -135,12 +135,17 @@ svg *::-webkit-selection {
     pointer-events: none;
 }
 
-.drag_line_hidden {
+.dragline .hidden {
     stroke: #999;
     stroke-width: 0;
     pointer-events: none;
 }
-
+.removeline.hidden {
+ visibility: hidden;
+}
+.removeline{
+    z-index: 10000;
+}
 #nodePane{
  background:url("../images/canvas-bg.png") repeat ;
 }
