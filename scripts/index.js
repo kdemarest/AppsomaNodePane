@@ -6,6 +6,8 @@ var source_node,target_node,output_node,input_node;
 var nodedrag = false;
 var radius = 40;
 var NodePanData ={step_list:[],connections:[]};
+var popupTitle = "Title";
+var popupMessage = "Message";
 
 $(document).ready(function () {
     var selected = {};
@@ -83,7 +85,7 @@ $(document).ready(function () {
 
     var svg =  viewport
         .call(d3.behavior.zoom().scaleExtent([1,4]).on("zoom", zoom))
-        .append("g").attr("id","root");
+        .append("g");
 
     var defs = svg.append( 'defs' );
     var filter = defs.append( 'filter' )
@@ -181,6 +183,11 @@ $(document).ready(function () {
         });
 
     function updateSVG(){
+        viewport.attr("width", function () {
+            return $(".nodePaneContainer").width();
+        }).attr("height", function () {
+            return $(".nodePaneContainer").height();
+        });
         svg.attr("transform", "translate("+translates+")scale("+scale+")");
     }
 
@@ -194,6 +201,8 @@ $(document).ready(function () {
             .classed('hidden', true)
             .attr('d',"M 0 0 C 0 0 0 0 0 0");
     }
+
+    //Add new connection between nodes
     var addPath = function(){
         if(source_node && target_node && input_node && output_node){
             if(source_node != target_node){
@@ -202,17 +211,22 @@ $(document).ready(function () {
                 var isExist = NodePanData.connections.filter(function(e){
                     return e.id == connection.id;
                 });
+
+                //here is check for already exist connection
+                //we can add more check here
                 if(isExist.length == 0){
                     NodePanData.connections.push(connection);
                     restart();
                 }else{
-                    alert("Link already exist");
+                    popupMessageBox("Error","Link already exist");
                 }
             }
         }
         resetParameters();
     }
 
+    //Remove node from pane
+    //id of the node which you want to remove
     function removeTool(id){
         var relatedConnection = NodePanData.connections.filter(function(e){
             return e.source == id || e.target == id;
@@ -235,17 +249,12 @@ $(document).ready(function () {
 
     function restart() {
         updateSVG();
-
-        svg.attr("width", function () {
-            return $(".nodePaneContainer").width();
-        }).attr("height", function () {
-            return $(".nodePaneContainer").height();
-        });
-
+        // Remove all old elements from svg only node and links not the drag line and rect
         svg.selectAll("g.node").remove();
         svg.selectAll("g.links").remove();
         svg.selectAll("g.links_s").remove();
 
+        // Init the element node, link link_b(shadow of link)
         var gStates = svg.selectAll("g.node");
 
         var gTransitions = svg.append('g').attr("class","links")
@@ -254,6 +263,7 @@ $(document).ready(function () {
         var gTransitions_b = svg.append('g').attr("class","links_s")
             .selectAll("path.transition_b");
 
+        //Manage drag behavior of node
         var drag = d3.behavior.drag()
             .on("drag", function (d, i) {
                 if(isLinkDraw) return;
@@ -289,8 +299,8 @@ $(document).ready(function () {
                 d3.event.sourceEvent.stopPropagation();
             });
 
+        //Add data to node
         gStates = gStates.data(NodePanData.step_list);
-
         var gState = gStates.enter()
             .append("g")
             .attr({
@@ -352,7 +362,7 @@ $(document).ready(function () {
                 d3.select(this).classed("hover", false);
             })
             .call(drag);
-
+        // Add the controls remove and play
         var controls = gState.append("g").attr("class","controls");
 
         controls.append("image")
@@ -372,9 +382,10 @@ $(document).ready(function () {
             .attr("width",22)
             .attr("height",22)
             .on("click", function(d) {
-
+                popupMessageBox("Run","Running the selected tool");
             });
 
+        //Append each node to in main group
         var node = gState.append("g")
                 .attr("class","tool");
 
@@ -405,6 +416,7 @@ $(document).ready(function () {
             return d.name;
         });
 
+        // function for calculate the position on input/output node (arc around the node)
         var getStartingPoint = function(n,isinput){
             var sp;
             if(isinput){
@@ -422,6 +434,8 @@ $(document).ready(function () {
             }
             return sp;
         }
+
+        //Input/Output image if is connected or not
         var getConnectionImage = function(d,isInput){
             var type = "input";
             if(!isInput) type = "output";
@@ -435,10 +449,11 @@ $(document).ready(function () {
             return "images/terminal_default.png";
 
         }
+        //Append Inputs to the node
         var inputs = gStates.selectAll('.inputs')
                 .data(function(d){
                 if(d.input_list){
-                    var r = radius+5;
+                    var r = radius+8;
                     var a = getStartingPoint(d.input_list.length,true);
                     for(t in d.input_list){
                         d.input_list[t].x = r*Math.sin(a);
@@ -498,11 +513,11 @@ $(document).ready(function () {
                 return d.name;
             });
 
-
+        //Append Outputs to the node
         var output = gStates.selectAll('.outputs')
             .data(function(d){
                 if(d.output_list){
-                    var r = radius+5;
+                    var r = radius+8;
                     var a = getStartingPoint(d.output_list.length,false);
                     for(t in d.output_list){
                         d.output_list[t].x = r*Math.sin(a);
@@ -564,6 +579,7 @@ $(document).ready(function () {
 
         gStates.exit().remove();
 
+        //Add connections Data and append it to group
         gTransitions = gTransitions.data( NodePanData.connections);
         gTransitions.enter().append( 'path')
             .attr('id',function(d){ return d.id;})
@@ -571,6 +587,7 @@ $(document).ready(function () {
             .attr( 'd', computeTransitionPath);
         gTransitions.exit().remove();
 
+        //Shadow connections
         gTransitions_b = gTransitions_b.data( NodePanData.connections);
         gTransitions_b.enter().append( 'path')
             .attr('id',function(d){ return d.id;})
@@ -579,10 +596,18 @@ $(document).ready(function () {
         gTransitions_b.exit().remove();
     };
 
+    //=================================================================//
+    //  API call to server for get the data for "nodepane" and "tools" //
+    //=================================================================//
+
+    //Call for left tool list
+    //for now just add the mock data
     d3.json("data/todos.json", function(error, json) {
         ToolList = json.todos;
     });
 
+    //Call node pane data
+    // after data load it will draw the svg
     d3.json("data/saveData.json", function(error, json) {
         NodePanData.step_list = json.NodePanData.step_list;
         restart();
@@ -596,3 +621,65 @@ $(document).ready(function () {
         }
     });
 });
+
+//Popup Message function
+// pass the title and message to show
+function popupMessageBox(title,message){
+    popupTitle = title ? title:"Title";
+    popupMessage = message ? message:"Empty Message";
+    showPopup();
+}
+
+//Display popup on screen
+var showPopup = function(persistent) {
+    var target = $('.qtip.jgrowl:visible:last');
+
+    $('<div/>').qtip({
+        content: {
+            text: popupMessage,
+            title: {
+                text: popupTitle,
+                button: true
+            }
+        },
+        position: {
+            target: [0,0],
+            container: $('#Popup_div')
+        },
+        show: {
+            event: false,
+            ready: true,
+            effect: function() {
+                $(this).stop(0, 1).animate({ height: 'toggle' }, 400, 'swing');
+            },
+            delay: 0,
+            persistent: persistent
+        },
+        hide: {
+            event: false,
+            effect: function(api) {
+                $(this).stop(0, 1).animate({ height: 'toggle' }, 400, 'swing');
+            }
+        },
+        style: {
+            width: 250,
+            classes: 'jgrowl',
+            tip: false
+        },
+        events: {
+            render: function(event, api) {
+                if(!api.options.show.persistent) {
+                    $(this).bind('mouseover mouseout', function(e) {
+                        var lifespan = 2000;
+
+                        clearTimeout(api.timer);
+                        if (e.type !== 'mouseover') {
+                            api.timer = setTimeout(function() { api.hide(e) }, lifespan);
+                        }
+                    })
+                        .triggerHandler('mouseout');
+                }
+            }
+        }
+    });
+}

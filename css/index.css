@@ -144,3 +144,19 @@ svg *::-webkit-selection {
 #nodePane{
  background:url("../images/canvas-bg.png") repeat ;
 }
+
+#Popup_div{
+    position: absolute;
+    top: 20px;
+    right: 30px;
+}
+
+#Popup_div .qtip{
+    position: static;
+    min-height: 0;
+    overflow: hidden;
+    margin: 0 0 5px 0;
+}
+#nodeEditor{
+    display: block;
+}
