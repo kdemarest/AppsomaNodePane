@@ -145,7 +145,7 @@ $(document).ready(function () {
             resetParameters();
         }
     }).on("mousedown", function () {
-        d3.selectAll('g.selected').select('.tool').select('image')
+        d3.selectAll('g.selected').select('.tool').select('image.defaultImage')
             .attr("xlink:href","images/container_default.png");
         d3.selectAll('g.selected').classed("selected", false);
     });
@@ -178,7 +178,7 @@ $(document).ready(function () {
         })
         .on("mouseout", function () {
             if (d3.event.relatedTarget && d3.event.relatedTarget.tagName == 'HTML') {
-                d3.selectAll('.tool').select('image')
+                d3.selectAll('.tool').select('image.defaultImage')
                     .attr("xlink:href","images/container_default.png");
                 d3.selectAll('g.node.selection').classed("selection", false);
             }
@@ -232,6 +232,8 @@ $(document).ready(function () {
                 }else{
                     popupMessageBox("Error","Link already exist");
                 }
+            }else{
+                popupMessageBox("Error","Can not connect on same tool");
             }
         }
         resetParameters();
@@ -296,11 +298,11 @@ $(document).ready(function () {
 
                 if (selection[0].indexOf(this) == -1) {
                     selection.classed("selected", false);
-                    d3.selectAll('.tool').select('image')
+                    d3.selectAll('.tool').select('image.defaultImage')
                         .attr("xlink:href","images/container_default.png");
                     selection = d3.select(this);
                     selection.classed("selected", true);
-                    selection.select('.tool').select('image')
+                    selection.select('.tool').select('image.defaultImage')
                         .attr("xlink:href","images/container_selected.png");
                 }
 
@@ -368,12 +370,12 @@ $(document).ready(function () {
                     g = this;
                 isSelected = d3.select(g).classed("selected");
 
-                d3.selectAll('.tool').select('image')
+                d3.selectAll('.tool').select('image.defaultImage')
                     .attr("xlink:href","images/container_default.png");
                 d3.selectAll('g.selected').classed("selected", false);
 
                 d3.select(g).classed("selected", true);
-                d3.selectAll('g.selected').select('.tool').select('image')
+                d3.selectAll('g.selected').select('.tool').select('image.defaultImage')
                     .attr("xlink:href","images/container_selected.png");
 
                 if(g.parentNode)
@@ -414,11 +416,43 @@ $(document).ready(function () {
                 .attr("class","tool");
 
         node.append("image")
+            .attr('class','defaultImage')
             .attr("xlink:href", "images/container_default.png")
             .attr("x", -50)
             .attr("y", -50)
             .attr("width", 100)
             .attr("height", 100);
+
+        node.append("image")
+            .attr("xlink:href",function(d){
+                console.log(d.type);
+                var type = d.type;
+                var img = "images/folder.png";
+                switch (type){
+                    case "data_io.batch_input":
+                        img = "images/note.png";
+                        break;
+                    case "data_io.sort_files":
+                        img = "images/sorting.png";
+                        break;
+                    case "data_io.compress":
+                        img = "images/compress.png";
+                        break;
+                    case "data_io.input_file":
+                        img = "images/folder.png";
+                        break;
+
+                    case "picard.merge":
+                        img = "images/merge.png";
+                        break;
+                    default :
+                }
+                return img;
+            })
+            .attr("x",-20)
+            .attr("y",-20)
+            .attr("width",40)
+            .attr("height",40);
 
         node.append("circle")
             .attr({
@@ -444,16 +478,24 @@ $(document).ready(function () {
         var getStartingPoint = function(n,isinput){
             var sp;
             if(isinput){
-                sp = 11;
+                sp = 11.2;
                 if(n>1){
                     var t = parseInt(n/2);
                     sp = sp - (t*0.45);
+                    if(n%2){
+                       sp = sp - 0.20;
+                    }
+                }else{
+                    sp = 11;
                 }
             }else{
                 sp= 1.5
                 if(n>1){
                     var t = parseInt(n/2);
-                    sp = sp + (t*0.45);
+                    sp = sp - (t*0.35);
+                    if(n%2){
+                        sp = sp - 0.25;
+                    }
                 }
             }
             return sp;

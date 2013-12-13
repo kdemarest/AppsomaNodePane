@@ -1,158 +1,220 @@
 {
   "NodePanData": {
-    "step_list": [
-      {
-        "id": 336357,
-        "name": "Reference Genome",
-        "type": "data_io.input_file",
-        "params": {
-          "path": [
-            "/Projects/31/ucsc.hg19.fasta"
-          ],
-          "descriptionText": "We recommend inputting the most recent build of the human genome (hg19). To use this file in an analysis, make sure you copy if from Public Resources > Files to your project. "
-        },
-        "input_list": [
+      "step_list": [
           {
-            "id": 336357,
-            "name": "Genome2",
-            "type": "1",
-            "x": -34.378885689108515,
-            "y": -42.9312499093051
+              "id": 3363571,
+              "name": "Compress Files",
+              "type": "data_io.compress",
+              "params": {
+                  "path": [
+                      "/Projects/31/ucsc.hg19.fasta"
+                  ],
+                  "descriptionText": "We recommend inputting the most recent build of the human genome (hg19). To use this file in an analysis, make sure you copy if from Public Resources > Files to your project. "
+              },
+              "input_list": [
+                  {
+                      "id": 336357,
+                      "name": "Input File",
+                      "type": "batch_input",
+                      "x": -43.31343887802353,
+                      "y": -20.686856033716662
+                  },
+                  {
+                      "id": 336357213,
+                      "name": "Files",
+                      "type": "files",
+                      "x": -47.999529914433765,
+                      "y": 0.2124335034264377
+                  }
+              ],
+              "output_list": [
+                  {
+                      "id": 33635721321,
+                      "name": "Compressed File",
+                      "type": "batch_input",
+                      "x": 47.87975935699461,
+                      "y": 3.3953856800497393
+                  }
+              ],
+              "x": 422,
+              "y": 238
           },
           {
-            "id": 3363566,
-            "name": "Genome3",
-            "type": "1",
-            "x": -49.629982047735254,
-            "y": -23.703689205300428
+              "id": 1189999,
+              "name": "Reads Batch",
+              "type": "data_io.batch_input",
+              "params": {
+                  "descriptionText": ""
+              },
+              "input_list": [],
+              "output_list": [
+                  {
+                      "id": 33631121,
+                      "name": "Batch Input",
+                      "type": "batch_input",
+                      "x": 47.87975935699461,
+                      "y": 3.3953856800497393
+                  }
+              ],
+              "x": 72,
+              "y": 81
           },
           {
-            "id": 336357123,
-            "name": " Genome4",
-            "type": "1",
-            "x": -54.99946136028869,
-            "y": 0.2434133893426955
+              "id": 118999923,
+              "name": "Reads Shell",
+              "type": "data_io.batch_input",
+              "params": {
+                  "descriptionText": ""
+              },
+              "input_list": [],
+              "output_list": [
+                  {
+                      "id": 3363112123,
+                      "name": "Shell Input",
+                      "type": "batch_input",
+                      "x": 47.87975935699461,
+                      "y": 3.3953856800497393
+                  }
+              ],
+              "x": 74,
+              "y": 212
           },
           {
-            "id": 336357213,
-            "name": " Genome5",
-            "type": "1",
-            "x": -49.41822917792472,
-            "y": 24.142050967515377
-          }
-        ],
-        "output_list": [
+              "id": 118999944,
+              "name": "Reads Batch",
+              "type": "data_io.batch_input",
+              "params": {
+                  "descriptionText": ""
+              },
+              "input_list": [],
+              "output_list": [
+                  {
+                      "id": 3363112144,
+                      "name": "Batch Input",
+                      "type": "batch_input",
+                      "x": 47.87975935699461,
+                      "y": 3.3953856800497393
+                  }
+              ],
+              "x": 81,
+              "y": 477
+          },
           {
-            "id": 33635721321,
-            "name": " Genome Out 2",
-            "type": "2",
-            "x": 54.86222426322299,
-            "y": 3.89054609172366
-          }
-        ],
-        "x": 298,
-        "y": 206
-      },
-      {
-        "id": 1189999,
-        "name": "Reads",
-        "type": "data_io.batch_input",
-        "params": {
-          "descriptionText": ""
-        },
-        "input_list": [
+              "id": 11899993,
+              "name": "Reads Shell",
+              "type": "data_io.batch_input",
+              "params": {
+                  "descriptionText": ""
+              },
+              "input_list": [],
+              "output_list": [
+                  {
+                      "id": 336311213,
+                      "name": "Shell Input",
+                      "type": "batch_input",
+                      "x": 47.87975935699461,
+                      "y": 3.3953856800497393
+                  }
+              ],
+              "x": 79,
+              "y": 348
+          },
           {
-            "id": 33635127,
-            "name": "Reference Genome2",
-            "type": "2",
-            "x": -54.99946136028869,
-            "y": 0.2434133893427932
-          }
-        ],
-        "output_list": [
+              "id": 1203088,
+              "name": "File Sort",
+              "type": "data_io.sort_files",
+              "params": {},
+              "input_list": [
+                  {
+                      "id": 3316351273,
+                      "name": "Input File",
+                      "type": "batch_input",
+                      "x": -47.999529914433765,
+                      "y": 0.2124335034264377
+                  }
+              ],
+              "output_list": [
+                  {
+                      "id": 3223631121,
+                      "name": "Files",
+                      "type": "files",
+                      "x": 47.87975935699461,
+                      "y": 3.3953856800497393
+                  }
+              ],
+              "x": 241,
+              "y": 416
+          },
           {
-            "id": 33631121,
-            "name": "Reference Genome Out 3",
-            "type": "3",
-            "x": 54.86222426322299,
-            "y": 3.89054609172366
+              "id": 1212993,
+              "name": "Merge File",
+              "type": "picard.merge",
+              "params": {},
+              "input_list": [
+                  {
+                      "id": 33635127388,
+                      "name": "File",
+                      "type": "batch_input",
+                      "x": -47.999529914433765,
+                      "y": 0.2124335034264377
+                  }
+              ],
+              "output_list": [
+                  {
+                      "id": 33631121666,
+                      "name": "Merged File",
+                      "type": "batch_input",
+                      "x": 47.87975935699461,
+                      "y": 3.3953856800497393
+                  }
+              ],
+              "x": 621,
+              "y": 311
           }
-        ],
-        "x": 82,
-        "y": 85
-      },
-      {
-        "id": 1203088,
-        "name": "Picard Sort",
-        "type": "picard.sort",
-        "params": {},
-        "input_list": [
+      ],
+      "connections": [
           {
-            "id": 3316351273,
-            "name": "Reference Genome2",
-            "type": "2",
-            "x": -54.99946136028869,
-            "y": 0.2434133893427932
-          }
-        ],
-        "output_list": [
+              "source": 1189999,
+              "target": 3363571,
+              "output": 33631121,
+              "input": 336357,
+              "id": "1189999_3363571_33631121_336357"
+          },
           {
-            "id": 3223631121,
-            "name": "Reference Genome Out 3",
-            "type": "3",
-            "x": 54.86222426322299,
-            "y": 3.89054609172366
-          }
-        ],
-        "x": 75,
-        "y": 279
-      },
-      {
-        "id": 1212993,
-        "name": "Picard Merge",
-        "type": "picard.merge",
-        "params": {},
-        "input_list": [
+              "source": 3363571,
+              "target": 1212993,
+              "output": 33635721321,
+              "input": 33635127388,
+              "id": "3363571_1212993_33635721321_33635127388"
+          },
           {
-            "id": 33635127388,
-            "name": "Reference Genome2",
-            "type": "2",
-            "x": -54.99946136028869,
-            "y": 0.2434133893427932
-          }
-        ],
-        "output_list": [
+              "source": 118999923,
+              "target": 3363571,
+              "output": 3363112123,
+              "input": 336357,
+              "id": "118999923_3363571_3363112123_336357"
+          },
           {
-            "id": 33631121666,
-            "name": "Reference Genome Out 3",
-            "type": "3",
-            "x": 54.86222426322299,
-            "y": 3.89054609172366
+              "source": 11899993,
+              "target": 1203088,
+              "output": 336311213,
+              "input": 3316351273,
+              "id": "11899993_1203088_336311213_3316351273"
+          },
+          {
+              "source": 118999944,
+              "target": 1203088,
+              "output": 3363112144,
+              "input": 3316351273,
+              "id": "118999944_1203088_3363112144_3316351273"
+          },
+          {
+              "source": 1203088,
+              "target": 3363571,
+              "output": 3223631121,
+              "input": 336357213,
+              "id": "1203088_3363571_3223631121_336357213"
           }
-        ],
-        "x": 498,
-        "y": 88
-      }
-    ],
-    "connections": [
-      {
-        "source": 1189999,
-        "target": 336357,
-        "output": 33631121,
-        "input": 336357
-      },
-      {
-        "source": 1203088,
-        "target": 336357,
-        "output": 3223631121,
-        "input": 336357213
-      },
-      {
-        "source": 336357,
-        "target": 1212993,
-        "output": 33635721321,
-        "input": 33635127388
-      }
-    ]
+      ]
   }
 }
