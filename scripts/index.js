@@ -105,6 +105,81 @@ $(document).ready(function () {
     feMerge.append( 'feMergeNode' )
         .attr( 'in', 'SourceGraphic' );
 
+    var defs1 = svg.append('defs');
+    defs1.append('svg:pattern')
+        .attr('id', 'defaultImage')
+        .attr('patternUnits', 'userSpaceOnUse')
+        .attr('width', 120)
+        .attr('height', 120)
+        .attr('x', 50)
+        .attr('y', 50)
+        .append('image')
+        .attr('xlink:href', 'images/container_default.png')
+        .attr('x', 20)
+        .attr('y', 20)
+        .attr('width', 100)
+        .attr('height', 100);
+
+    var defs2 = svg.append('defs');
+    defs2.append('svg:pattern')
+        .attr('id', 'selectedImage')
+        .attr('patternUnits', 'userSpaceOnUse')
+        .attr('width', 120)
+        .attr('height', 120)
+        .attr('x', 50)
+        .attr('y', 50)
+        .append('image')
+        .attr('xlink:href', 'images/container_selected.png')
+        .attr('x', 20)
+        .attr('y', 20)
+        .attr('width', 100)
+        .attr('height', 100);
+
+    var defs3 = svg.append('defs');
+    defs3.append('svg:pattern')
+        .attr('id', 'connect_default_Image')
+        .attr('patternUnits', 'userSpaceOnUse')
+        .attr('width', 20)
+        .attr('height', 20)
+        .attr('x', 8)
+        .attr('y', 8)
+        .append('image')
+        .attr('xlink:href', 'images/terminal_default.png')
+        .attr('x', 4)
+        .attr('y', 4)
+        .attr('width', 16)
+        .attr('height', 16);
+
+    var defs4 = svg.append('defs');
+    defs4.append('svg:pattern')
+        .attr('id', 'connect_hover_Image')
+        .attr('patternUnits', 'userSpaceOnUse')
+        .attr('width', 20)
+        .attr('height', 20)
+        .attr('x', 8)
+        .attr('y', 8)
+        .append('image')
+        .attr('xlink:href', 'images/terminal_drop.png')
+        .attr('x', 4)
+        .attr('y', 4)
+        .attr('width', 16)
+        .attr('height', 16);
+
+    var defs5 = svg.append('defs');
+    defs5.append('svg:pattern')
+        .attr('id', 'connect_connect_Image')
+        .attr('patternUnits', 'userSpaceOnUse')
+        .attr('width', 20)
+        .attr('height', 20)
+        .attr('x', 8)
+        .attr('y', 8)
+        .append('image')
+        .attr('xlink:href', 'images/terminal_connect.png')
+        .attr('x', 4)
+        .attr('y', 4)
+        .attr('width', 16)
+        .attr('height', 16);
+
     /* Zoom function*/
     function zoom() {
         if(!nodedrag && !isLinkDraw){
@@ -115,11 +190,7 @@ $(document).ready(function () {
         }
     }
 
-    var drag_line = svg.append('g').append('path')
-            .attr('class','dragline hidden')
-            .attr('d', "M 0 0 C 0 0 0 0 0 0");
-
-
+    var drag_line;
 
     eventRect.on('mousemove', function() {
 
@@ -145,8 +216,6 @@ $(document).ready(function () {
             resetParameters();
         }
     }).on("mousedown", function () {
-        d3.selectAll('g.selected').select('.tool').select('image.defaultImage')
-            .attr("xlink:href","images/container_default.png");
         d3.selectAll('g.selected').classed("selected", false);
     });
 
@@ -178,8 +247,6 @@ $(document).ready(function () {
         })
         .on("mouseout", function () {
             if (d3.event.relatedTarget && d3.event.relatedTarget.tagName == 'HTML') {
-                d3.selectAll('.tool').select('image.defaultImage')
-                    .attr("xlink:href","images/container_default.png");
                 d3.selectAll('g.node.selection').classed("selection", false);
             }
         });
@@ -279,6 +346,7 @@ $(document).ready(function () {
         svg.selectAll("g.links").remove();
         svg.selectAll("g.links_s").remove();
         svg.selectAll("g.linkRemove").remove();
+        svg.selectAll("g.dragline_g").remove();
 
         // Init the element node, link link_b(shadow of link)
         var gStates = svg.selectAll("g.node");
@@ -298,12 +366,8 @@ $(document).ready(function () {
 
                 if (selection[0].indexOf(this) == -1) {
                     selection.classed("selected", false);
-                    d3.selectAll('.tool').select('image.defaultImage')
-                        .attr("xlink:href","images/container_default.png");
                     selection = d3.select(this);
                     selection.classed("selected", true);
-                    selection.select('.tool').select('image.defaultImage')
-                        .attr("xlink:href","images/container_selected.png");
                 }
 
                 selection.attr("transform", function (d, i) {
@@ -368,21 +432,28 @@ $(document).ready(function () {
             }).on("click", function (d, i) {
                 var e = d3.event,
                     g = this;
-                isSelected = d3.select(g).classed("selected");
-
-                d3.selectAll('.tool').select('image.defaultImage')
-                    .attr("xlink:href","images/container_default.png");
                 d3.selectAll('g.selected').classed("selected", false);
-
                 d3.select(g).classed("selected", true);
-                d3.selectAll('g.selected').select('.tool').select('image.defaultImage')
-                    .attr("xlink:href","images/container_selected.png");
-
                 if(g.parentNode)
                     g.parentNode.appendChild(g);
             })
             .on("mouseover", function () {
                 d3.select(this).classed("hover", true);
+                if(isLinkDraw){
+                    var p = d3.mouse(this.parentNode);
+                    var sourceX,sourceY;
+                    if(source_node){
+                        sourceX = (source_node.x+output_node.x);
+                        sourceY = (source_node.y+output_node.y);
+                    }else{
+                        sourceX = (target_node.x+input_node.x);
+                        sourceY = (target_node.y+input_node.y);
+                    }
+                    var xn = p[0];
+                    var yn = p[1];
+                    var path = "M "+sourceX+" "+sourceY+" C"+xn+" "+sourceY+" "+sourceX+" "+yn+" "+xn+" "+yn;
+                    drag_line.attr('d',path);
+                }
             })
             .on("mouseout", function () {
                 d3.select(this).classed("hover", false);
@@ -415,17 +486,14 @@ $(document).ready(function () {
         var node = gState.append("g")
                 .attr("class","tool");
 
-        node.append("image")
-            .attr('class','defaultImage')
-            .attr("xlink:href", "images/container_default.png")
-            .attr("x", -50)
-            .attr("y", -50)
-            .attr("width", 100)
-            .attr("height", 100);
+        node.append("circle")
+            .attr({
+                r: radius + 2,
+                class: 'outer'
+            });
 
         node.append("image")
             .attr("xlink:href",function(d){
-                console.log(d.type);
                 var type = d.type;
                 var img = "images/folder.png";
                 switch (type){
@@ -454,12 +522,6 @@ $(document).ready(function () {
             .attr("width",40)
             .attr("height",40);
 
-        node.append("circle")
-            .attr({
-                r: radius + 2,
-                class: 'outer'
-            });
-
         node.append("text")
             .attr("class","nodeName")
             .attr({
@@ -481,7 +543,7 @@ $(document).ready(function () {
                 sp = 11.2;
                 if(n>1){
                     var t = parseInt(n/2);
-                    sp = sp - (t*0.45);
+                    sp = sp - (t*0.35);
                     if(n%2){
                        sp = sp - 0.20;
                     }
@@ -489,13 +551,15 @@ $(document).ready(function () {
                     sp = 11;
                 }
             }else{
-                sp= 1.5
+                sp= 1.75
                 if(n>1){
                     var t = parseInt(n/2);
                     sp = sp - (t*0.35);
                     if(n%2){
-                        sp = sp - 0.25;
+                        sp = sp - 0.20;
                     }
+                }else{
+                    sp = 1.5
                 }
             }
             return sp;
@@ -510,9 +574,9 @@ $(document).ready(function () {
                 return e[type] == d.id;
             });
             if(conn.length > 0){
-                return "images/terminal_connect.png";
+                return "url('#connect_connect_Image')";
             }
-            return "images/terminal_default.png";
+            return "url('#connect_default_Image')";
 
         }
         //Append Inputs to the node
@@ -524,7 +588,7 @@ $(document).ready(function () {
                     for(t in d.input_list){
                         d.input_list[t].x = r*Math.sin(a);
                         d.input_list[t].y = r*Math.cos(a);
-                        a = a + 0.45;
+                        a = a + 0.35;
                     }
                     return d.input_list;
                 }
@@ -545,28 +609,18 @@ $(document).ready(function () {
                     input_node = d;
                 });
 
-        inputs.append("image")
-            .attr("xlink:href", function(d){
-                return getConnectionImage(d,true);
-            })
-            .attr("x", -8)
-            .attr("y", -8)
-            .attr("width", 16)
-            .attr("height", 16);
-
         inputs.append('circle')
             .attr("r", function(d,i) { return 8; })
+            .style('fill',function(d){return getConnectionImage(d,true);})
             .on("mouseover", function () {
                 d3.select(this.parentNode).classed("hover", true);
-                d3.select(this.parentNode).select('image')
-                    .attr("xlink:href","images/terminal_drop.png");
+                d3.select(this)
+                    .style("fill","url('#connect_hover_Image')");
             })
             .on("mouseout", function () {
                 d3.select(this.parentNode).classed("hover", false);
-                d3.select(this.parentNode).select('image')
-                    .attr("xlink:href", function(d){
-                        return getConnectionImage(d,true);
-                    });
+                d3.select(this)
+                    .style('fill',function(d){return getConnectionImage(d,true);})
             });
 
         inputs.append("text")
@@ -588,7 +642,7 @@ $(document).ready(function () {
                     for(t in d.output_list){
                         d.output_list[t].x = r*Math.sin(a);
                         d.output_list[t].y = r*Math.cos(a);
-                        a = a + 0.45;
+                        a = a + 0.35;
                     }
                     return d.output_list;
                 }
@@ -609,28 +663,16 @@ $(document).ready(function () {
                 output_node = d;
             });
 
-        output.append("image")
-            .attr("xlink:href", function(d){
-                return getConnectionImage(d,false);
-            })
-            .attr("x", -8)
-            .attr("y", -8)
-            .attr("width", 16)
-            .attr("height", 16);
-
         output.append('circle')
             .attr("r", function(d,i) { return 8; })
+            .style('fill',function(d){return getConnectionImage(d,false);})
             .on("mouseover", function () {
                 d3.select(this.parentNode).classed("hover", true);
-                d3.select(this.parentNode).select('image')
-                    .attr("xlink:href","images/terminal_drop.png");
+                d3.select(this).style("fill","url('#connect_hover_Image')");
             })
             .on("mouseout", function () {
                 d3.select(this.parentNode).classed("hover", false);
-                d3.select(this.parentNode).select('image')
-                    .attr("xlink:href", function(d){
-                        return getConnectionImage(d,false);
-                    });
+                d3.select(this).style('fill',function(d){return getConnectionImage(d,false);})
             });
 
         output.append("text")
@@ -687,6 +729,10 @@ $(document).ready(function () {
             .on("click", function(d) {
                 removeConnection(selected_link.id);
             });
+
+        drag_line = svg.append('g').attr('class','dragline_g').append('path')
+            .attr('class','dragline hidden')
+            .attr('d', "M 0 0 C 0 0 0 0 0 0");
     };
 
     //=================================================================//
