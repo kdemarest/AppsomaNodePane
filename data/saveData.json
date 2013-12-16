@@ -66,7 +66,15 @@
               "params": {
                   "descriptionText": ""
               },
-              "input_list": [],
+              "input_list": [
+                  {
+                      "id": 3316351273133,
+                      "name": "Input File",
+                      "type": "batch_input",
+                      "x": -47.999529914433765,
+                      "y": 0.2124335034264377
+                  }
+              ],
               "output_list": [
                   {
                       "id": 336311213,

@@ -285,6 +285,25 @@ $(document).ready(function () {
             .attr('d',"M 0 0 C 0 0 0 0 0 0");
     }
 
+    var isLoop = function(){
+        var loop_val = false;
+        function recurs(id){
+            var tempLi = NodePanData.connections.filter(function(e){
+                return e.target == id;
+            });
+            for(l in tempLi){
+                var c = tempLi[l];
+                if(c.source == target_node.id){
+                    loop_val = true;
+                    break;
+                }else{
+                    recurs(c.source);
+                }
+            }
+        }
+        recurs(source_node.id);
+        return loop_val;
+    }
     //Add new connection between nodes
     var addPath = function(){
         if(source_node && target_node && input_node && output_node){
@@ -298,14 +317,27 @@ $(document).ready(function () {
                 //here is check for already exist connection
                 //we can add more check here
                 if(isExist.length == 0){
-                    NodePanData.connections.push(connection);
-                    restart();
+                    if(isLoop()){
+                        popupMessageBox("Error","You are creating endless loop.");
+                    }else{
+                        if(input_node.type == output_node.type){
+                            NodePanData.connections.push(connection);
+                            restart();
+                        }else{
+                            popupMessageBox("Error","input and output type is not same.");
+                        }
+                    }
+
                 }else{
                     popupMessageBox("Error","Link already exist");
                 }
             }else{
                 popupMessageBox("Error","Can not connect on same tool");
             }
+        }
+        if(selected_link){
+            NodePanData.connections.push(selected_link);
+            restart();
         }
         resetParameters();
     }
@@ -350,7 +382,30 @@ $(document).ready(function () {
         });
         return connection;
     }
-
+    //Function for center image of node that we can add or replace image url or callback
+    //according to requirement.
+    function getImageType(type){
+        var img = "images/folder.png";
+        switch (type){
+            case "data_io.batch_input":
+                img = "images/note.png";
+                break;
+            case "data_io.sort_files":
+                img = "images/sorting.png";
+                break;
+            case "data_io.compress":
+                img = "images/compress.png";
+                break;
+            case "data_io.input_file":
+                img = "images/folder.png";
+                break;
+            case "picard.merge":
+                img = "images/merge.png";
+                break;
+            default :
+        }
+        return img;
+    }
     function restart() {
         updateSVG();
         // Remove all old elements from svg only node and links not the drag line and rect
@@ -524,28 +579,7 @@ $(document).ready(function () {
 
         node.append("image")
             .attr("xlink:href",function(d){
-                var type = d.type;
-                var img = "images/folder.png";
-                switch (type){
-                    case "data_io.batch_input":
-                        img = "images/note.png";
-                        break;
-                    case "data_io.sort_files":
-                        img = "images/sorting.png";
-                        break;
-                    case "data_io.compress":
-                        img = "images/compress.png";
-                        break;
-                    case "data_io.input_file":
-                        img = "images/folder.png";
-                        break;
-
-                    case "picard.merge":
-                        img = "images/merge.png";
-                        break;
-                    default :
-                }
-                return img;
+                return getImageType(d.type);
             })
             .attr("x",-20)
             .attr("y",-20)
@@ -609,6 +643,7 @@ $(document).ready(function () {
             return "url('#connect_default_Image')";
 
         }
+
         //Append Inputs to the node
         var inputs = gStates.selectAll('.inputs')
                 .data(function(d){
@@ -634,7 +669,7 @@ $(document).ready(function () {
                 }).on("mousedown", function (d) {
                     isLinkDraw =true;
                     input_node = d;
-                }) .on("mouseup", function (d) {
+                }).on("mouseup", function (d) {
                     isLinkDraw =false;
                     input_node = d;
                 });
@@ -688,7 +723,7 @@ $(document).ready(function () {
             }).on("mousedown", function (d) {
                 isLinkDraw =true;
                 output_node = d;
-            }) .on("mouseup", function (d) {
+            }).on("mouseup", function (d) {
                 isLinkDraw =false;
                 output_node = d;
             });
@@ -696,7 +731,7 @@ $(document).ready(function () {
         output.append('circle')
             .attr("r", function(d,i) { return 8; })
             .style('fill',function(d){return getConnectionImage(d,false);})
-            .on("mouseover", function () {
+            .on("mouseover", function (d) {
                 d3.select(this.parentNode).classed("hover", true);
                 d3.select(this).style("fill","url('#connect_hover_Image')");
             })
