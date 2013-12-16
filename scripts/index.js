@@ -53,8 +53,8 @@ $(document).ready(function () {
             var posX = event.originalEvent.clientX - $(this).offset().left;
             var posY = event.originalEvent.clientY - $(this).offset().top;
             var obj = ToolList[selected.id];
-            obj.x = posX;
-            obj.y = posY;
+            obj.x = (posX/scale)-(translates[0]/scale);
+            obj.y = (posY/scale)-(translates[1]/scale);
             var tempObj = JSON.parse(JSON.stringify(obj));
             tempObj.id = obj.id+"D"+Date.now();
             NodePanData.step_list.push(tempObj);
@@ -449,6 +449,7 @@ $(document).ready(function () {
 
                 gTransitions.attr( 'd', computeTransitionPath);
                 gTransitions_b.attr( 'd', computeTransitionPath);
+
                 d3.event.sourceEvent.stopPropagation();
             })
             .on("dragend", function (d) {
@@ -501,6 +502,7 @@ $(document).ready(function () {
                         .attr('d',path);
                 }
             }).on("mouseup", function (d) {
+
                 if(target_node){
                     source_node = d;
                 }else{
@@ -522,8 +524,9 @@ $(document).ready(function () {
                 if(g.parentNode)
                     g.parentNode.appendChild(g);
             })
-            .on("mouseover", function () {
+            .on("mouseover", function (d) {
                 d3.select(this).classed("hover", true);
+
                 if(isLinkDraw){
                     var p = d3.mouse(this.parentNode);
                     var sourceX,sourceY;
