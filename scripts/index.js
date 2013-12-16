@@ -256,21 +256,17 @@ $(document).ready(function () {
         });
 
     function updateSVG(){
-        viewport.attr("width", function () {
-            return $(".nodePaneContainer").width();
-        }).attr("height", function () {
-            return $(".nodePaneContainer").height();
-        });
-
-        eventRect.attr("width", function () {
-            return $(".nodePaneContainer").width();
-        })
-        .attr("height", function () {
-            return $(".nodePaneContainer").height();
-        })
+        var h = document.getElementById("root").getBBox().height;
+        var w = document.getElementById("root").getBBox().width;
+        if($(".nodePaneContainer").height() > h) h = $(".nodePaneContainer").height();
+        if($(".nodePaneContainer").width() > w) w = $(".nodePaneContainer").width();
+        if(w<500) w = 500;
+        if(h<500) h = 500;
+        eventRect.attr("width",w*scale)
+                .attr("height",h*scale);
+        viewport.attr("height",h*scale)
+                .attr("width",w*scale);
         svg.attr("transform", "translate("+translates+")scale("+scale+")");
-//        var h = document.getElementById("root").getBBox().height;
-//        var w = document.getElementById("root").getBBox().width;
     }
 
     function resetParameters(){
@@ -680,10 +676,22 @@ $(document).ready(function () {
         inputs.append('circle')
             .attr("r", function(d,i) { return 8; })
             .style('fill',function(d){return getConnectionImage(d,true);})
-            .on("mouseover", function () {
+            .on("mouseover", function (d) {
                 d3.select(this.parentNode).classed("hover", true);
                 d3.select(this)
                     .style("fill","url('#connect_hover_Image')");
+                $(this.parentNode).qtip({
+                    content: {
+                        text: d.type,
+                        title: {
+                            text: d.name
+                        }
+                    },
+                    position: {
+                        my: 'top left',
+                        at: 'bottom right'
+                    }
+                });
             })
             .on("mouseout", function () {
                 d3.select(this.parentNode).classed("hover", false);
@@ -737,6 +745,18 @@ $(document).ready(function () {
             .on("mouseover", function (d) {
                 d3.select(this.parentNode).classed("hover", true);
                 d3.select(this).style("fill","url('#connect_hover_Image')");
+                $(this.parentNode).qtip({
+                    content: {
+                        text: d.type,
+                        title: {
+                            text: d.name
+                        }
+                    },
+                    position: {
+                        my: 'top right',
+                        at: 'bottom left'
+                    }
+                });
             })
             .on("mouseout", function () {
                 d3.select(this.parentNode).classed("hover", false);

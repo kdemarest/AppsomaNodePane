@@ -148,6 +148,9 @@ svg *::-webkit-selection {
 }
 #nodePane{
  background:url("../images/canvas-bg.png") repeat ;
+ overflow: auto;
+ width: 100%;
+ height: 100%;
 }
 
 #Popup_div{
