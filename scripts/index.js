@@ -213,7 +213,11 @@ $(document).ready(function () {
         }
     }).on("mouseup", function () {
         if(isLinkDraw){
+            if(selected_link){
+                NodePanData.connections.push(selected_link);
+            }
             resetParameters();
+            restart();
         }
     }).on("mousedown", function () {
         d3.selectAll('g.selected').classed("selected", false);
@@ -335,8 +339,16 @@ $(document).ready(function () {
         if(connection){
             var index = NodePanData.connections.indexOf(connection);
             NodePanData.connections.splice(index,1);
+            resetParameters();
             restart();
         }
+    }
+
+    function getPreviousConnection(id){
+        var connection = NodePanData.connections.filter(function(e){
+            return e.input == id;
+        });
+        return connection;
     }
 
     function restart() {
@@ -402,10 +414,20 @@ $(document).ready(function () {
                     return d.id;
                 }
             }).on("mousedown", function (d) {
-                if(output_node)
+                if(output_node){
                     source_node = d;
-                else
+                }else{
                     target_node = d;
+                    if(input_node){
+                        var tempRemove = getPreviousConnection(input_node.id);
+                        if(tempRemove.length > 0){
+                            selected_link = tempRemove[0];
+                            var index = NodePanData.connections.indexOf(tempRemove[0]);
+                            NodePanData.connections.splice(index,1);
+                            restart();
+                        }
+                    }
+                }
 
                 if(isLinkDraw){
                     var p = d3.mouse( this);
@@ -424,10 +446,18 @@ $(document).ready(function () {
                         .attr('d',path);
                 }
             }).on("mouseup", function (d) {
-                if(target_node)
+                if(target_node){
                     source_node = d;
-                else
+                }else{
                     target_node = d;
+                    if(input_node){
+                        var tempRemove = getPreviousConnection(input_node.id);
+                        if(tempRemove.length > 0){
+                            popupMessageBox("Error","Input already connected");
+                            resetParameters();
+                        }
+                    }
+                }
                 addPath();
             }).on("click", function (d, i) {
                 var e = d3.event,
