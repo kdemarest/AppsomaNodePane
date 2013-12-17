@@ -82,9 +82,9 @@ $(document).ready(function () {
         .attr('fill', 'none')
         .attr('pointer-events', 'all');
 
-
+    var zoomeffect = d3.behavior.zoom().scaleExtent([1,4]).on("zoom", zoom);
     var svg =  viewport
-        .call(d3.behavior.zoom().scaleExtent([1,4]).on("zoom", zoom))
+        .call(zoomeffect)
         .append("g").attr('id','root');
 
     var defs = svg.append( 'defs' );
@@ -211,6 +211,7 @@ $(document).ready(function () {
             var path = "M "+sourceX+" "+sourceY+" C"+xn+" "+sourceY+" "+sourceX+" "+yn+" "+xn+" "+yn;
             drag_line.attr('d',path);
         }
+
     }).on("mouseup", function () {
         if(isLinkDraw){
             if(selected_link){
@@ -219,6 +220,7 @@ $(document).ready(function () {
             resetParameters();
             restart();
         }
+
     }).on("mousedown", function () {
         d3.selectAll('g.selected').classed("selected", false);
     });
@@ -262,10 +264,13 @@ $(document).ready(function () {
         if($(".nodePaneContainer").width() > w) w = $(".nodePaneContainer").width();
         if(w<500) w = 500;
         if(h<500) h = 500;
-        eventRect.attr("width",w*scale)
-                .attr("height",h*scale);
-        viewport.attr("height",h*scale)
-                .attr("width",w*scale);
+        var extraWidth =  translates[0] > 0 ?translates[0]:0;
+        var extraHeight = translates[1] > 0 ?translates[1]:0;
+
+        eventRect.attr("width",(w+extraWidth)*scale)
+                .attr("height",(h+extraHeight)*scale);
+        viewport.attr("height",(h+extraHeight)*scale)
+                .attr("width",(w+extraWidth)*scale);
         svg.attr("transform", "translate("+translates+")scale("+scale+")");
     }
 
@@ -281,7 +286,7 @@ $(document).ready(function () {
             .attr('d',"M 0 0 C 0 0 0 0 0 0");
     }
 
-    var isLoop = function(){
+    var isLoop = function(_source,_target){
         var loop_val = false;
         function recurs(id){
             var tempLi = NodePanData.connections.filter(function(e){
@@ -289,7 +294,7 @@ $(document).ready(function () {
             });
             for(l in tempLi){
                 var c = tempLi[l];
-                if(c.source == target_node.id){
+                if(c.source == _target){
                     loop_val = true;
                     break;
                 }else{
@@ -297,7 +302,7 @@ $(document).ready(function () {
                 }
             }
         }
-        recurs(source_node.id);
+        recurs(_source);
         return loop_val;
     }
     //Add new connection between nodes
@@ -313,11 +318,12 @@ $(document).ready(function () {
                 //here is check for already exist connection
                 //we can add more check here
                 if(isExist.length == 0){
-                    if(isLoop()){
+                    if(isLoop(source_node.id,target_node.id)){
                         popupMessageBox("Error","You are creating endless loop.");
                     }else{
                         if(input_node.type == output_node.type){
                             NodePanData.connections.push(connection);
+                            resetParameters();
                             restart();
                         }else{
                             popupMessageBox("Error","input and output type is not same.");
@@ -445,7 +451,7 @@ $(document).ready(function () {
 
                 gTransitions.attr( 'd', computeTransitionPath);
                 gTransitions_b.attr( 'd', computeTransitionPath);
-
+                updateSVG();
                 d3.event.sourceEvent.stopPropagation();
             })
             .on("dragend", function (d) {
@@ -482,7 +488,7 @@ $(document).ready(function () {
                 }
 
                 if(isLinkDraw){
-                    var p = d3.mouse( this);
+                    var p = d3.mouse(this);
                     var sourceX,sourceY;
                     if(source_node){
                         sourceX = (source_node.x+output_node.x);
@@ -643,6 +649,86 @@ $(document).ready(function () {
 
         }
 
+        /*
+         * check for port eligibility
+         * */
+        var isEligible = function(d,isInput){
+            var type = "input";
+            if(!isInput) type = "output";
+
+            var conn = NodePanData.connections.filter(function(e){
+                return e[type] == d.id;
+            });
+            if(conn.length > 0){
+                return false;
+            }
+            return true;
+        }
+
+        /*
+         * Lighted up all eligible connection for port
+         * */
+        function lightUpEligible(d,isInput){
+            if(isInput){
+                var list = d3.selectAll('g.outputs');
+                var elem = list[0];
+
+                var vvv = d3.selectAll("g.inputs.hover")[0];
+                for(v in elem){
+                    var o = elem[v]
+                    if(o.className && o.className.baseVal == 'outputs'){
+                        var _data = o.__data__;
+                        if(o.parentNode != vvv[0].parentNode){
+                            if(_data.type == d.type && !isLoop(vvv[0].parentNode.__data__.id,o.parentNode.__data__.id)){
+                                d3.select(o.firstChild).style("fill","url('#connect_hover_Image')");
+                            }
+                        }
+                    }
+                }
+            }else{
+                var list = d3.selectAll('g.inputs');
+                var elem = list[0];
+
+                var vvv = d3.selectAll("g.outputs.hover")[0];
+                for(v in elem){
+                    var o = elem[v]
+                    if(o.className && o.className.baseVal == 'inputs'){
+                        var _data = o.__data__;
+                        if(o.parentNode != vvv[0].parentNode){
+                            if(_data.type == d.type && isEligible(_data,true) && !isLoop(vvv[0].parentNode.__data__.id,o.parentNode.__data__.id)){
+                                d3.select(o.firstChild).style("fill","url('#connect_hover_Image')");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+         /*
+         * reset all lighted ports
+         * */
+        function lightOffEligible(){
+            var list = d3.selectAll('g.inputs');
+            var elem = list[0];
+            for(v in elem){
+                var o = elem[v]
+                if(o.className && o.className.baseVal == 'inputs'){
+                    var _data = o.__data__;
+                    d3.select(o.firstChild).style('fill',function(d){return getConnectionImage(_data,true);})
+                }
+            }
+
+            var list = d3.selectAll('g.outputs');
+            var elem = list[0];
+            for(v in elem){
+                var o = elem[v]
+                if(o.className && o.className.baseVal == 'outputs'){
+                    var _data = o.__data__;
+                    d3.select(o.firstChild).style('fill',function(d){return getConnectionImage(_data,false);})
+                }
+            }
+        }
+
         //Append Inputs to the node
         var inputs = gStates.selectAll('.inputs')
                 .data(function(d){
@@ -678,25 +764,31 @@ $(document).ready(function () {
             .style('fill',function(d){return getConnectionImage(d,true);})
             .on("mouseover", function (d) {
                 d3.select(this.parentNode).classed("hover", true);
-                d3.select(this)
-                    .style("fill","url('#connect_hover_Image')");
-                $(this.parentNode).qtip({
-                    content: {
-                        text: d.type,
-                        title: {
-                            text: d.name
+                if(isEligible(d,true)){
+                    d3.select(this)
+                        .style("fill","url('#connect_hover_Image')");
+                }
+                lightUpEligible(d,true);
+                if(!isLinkDraw){
+                    $(this.parentNode).qtip({
+                        content: {
+                            text: d.type,
+                            title: {
+                                text: d.name
+                            }
+                        },
+                        position: {
+                            my: 'top left',
+                            at: 'bottom right'
                         }
-                    },
-                    position: {
-                        my: 'top left',
-                        at: 'bottom right'
-                    }
-                });
+                    });
+                }
             })
             .on("mouseout", function () {
+                hideToolTips();
                 d3.select(this.parentNode).classed("hover", false);
-                d3.select(this)
-                    .style('fill',function(d){return getConnectionImage(d,true);})
+                d3.select(this).style('fill',function(d){return getConnectionImage(d,true);})
+                lightOffEligible();
             });
 
         inputs.append("text")
@@ -745,22 +837,27 @@ $(document).ready(function () {
             .on("mouseover", function (d) {
                 d3.select(this.parentNode).classed("hover", true);
                 d3.select(this).style("fill","url('#connect_hover_Image')");
-                $(this.parentNode).qtip({
-                    content: {
-                        text: d.type,
-                        title: {
-                            text: d.name
+                lightUpEligible(d,false);
+                if(!isLinkDraw){
+                    $(this.parentNode).qtip({
+                        content: {
+                            text: d.type,
+                            title: {
+                                text: d.name
+                            }
+                        },
+                        position: {
+                            my: 'top right',
+                            at: 'bottom left'
                         }
-                    },
-                    position: {
-                        my: 'top right',
-                        at: 'bottom left'
-                    }
-                });
+                    });
+                }
             })
             .on("mouseout", function () {
+                hideToolTips();
                 d3.select(this.parentNode).classed("hover", false);
                 d3.select(this).style('fill',function(d){return getConnectionImage(d,false);})
+                lightOffEligible();
             });
 
         output.append("text")
@@ -909,4 +1006,8 @@ var showPopup = function(persistent) {
             }
         }
     });
+}
+
+function hideToolTips(){
+    $('div.qtip:visible').qtip('hide');
 }
