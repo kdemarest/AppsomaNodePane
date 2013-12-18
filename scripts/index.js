@@ -2,7 +2,7 @@ var translates = [0,0];
 var scale = 1;
 var ToolList = {};
 var isLinkDraw = false;
-var source_node,target_node,output_node,input_node,selected_link;
+var source_node,target_node,output_node,input_node,selected_link,selected_link_h;
 var nodedrag = false;
 var radius = 40;
 var NodePanData ={step_list:[],connections:[]};
@@ -214,9 +214,6 @@ $(document).ready(function () {
 
     }).on("mouseup", function () {
         if(isLinkDraw){
-            if(selected_link){
-                NodePanData.connections.push(selected_link);
-            }
             resetParameters();
             restart();
         }
@@ -314,7 +311,6 @@ $(document).ready(function () {
                 var isExist = NodePanData.connections.filter(function(e){
                     return e.id == connection.id;
                 });
-
                 //here is check for already exist connection
                 //we can add more check here
                 if(isExist.length == 0){
@@ -322,6 +318,13 @@ $(document).ready(function () {
                         popupMessageBox("Error","You are creating endless loop.");
                     }else{
                         if(input_node.type == output_node.type){
+                            if(selected_link){
+                                var index = NodePanData.connections.indexOf(selected_link);
+                                selected_link = undefined;
+                                NodePanData.connections.splice(index,1);
+                                restart();
+                            }
+
                             NodePanData.connections.push(connection);
                             resetParameters();
                             restart();
@@ -336,10 +339,6 @@ $(document).ready(function () {
             }else{
                 popupMessageBox("Error","Can not connect on same tool");
             }
-        }
-        if(selected_link){
-            NodePanData.connections.push(selected_link);
-            restart();
         }
         resetParameters();
     }
@@ -480,9 +479,9 @@ $(document).ready(function () {
                         var tempRemove = getPreviousConnection(input_node.id);
                         if(tempRemove.length > 0){
                             selected_link = tempRemove[0];
-                            var index = NodePanData.connections.indexOf(tempRemove[0]);
-                            NodePanData.connections.splice(index,1);
-                            restart();
+//                            var index = NodePanData.connections.indexOf(tempRemove[0]);
+//                            NodePanData.connections.splice(index,1);
+//                            restart();
                         }
                     }
                 }
@@ -680,7 +679,11 @@ $(document).ready(function () {
                         var _data = o.__data__;
                         if(o.parentNode != vvv[0].parentNode){
                             if(_data.type == d.type && !isLoop(vvv[0].parentNode.__data__.id,o.parentNode.__data__.id)){
-                                d3.select(o.firstChild).style("fill","url('#connect_hover_Image')");
+                                for(n in o.childNodes){
+                                    if(o.childNodes[n].className && o.childNodes[n].className.baseVal== "imageCircle"){
+                                        d3.select(o.childNodes[n]).style("fill","url('#connect_hover_Image')");
+                                    }
+                                }
                             }
                         }
                     }
@@ -696,7 +699,11 @@ $(document).ready(function () {
                         var _data = o.__data__;
                         if(o.parentNode != vvv[0].parentNode){
                             if(_data.type == d.type && isEligible(_data,true) && !isLoop(vvv[0].parentNode.__data__.id,o.parentNode.__data__.id)){
-                                d3.select(o.firstChild).style("fill","url('#connect_hover_Image')");
+                                d3.select(o.firstChild).style("fill","url('#connect_hover_Image')");for(n in o.childNodes){
+                                    if(o.childNodes[n].className && o.childNodes[n].className.baseVal== "imageCircle"){
+                                        d3.select(o.childNodes[n]).style("fill","url('#connect_hover_Image')");
+                                    }
+                                }
                             }
                         }
                     }
@@ -714,7 +721,11 @@ $(document).ready(function () {
                 var o = elem[v]
                 if(o.className && o.className.baseVal == 'inputs'){
                     var _data = o.__data__;
-                    d3.select(o.firstChild).style('fill',function(d){return getConnectionImage(_data,true);})
+                    for(n in o.childNodes){
+                        if(o.childNodes[n].className && o.childNodes[n].className.baseVal== "imageCircle"){
+                            d3.select(o.childNodes[n]).style('fill',function(d){return getConnectionImage(_data,true);});
+                        }
+                    }
                 }
             }
 
@@ -724,7 +735,11 @@ $(document).ready(function () {
                 var o = elem[v]
                 if(o.className && o.className.baseVal == 'outputs'){
                     var _data = o.__data__;
-                    d3.select(o.firstChild).style('fill',function(d){return getConnectionImage(_data,false);})
+                    for(n in o.childNodes){
+                        if(o.childNodes[n].className && o.childNodes[n].className.baseVal== "imageCircle"){
+                            d3.select(o.childNodes[n]).style('fill',function(d){return getConnectionImage(_data,false);});
+                        }
+                    }
                 }
             }
         }
@@ -760,16 +775,17 @@ $(document).ready(function () {
                 });
 
         inputs.append('circle')
+            .attr('class','imageCircle')
             .attr("r", function(d,i) { return 8; })
             .style('fill',function(d){return getConnectionImage(d,true);})
             .on("mouseover", function (d) {
-                d3.select(this.parentNode).classed("hover", true);
-                if(isEligible(d,true)){
-                    d3.select(this)
-                        .style("fill","url('#connect_hover_Image')");
-                }
-                lightUpEligible(d,true);
                 if(!isLinkDraw){
+                    d3.select(this.parentNode).classed("hover", true);
+                    if(isEligible(d,true)){
+                        d3.select(this)
+                            .style("fill","url('#connect_hover_Image')");
+                    }
+                    lightUpEligible(d,true);
                     $(this.parentNode).qtip({
                         content: {
                             text: d.type,
@@ -787,8 +803,10 @@ $(document).ready(function () {
             .on("mouseout", function () {
                 hideToolTips();
                 d3.select(this.parentNode).classed("hover", false);
-                d3.select(this).style('fill',function(d){return getConnectionImage(d,true);})
-                lightOffEligible();
+                if(!isLinkDraw){
+                    d3.select(this).style('fill',function(d){return getConnectionImage(d,true);})
+                    lightOffEligible();
+                }
             });
 
         inputs.append("text")
@@ -832,13 +850,14 @@ $(document).ready(function () {
             });
 
         output.append('circle')
+            .attr('class','imageCircle')
             .attr("r", function(d,i) { return 8; })
             .style('fill',function(d){return getConnectionImage(d,false);})
             .on("mouseover", function (d) {
-                d3.select(this.parentNode).classed("hover", true);
-                d3.select(this).style("fill","url('#connect_hover_Image')");
-                lightUpEligible(d,false);
                 if(!isLinkDraw){
+                    d3.select(this.parentNode).classed("hover", true);
+                    d3.select(this).style("fill","url('#connect_hover_Image')");
+                    lightUpEligible(d,false);
                     $(this.parentNode).qtip({
                         content: {
                             text: d.type,
@@ -856,8 +875,11 @@ $(document).ready(function () {
             .on("mouseout", function () {
                 hideToolTips();
                 d3.select(this.parentNode).classed("hover", false);
-                d3.select(this).style('fill',function(d){return getConnectionImage(d,false);})
-                lightOffEligible();
+                if(!isLinkDraw){
+                    d3.select(this).style('fill',function(d){return getConnectionImage(d,false);})
+                    lightOffEligible();
+                }
+
             });
 
         output.append("text")
@@ -890,7 +912,7 @@ $(document).ready(function () {
             .on("mouseover", function (d) {
                 if(!isLinkDraw && !nodedrag){
                     clearTimeout(timer)
-                    selected_link = d;
+                    selected_link_h = d;
                     var p = d3.mouse(this);
                     remove_line.attr("x", p[0]-15)
                         .attr("y",p[1]-15);
@@ -899,6 +921,7 @@ $(document).ready(function () {
                         remove_line.attr("x",-50)
                             .attr("y",-50);
                         remove_line.classed("hidden", true);
+                        selected_link_h = undefined;
                     },1500);
                 }
             });
@@ -912,7 +935,7 @@ $(document).ready(function () {
             .attr("width",32)
             .attr("height",32)
             .on("click", function(d) {
-                removeConnection(selected_link.id);
+                removeConnection(selected_link_h.id);
             });
 
         drag_line = svg.append('g').attr('class','dragline_g').append('path')
