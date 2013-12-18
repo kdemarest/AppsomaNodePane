@@ -525,9 +525,7 @@ $(document).ready(function () {
                 if(g.parentNode)
                     g.parentNode.appendChild(g);
             })
-            .on("mouseover", function (d) {
-                d3.select(this).classed("hover", true);
-
+            .on("mousemove", function (d) {
                 if(isLinkDraw){
                     var p = d3.mouse(this.parentNode);
                     var sourceX,sourceY;
@@ -543,6 +541,9 @@ $(document).ready(function () {
                     var path = "M "+sourceX+" "+sourceY+" C"+xn+" "+sourceY+" "+sourceX+" "+yn+" "+xn+" "+yn;
                     drag_line.attr('d',path);
                 }
+            })
+            .on("mouseover", function(){
+                d3.select(this).classed("hover", true);
             })
             .on("mouseout", function () {
                 d3.select(this).classed("hover", false);
@@ -594,10 +595,68 @@ $(document).ready(function () {
             .attr("class","nodeName")
             .attr({
                 'text-anchor': 'middle',
-                y: (radius + 20)
+                y: (radius + 25)
             })
             .text(function (d) {
                 return d.name;
+            });
+
+        node.append('circle')
+            .attr('r',function(){return radius+35;})
+            .attr("stroke-width",0)
+            .style('fill','none')
+            .attr('pointer-events', 'all')
+            .on("mouseup", function (d) {
+                var p = d3.mouse(this);
+                if(isLinkDraw){
+                    if(input_node){
+                        var _output = d.output_list;
+                        var _map = [];
+                        for(t in _output){
+                            var _ot = _output[t];
+                            if(_ot.type == input_node.type && isEligible(_ot,false)){
+                                var obj = {};
+                                obj.op = _ot;
+                                obj.dis = Math.sqrt(((p[0]-_ot.x)*(p[0]-_ot.x))+((p[1]-_ot.y)*(p[1]-_ot.y)));
+                                _map.push(obj);
+                            }
+                        }
+                            if(_map.length > 0){
+                                _map.sort(function(a,b){
+                                    if(a.dis > b.dis) return 1;
+                                    else return -1;
+                                })
+                                if(_map[0].dis < 28){
+                                    isLinkDraw = false;
+                                    output_node = _map[0].op;
+                                }
+                            }
+
+                    }else{
+                        var _input = d.input_list;
+                        var _map = [];
+                        for(t in _input){
+                            var _ot = _input[t];
+                            if(_ot.type == output_node.type && isEligible(_ot,true)){
+                                var obj = {};
+                                obj.op = _ot;
+                                obj.dis = Math.sqrt(((p[0]-_ot.x)*(p[0]-_ot.x))+((p[1]-_ot.y)*(p[1]-_ot.y)));
+                                _map.push(obj);
+                            }
+                        }
+
+                        if(_map.length > 0){
+                            _map.sort(function(a,b){
+                                if(a.dis > b.dis) return 1;
+                                else return -1;
+                            })
+                            if(_map[0].dis < 28){
+                                isLinkDraw = false;
+                                input_node = _map[0].op;
+                            }
+                        }
+                    }
+                }
             });
 
         node.append("title").text(function (d) {
