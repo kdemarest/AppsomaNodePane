@@ -976,12 +976,6 @@ $(document).ready(function () {
                     remove_line.attr("x", p[0]-15)
                         .attr("y",p[1]-15);
                     remove_line.classed("hidden", false);
-                    timer = setTimeout(function(){
-                        remove_line.attr("x",-50)
-                            .attr("y",-50);
-                        remove_line.classed("hidden", true);
-                        selected_link_h = undefined;
-                    },1500);
                 }
             });
         gTransitions_b.exit().remove();
@@ -995,6 +989,15 @@ $(document).ready(function () {
             .attr("height",28)
             .on("click", function(d) {
                 removeConnection(selected_link_h.id);
+            }).on("mouseover", function (d) {
+                clearTimeout(timer);
+            }).on("mouseout", function () {
+                timer = setTimeout(function(){
+                    remove_line.attr("x",-50)
+                        .attr("y",-50);
+                    remove_line.classed("hidden", true);
+                    selected_link_h = undefined;
+                },1000);
             });
 
         drag_line = svg.append('g').attr('class','dragline_g').append('path')
