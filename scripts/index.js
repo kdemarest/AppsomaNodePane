@@ -929,11 +929,11 @@ $(document).ready(function () {
 
         var remove_line = svg.append('g').attr('class','linkRemove').append("image")
             .attr('class','removeline hidden')
-            .attr("xlink:href","images/wire-cut.png")
+            .attr("xlink:href","images/close_default.png")
             .attr("x", -50)
             .attr("y", -50)
-            .attr("width",32)
-            .attr("height",32)
+            .attr("width",28)
+            .attr("height",28)
             .on("click", function(d) {
                 removeConnection(selected_link_h.id);
             });
