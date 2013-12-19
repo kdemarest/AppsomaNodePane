@@ -3,7 +3,7 @@ var scale = 1;
 var ToolList = {};
 var selected = {};
 var isLinkDraw = false;
-var source_node,target_node,output_node,input_node,selected_link,selected_link_h,temp_node;
+var source_node,target_node,output_node,input_node,selected_link,selected_link_h,temp_node,near_node;
 var nodedrag = false;
 var radius = 40;
 var NodePanData ={step_list:[],connections:[]};
@@ -227,7 +227,9 @@ function resetParameters(){
     output_node = undefined;
     selected_link = undefined;
     temp_node = undefined;
+    near_node = undefined;
     isLinkDraw = false;
+
     drag_line
         .classed('hidden', true)
         .attr('d',"M 0 0 C 0 0 0 0 0 0");
@@ -496,8 +498,15 @@ function restart() {
                     sourceX = (target_node.x+input_node.x);
                     sourceY = (target_node.y+input_node.y);
                 }
+
                 var xn = p[0];
                 var yn = p[1];
+
+                if(near_node){
+                    xn = (d.x+near_node.x);
+                    yn = (d.y+near_node.y);
+                }
+
                 var path = "M "+sourceX+" "+sourceY+" C"+xn+" "+sourceY+" "+sourceX+" "+yn+" "+xn+" "+yn;
                 drag_line.attr('d',path);
                 drag_line_s.attr('d',path);
@@ -546,7 +555,7 @@ function restart() {
         .attr("stroke-width",0)
         .style('fill','none')
         .attr('pointer-events', 'all')
-        .on("mouseup", function (d) {
+        .on("mousemove",function(d){
             var p = d3.mouse(this);
             if(isLinkDraw){
                 if(input_node){
@@ -561,14 +570,16 @@ function restart() {
                             _map.push(obj);
                         }
                     }
+
                     if(_map.length > 0){
                         _map.sort(function(a,b){
                             if(a.dis > b.dis) return 1;
                             else return -1;
                         })
                         if(_map[0].dis < 28){
-                            isLinkDraw = false;
-                            output_node = _map[0].op;
+                            near_node = _map[0].op;
+                        }else{
+                            near_node = undefined
                         }
                     }
 
@@ -591,9 +602,25 @@ function restart() {
                             else return -1;
                         })
                         if(_map[0].dis < 28){
-                            isLinkDraw = false;
-                            input_node = _map[0].op;
+                            near_node = _map[0].op;
+                        }else{
+                            near_node = undefined
                         }
+                    }
+                }
+            }
+        })
+        .on("mouseup", function (d) {
+            if(isLinkDraw){
+                if(input_node){
+                    if(near_node){
+                        isLinkDraw = false;
+                        output_node = near_node;
+                    }
+                }else{
+                    if(near_node){
+                        isLinkDraw = false;
+                        input_node = near_node;
                     }
                 }
             }
@@ -1121,7 +1148,6 @@ function loadData(){
         $('#loadBtn').hide();
         $('#inputArea').hide();
     }
-
 }
 
 function insertData(){
