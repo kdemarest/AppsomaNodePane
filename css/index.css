@@ -39,8 +39,12 @@
 }
 g.node circle {
     stroke:#c8c8c8;
+
+}
+g.node{
     cursor:pointer;
 }
+
 g.inputs circle{
     stroke-width : 0px;
 }
@@ -105,7 +109,7 @@ path.transition, path.dragline {
     cursor : default;
 }
 
-path.transition_b{
+path.transition_b, path.dragline_s{
     fill : none;
     stroke : #ebebeb;
     stroke-width: 4px;

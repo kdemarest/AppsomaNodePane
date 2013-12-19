@@ -2,7 +2,7 @@ var translates = [0,0];
 var scale = 1;
 var ToolList = {};
 var isLinkDraw = false;
-var source_node,target_node,output_node,input_node,selected_link,selected_link_h;
+var source_node,target_node,output_node,input_node,selected_link,selected_link_h,temp_node;
 var nodedrag = false;
 var radius = 40;
 var NodePanData ={step_list:[],connections:[]};
@@ -190,7 +190,7 @@ $(document).ready(function () {
         }
     }
 
-    var drag_line;
+    var drag_line,drag_line_s;
 
     eventRect.on('mousemove', function() {
 
@@ -210,6 +210,7 @@ $(document).ready(function () {
 
             var path = "M "+sourceX+" "+sourceY+" C"+xn+" "+sourceY+" "+sourceX+" "+yn+" "+xn+" "+yn;
             drag_line.attr('d',path);
+            drag_line_s.attr('d',path);
         }
 
     }).on("mouseup", function () {
@@ -277,8 +278,13 @@ $(document).ready(function () {
         input_node = undefined;
         output_node = undefined;
         selected_link = undefined;
+        temp_node = undefined;
         isLinkDraw = false;
         drag_line
+            .classed('hidden', true)
+            .attr('d',"M 0 0 C 0 0 0 0 0 0");
+
+        drag_line_s
             .classed('hidden', true)
             .attr('d',"M 0 0 C 0 0 0 0 0 0");
     }
@@ -415,6 +421,7 @@ $(document).ready(function () {
         svg.selectAll("g.links_s").remove();
         svg.selectAll("g.linkRemove").remove();
         svg.selectAll("g.dragline_g").remove();
+        svg.selectAll("g.dragline_s_g").remove();
 
         // Init the element node, link link_b(shadow of link)
         var gStates = svg.selectAll("g.node");
@@ -479,10 +486,12 @@ $(document).ready(function () {
                         var tempRemove = getPreviousConnection(input_node.id);
                         if(tempRemove.length > 0){
                             selected_link = tempRemove[0];
-//                            var index = NodePanData.connections.indexOf(tempRemove[0]);
-//                            NodePanData.connections.splice(index,1);
-//                            restart();
+                            var index = NodePanData.connections.indexOf(tempRemove[0]);
+                            NodePanData.connections.splice(index,1);
+                            selected_link = undefined;
+                            restart();
                         }
+                        lightUpEligible(input_node,true);
                     }
                 }
 
@@ -497,9 +506,12 @@ $(document).ready(function () {
                         sourceY = (target_node.y+input_node.y);
                     }
 
+
                     var path = "M "+sourceX+" "+sourceY+" C"+sourceX+" "+sourceY+" "+sourceX+" "+sourceY+" "+sourceX+" "+sourceY;
                     drag_line
                         .classed('hidden', false)
+                        .attr('d',path);
+                    drag_line_s.classed('hidden', false)
                         .attr('d',path);
                 }
             }).on("mouseup", function (d) {
@@ -540,6 +552,7 @@ $(document).ready(function () {
                     var yn = p[1];
                     var path = "M "+sourceX+" "+sourceY+" C"+xn+" "+sourceY+" "+sourceX+" "+yn+" "+xn+" "+yn;
                     drag_line.attr('d',path);
+                    drag_line_s.attr('d',path);
                 }
             })
             .on("mouseover", function(){
@@ -836,10 +849,18 @@ $(document).ready(function () {
         inputs.append('circle')
             .attr('class','imageCircle')
             .attr("r", function(d,i) { return 8; })
-            .style('fill',function(d){return getConnectionImage(d,true);})
+            .style('fill',function(d){
+
+                if(temp_node && temp_node.id == d.id){
+                    d3.select(this.parentNode).classed("hover", true);
+                    return "url('#connect_hover_Image')";
+                }
+                return getConnectionImage(d,true);
+            })
             .on("mouseover", function (d) {
                 if(!isLinkDraw){
                     d3.select(this.parentNode).classed("hover", true);
+                    temp_node = d;
                     if(isEligible(d,true)){
                         d3.select(this)
                             .style("fill","url('#connect_hover_Image')");
@@ -863,6 +884,7 @@ $(document).ready(function () {
                 hideToolTips();
                 d3.select(this.parentNode).classed("hover", false);
                 if(!isLinkDraw){
+                    temp_node = undefined;
                     d3.select(this).style('fill',function(d){return getConnectionImage(d,true);})
                     lightOffEligible();
                 }
@@ -1000,8 +1022,15 @@ $(document).ready(function () {
                 },1000);
             });
 
+
+
         drag_line = svg.append('g').attr('class','dragline_g').append('path')
             .attr('class','dragline hidden')
+            .attr('d', "M 0 0 C 0 0 0 0 0 0");
+
+        drag_line_s = svg.append('g').attr('class','dragline_s_g')
+            .attr('pointer-events', 'none').append('path')
+            .attr('class','dragline_s hidden')
             .attr('d', "M 0 0 C 0 0 0 0 0 0");
     };
 
