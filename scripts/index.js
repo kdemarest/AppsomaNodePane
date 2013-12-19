@@ -92,7 +92,7 @@ $(document).ready(function () {
                 .attr( 'id', 'dropShadow' )
     filter.append( 'feGaussianBlur' )
         .attr( 'in', 'SourceAlpha' )
-        .attr( 'stdDeviation', 5 ) // !!! important parameter - blur
+        .attr( 'stdDeviation', 3 ) // !!! important parameter - blur
         .attr( 'result', 'blur' );
     filter.append( 'feOffset' )
         .attr( 'in', 'blur' )
@@ -562,28 +562,7 @@ $(document).ready(function () {
                 d3.select(this).classed("hover", false);
             })
             .call(drag);
-        // Add the controls remove and play
-        var controls = gState.append("g").attr("class","controls");
 
-        controls.append("image")
-            .attr("xlink:href","images/close_default.png")
-            .attr("x", -25)
-            .attr("y", -70)
-            .attr("width",22)
-            .attr("height",22)
-            .on("click", function(d) {
-                removeTool(d.id);
-            });
-
-        controls.append("image")
-            .attr("xlink:href","images/info_default.png")
-            .attr("x", 0)
-            .attr("y", -70)
-            .attr("width",22)
-            .attr("height",22)
-            .on("click", function(d) {
-                popupMessageBox("Run","Running the selected tool");
-            });
 
         //Append each node to in main group
         var node = gState.append("g")
@@ -972,6 +951,71 @@ $(document).ready(function () {
             .text(function (d) {
                 return d.name;
             });
+
+        // Add the controls remove and play
+        var controls = gState.append("g").attr("class","controls");
+
+        controls.append("image")
+            .attr("xlink:href","images/run.png")
+            .attr("x", -50)
+            .attr("y", -70)
+            .attr("width",25)
+            .attr("height",25)
+            .on("click", function(d) {
+                popupMessageBox("Run "+ d.name,"Running the selected tool");
+            }).on("mouseover", function (d) {
+                d3.select(this).classed("hover", true);
+            }).on("mouseout", function () {
+                d3.select(this).classed("hover", false);
+            });
+
+        controls.append("image")
+            .attr("xlink:href","images/info.png")
+            .attr("x", -25)
+            .attr("y", -70)
+            .attr("width",25)
+            .attr("height",25)
+            .on("click", function(d) {
+                var info = ""
+                if(d.params && d.params.descriptionText)
+                    info=d.params.descriptionText;
+                popupMessageBox(d.name,info);
+            }).on("mouseover", function (d) {
+                d3.select(this).classed("hover", true);
+            }).on("mouseout", function () {
+                d3.select(this).classed("hover", false);
+            });
+
+        controls.append("image")
+            .attr("xlink:href","images/edit.png")
+            .attr("x", 0)
+            .attr("y", -70)
+            .attr("width",25)
+            .attr("height",25)
+            .on("click", function(d) {
+                popupMessageBox("Edit "+ d.name,"Edit the selected tool");
+            }).on("mouseover", function (d) {
+                d3.select(this).classed("hover", true);
+            }).on("mouseout", function () {
+                d3.select(this).classed("hover", false);
+            });
+
+        controls.append("image")
+            .attr("xlink:href","images/remove.png")
+            .attr("x",25)
+            .attr("y", -70)
+            .attr("width",25)
+            .attr("height",25)
+            .on("click", function(d) {
+                removeTool(d.id);
+            }).on("mouseover", function (d) {
+                d3.select(this).classed("hover", true);
+            }).on("mouseout", function () {
+                d3.select(this).classed("hover", false);
+            });
+
+
+
 
         gStates.exit().remove();
 

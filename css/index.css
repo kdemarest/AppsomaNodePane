@@ -72,6 +72,10 @@ g.node g.controls{
 g.node.selected g.controls{
     visibility: visible;
 }
+
+g.controls image.hover{
+    filter:url('/#dropShadow');
+}
 g.node.selected g text{
     opacity: 1;
 }

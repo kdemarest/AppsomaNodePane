@@ -44,7 +44,7 @@
               "name": "Reads Batch",
               "type": "data_io.batch_input",
               "params": {
-                  "descriptionText": ""
+                  "descriptionText": "Test data"
               },
               "input_list": [],
               "output_list": [
@@ -64,7 +64,7 @@
               "name": "Reads Shell",
               "type": "data_io.batch_input",
               "params": {
-                  "descriptionText": ""
+                  "descriptionText": "Test Data"
               },
               "input_list": [
                   {
