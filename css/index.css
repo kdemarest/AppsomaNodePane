@@ -9,7 +9,7 @@
 .todoList {
     border: 1px solid;
     float: left;
-    height: 100%;
+    height: 70%;
     width: 300px;
 }
 .list {
@@ -20,7 +20,7 @@
 .nodePaneContainer {
     border: 1px solid;
     overflow: hidden;
-    height: 100%;
+    height: 70%;
     margin-left: 320px;
     width: -webkit-calc(93% - 255px);
     width: -moz-calc(93% - 255px);
@@ -41,7 +41,7 @@ g.node circle {
     stroke:#c8c8c8;
 
 }
-g.node{
+g.node,g.linkRemove{
     cursor:pointer;
 }
 
