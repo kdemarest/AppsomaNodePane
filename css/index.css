@@ -9,7 +9,7 @@
 .todoList {
     border: 1px solid;
     float: left;
-    height: 70%;
+    height: 90%;
     width: 300px;
 }
 .list {
@@ -20,7 +20,7 @@
 .nodePaneContainer {
     border: 1px solid;
     overflow: hidden;
-    height: 70%;
+    height: 90%;
     margin-left: 320px;
     width: -webkit-calc(93% - 255px);
     width: -moz-calc(93% - 255px);

@@ -812,8 +812,8 @@ function restart() {
         })
         .on("mouseover", function (d) {
             if(!isLinkDraw){
-                d3.select(this.parentNode).classed("hover", true);
                 temp_node = d;
+                d3.select(this.parentNode).classed("hover", true);
                 if(isEligible(d,true)){
                     d3.select(this)
                         .style("fill","url('#connect_hover_Image')");
@@ -1117,12 +1117,6 @@ function hideToolTips(){
     $('div.qtip:visible').qtip('hide');
 }
 
-function getJson(){
-    var _data = {};
-    _data.NodePanData = NodePanData;
-    $("#inputArea").val(JSON.stringify(_data));
-    $('#inputArea').show();
-}
 function loadDataToPan(json){
     if(json.NodePanData && json.NodePanData.step_list){
         NodePanData.step_list = [];
@@ -1141,33 +1135,29 @@ function loadDataToPan(json){
         }
     }
 }
+
+function getJson(){
+    var _data = {};
+    _data.NodePanData = NodePanData;
+    $("#inputArea").val(JSON.stringify(_data));
+    $("#saveDialog").dialog({modal: true, height: 400, width: 600 });
+}
+
 function loadData(){
     if($("#inputArea").val().length > 0){
         var json = JSON.parse($("#inputArea").val());
         loadDataToPan(json);
-        $('#loadBtn').hide();
-        $('#inputArea').hide();
     }
+    $("#loadDialog").dialog('close');
 }
 
 function insertData(){
-    $("#inputArea").val("");
-    $("#inputArea").show();
-    $("#inputArea").focus();
-    $("#loadBtn").show();
+    $("#loadDataInput").val("");
+    $("#loadDialog").dialog({modal: true, height: 430, width: 600 });
 }
     $( window ).resize(function() {
         restart();
     });
-
-$('#loadBtn').hide();
-$('#inputArea').hide();
-
-    $('#inputArea').bind('keydown',function(event){
-        if(event.keyCode == 27){
-            $('#inputArea').hide();
-        }
-    })
 
     $('.dragElement').draggable({
         cursorAt: {
