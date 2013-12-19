@@ -1094,6 +1094,7 @@ function getJson(){
     var _data = {};
     _data.NodePanData = NodePanData;
     $("#inputArea").val(JSON.stringify(_data));
+    $('#inputArea').show();
 }
 function loadDataToPan(json){
     if(json.NodePanData && json.NodePanData.step_list){
@@ -1117,13 +1118,30 @@ function loadData(){
     if($("#inputArea").val().length > 0){
         var json = JSON.parse($("#inputArea").val());
         loadDataToPan(json);
+        $('#loadBtn').hide();
+        $('#inputArea').hide();
     }
 
 }
 
+function insertData(){
+    $("#inputArea").val("");
+    $("#inputArea").show();
+    $("#inputArea").focus();
+    $("#loadBtn").show();
+}
     $( window ).resize(function() {
         restart();
     });
+
+$('#loadBtn').hide();
+$('#inputArea').hide();
+
+    $('#inputArea').bind('keydown',function(event){
+        if(event.keyCode == 27){
+            $('#inputArea').hide();
+        }
+    })
 
     $('.dragElement').draggable({
         cursorAt: {
