@@ -140,33 +140,32 @@ function zoom() {
 
 var drag_line,drag_line_s;
 
-eventRect.on('mousemove', function() {
+    eventRect.on('mousemove', function() {
 
-    if(isLinkDraw){
-        var p = d3.mouse(this);
-        var sourceX,sourceY;
-        if(source_node){
-            sourceX = (source_node.x+output_node.x);
-            sourceY = (source_node.y+output_node.y);
-        }else{
-            sourceX = (target_node.x+input_node.x);
-            sourceY = (target_node.y+input_node.y);
+        if(isLinkDraw){
+            var p = d3.mouse(this);
+            var sourceX,sourceY;
+            if(source_node){
+                sourceX = (source_node.x+output_node.x);
+                sourceY = (source_node.y+output_node.y);
+            }else{
+                sourceX = (target_node.x+input_node.x);
+                sourceY = (target_node.y+input_node.y);
+            }
+
+            var xn =  (p[0]/scale) - (translates[0]/scale);
+            var yn =  (p[1]/scale) - (translates[1]/scale);
+
+            var path = "M "+sourceX+" "+sourceY+" C"+xn+" "+sourceY+" "+sourceX+" "+yn+" "+xn+" "+yn;
+            drag_line.attr('d',path);
+            drag_line_s.attr('d',path);
         }
 
-        var xn =  (p[0]/scale) - (translates[0]/scale);
-        var yn =  (p[1]/scale) - (translates[1]/scale);
-
-        var path = "M "+sourceX+" "+sourceY+" C"+xn+" "+sourceY+" "+sourceX+" "+yn+" "+xn+" "+yn;
-        drag_line.attr('d',path);
-        drag_line_s.attr('d',path);
-    }
-
-}).on("mouseup", function () {
+    }).on("mouseup", function () {
         if(isLinkDraw){
             resetParameters();
             restart();
         }
-
     }).on("mousedown", function () {
         d3.selectAll('g.selected').classed("selected", false);
     });
@@ -185,19 +184,20 @@ var computeTransitionPath = function( d) {
     input_node_t = target_node_t.input_list.filter(function(e){
         return e.id == temp.input;
     })[0];
-
-    sourceX = (source_node_t.x+output_node_t.x),
-        sourceY = (source_node_t.y+output_node_t.y),
-        targetX = (target_node_t.x+input_node_t.x),
-        targetY = (target_node_t.y+input_node_t.y);
+    if(source_node_t && target_node_t && output_node_t && input_node_t){
+        sourceX = (source_node_t.x+output_node_t.x),
+            sourceY = (source_node_t.y+output_node_t.y),
+            targetX = (target_node_t.x+input_node_t.x),
+            targetY = (target_node_t.y+input_node_t.y);
 //        M x1  y1C  x2  y1   x1  y2   x2 y2
-    return "M "+sourceX+" "+sourceY+" C"+targetX+" "+sourceY+" "+sourceX+" "+targetY+" "+targetX+" "+targetY;
+        return "M "+sourceX+" "+sourceY+" C"+targetX+" "+sourceY+" "+sourceX+" "+targetY+" "+targetX+" "+targetY;
+    }
+    return "M 0 0 C 0 0 0 0 0 0";
 };
 
-svg.on("mousedown", function () {
-    d3.event.stopPropagation();
-})
-    .on("mouseout", function () {
+    svg.on("mousedown", function () {
+        d3.event.stopPropagation();
+    }).on("mouseout", function () {
         if (d3.event.relatedTarget && d3.event.relatedTarget.tagName == 'HTML') {
             d3.selectAll('g.node.selection').classed("selection", false);
         }
@@ -436,12 +436,23 @@ function restart() {
                     var tempRemove = getPreviousConnection(input_node.id);
                     if(tempRemove.length > 0){
                         selected_link = tempRemove[0];
+                        source_node = NodePanData.step_list.filter(function(e){
+                            return e.id == selected_link.source;
+                        })[0];
+
+                        output_node = source_node.output_list.filter(function(e){
+                            return e.id == selected_link.output;
+                        })[0];
+
+                        temp_node = output_node.id;
                         var index = NodePanData.connections.indexOf(tempRemove[0]);
                         NodePanData.connections.splice(index,1);
+                        input_node = undefined;
+                        target_node = undefined;
                         selected_link = undefined;
                         restart();
+                        lightUpEligible(output_node,false);
                     }
-                    lightUpEligible(input_node,true);
                 }
             }
 
@@ -455,7 +466,6 @@ function restart() {
                     sourceX = (target_node.x+input_node.x);
                     sourceY = (target_node.y+input_node.y);
                 }
-
 
                 var path = "M "+sourceX+" "+sourceY+" C"+sourceX+" "+sourceY+" "+sourceX+" "+sourceY+" "+sourceX+" "+sourceY;
                 drag_line
@@ -581,6 +591,8 @@ function restart() {
                         }else{
                             near_node = undefined
                         }
+                    }else{
+                        near_node = undefined;
                     }
 
                 }else{
@@ -606,6 +618,8 @@ function restart() {
                         }else{
                             near_node = undefined
                         }
+                    }else{
+                        near_node = undefined;
                     }
                 }
             }
@@ -804,7 +818,7 @@ function restart() {
         .attr('class','imageCircle')
         .attr("r", function(d,i) { return 8; })
         .style('fill',function(d){
-            if(temp_node && temp_node.id == d.id){
+            if(temp_node && temp_node == d.id){
                 d3.select(this.parentNode).classed("hover", true);
                 return "url('#connect_hover_Image')";
             }
@@ -812,7 +826,7 @@ function restart() {
         })
         .on("mouseover", function (d) {
             if(!isLinkDraw){
-                temp_node = d;
+
                 d3.select(this.parentNode).classed("hover", true);
                 if(isEligible(d,true)){
                     d3.select(this)
@@ -886,9 +900,16 @@ function restart() {
     output.append('circle')
         .attr('class','imageCircle')
         .attr("r", function(d,i) { return 8; })
-        .style('fill',function(d){return getConnectionImage(d,false);})
+        .style('fill',function(d){
+            if(temp_node && temp_node == d.id){
+                d3.select(this.parentNode).classed("hover", true);
+                return "url('#connect_hover_Image')";
+            }
+            return getConnectionImage(d,false);
+        })
         .on("mouseover", function (d) {
             if(!isLinkDraw){
+                temp_node = d.id;
                 d3.select(this.parentNode).classed("hover", true);
                 d3.select(this).style("fill","url('#connect_hover_Image')");
                 lightUpEligible(d,false);
