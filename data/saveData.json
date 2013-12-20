@@ -1,195 +1,169 @@
 {
-  "NodePanData": {
-      "step_list": [
-          {
-              "id": 3363571,
-              "name": "Compress Files",
-              "type": "data_io.compress",
-              "params": {
-                  "path": [
-                      "/Projects/31/ucsc.hg19.fasta"
-                  ],
-                  "descriptionText": "We recommend inputting the most recent build of the human genome (hg19). To use this file in an analysis, make sure you copy if from Public Resources > Files to your project. "
-              },
-              "input_list": [
-                  {
-                      "id": 336357,
-                      "name": "Input File",
-                      "type": "batch_input",
-                      "x": -47.492292599944854,
-                      "y": -6.962912005850971
-                  },
-                  {
-                      "id": 336357213,
-                      "name": "Files",
-                      "type": "files",
-                      "x": -47.00053099926323,
-                      "y": 9.74423346330002
-                  }
-              ],
-              "output_list": [
-                  {
-                      "id": 33635721321,
-                      "name": "Compressed File",
-                      "type": "batch_input",
-                      "x": 47.87975935699461,
-                      "y": 3.3953856800497393
-                  }
-              ],
-              "x": 422,
-              "y": 238
-          },
-          {
-              "id": 1189999,
-              "name": "Reads Batch",
-              "type": "data_io.batch_input",
-              "params": {
-                  "descriptionText": "Test data"
-              },
-              "input_list": [],
-              "output_list": [
-                  {
-                      "id": 33631121,
-                      "name": "Batch Output",
-                      "type": "batch_input",
-                      "x": 47.87975935699461,
-                      "y": 3.3953856800497393
-                  }
-              ],
-              "x": 72,
-              "y": 81
-          },
-          {
-              "id": 11899993,
-              "name": "Reads Shell",
-              "type": "data_io.batch_input",
-              "params": {
-                  "descriptionText": "Test Data"
-              },
-              "input_list": [
-                  {
-                      "id": 3316351273133,
-                      "name": "Input File",
-                      "type": "batch_input",
-                      "x": -47.999529914433765,
-                      "y": 0.2124335034264377
-                  }
-              ],
-              "output_list": [
-                  {
-                      "id": 336311213,
-                      "name": "Shell Output",
-                      "type": "batch_input",
-                      "x": 47.87975935699461,
-                      "y": 3.3953856800497393
-                  }
-              ],
-              "x": 61,
-              "y": 406
-          },
-          {
-              "id": 1203088,
-              "name": "File Sort",
-              "type": "data_io.sort_files",
-              "params": {},
-              "input_list": [
-                  {
-                      "id": 3316351273,
-                      "name": "Input File",
-                      "type": "batch_input",
-                      "x": -47.999529914433765,
-                      "y": 0.2124335034264377
-                  }
-              ],
-              "output_list": [
-                  {
-                      "id": 3223631121,
-                      "name": "Files",
-                      "type": "files",
-                      "x": 47.87975935699461,
-                      "y": 3.3953856800497393
-                  },
-                  {
-                      "id": 3223631121213,
-                      "name": "Files",
-                      "type": "files",
-                      "x": 47.87975935699461,
-                      "y": 3.3953856800497393
-                  },
-                  {
-                      "id": 322363112123213,
-                      "name": "Files",
-                      "type": "files",
-                      "x": 47.87975935699461,
-                      "y": 3.3953856800497393
-                  },
-                  {
-                      "id": 3223631123331213,
-                      "name": "Files",
-                      "type": "files",
-                      "x": 47.87975935699461,
-                      "y": 3.3953856800497393
-                  }
-              ],
-              "x": 237,
-              "y": 323
-          },
-          {
-              "id": 1212993,
-              "name": "Merge File",
-              "type": "picard.merge",
-              "params": {},
-              "input_list": [
-                  {
-                      "id": 33635127388,
-                      "name": "File",
-                      "type": "batch_input",
-                      "x": -47.999529914433765,
-                      "y": 0.2124335034264377
-                  }
-              ],
-              "output_list": [
-                  {
-                      "id": 33631121666,
-                      "name": "Merged File",
-                      "type": "batch_input",
-                      "x": 47.87975935699461,
-                      "y": 3.3953856800497393
-                  }
-              ],
-              "x": 621,
-              "y": 311
-          }
-      ],
-      "connections": [
-          {
-              "source": 1189999,
-              "target": 3363571,
-              "output": 33631121,
-              "input": 336357,
-              "id": "1189999_3363571_33631121_336357"
-          },
-          {
-              "source": 3363571,
-              "target": 1212993,
-              "output": 33635721321,
-              "input": 33635127388,
-              "id": "3363571_1212993_33635721321_33635127388"
-          },
-          {
-              "source": 1203088,
-              "target": 3363571,
-              "output": 3223631121,
-              "input": 336357213,
-              "id": "1203088_3363571_3223631121_336357213"
-          },
-          {
-              "source": 11899993,
-              "target": 1203088,
-              "output": 336311213,
-              "input": 3316351273,
-              "id": "11899993_1203088_336311213_3316351273"
-          }
-      ]
-  }
+    "VisualPipeline": {
+        "step_list": [
+            {
+                "id": 3363571,
+                "name": "Compress Files",
+                "type": "data_io.compress",
+                "params": {
+                    "path": [
+                        "/Projects/31/ucsc.hg19.fasta"
+                    ],
+                    "descriptionText": "We recommend inputting the most recent build of the human genome (hg19). To use this file in an analysis, make sure you copy if from Public Resources > Files to your project. "
+                },
+                "input_list": [
+                    {
+                        "id": 336357,
+                        "name": "Input File",
+                        "type": "batch_input"
+                    },
+                    {
+                        "id": 336357213,
+                        "name": "Files",
+                        "type": "files"
+                    }
+                ],
+                "output_list": [
+                    {
+                        "id": 33635721321,
+                        "name": "Compressed File",
+                        "type": "batch_input"
+                    }
+                ],
+                "x": 422,
+                "y": 238
+            },
+            {
+                "id": 1189999,
+                "name": "Reads Batch",
+                "type": "data_io.batch_input",
+                "params": {
+                    "descriptionText": "Test data"
+                },
+                "input_list": [],
+                "output_list": [
+                    {
+                        "id": 33631121,
+                        "name": "Batch Output",
+                        "type": "batch_input"
+                    }
+                ],
+                "x": 72,
+                "y": 81
+            },
+            {
+                "id": 11899993,
+                "name": "Reads Shell",
+                "type": "data_io.batch_input",
+                "params": {
+                    "descriptionText": "Test Data"
+                },
+                "input_list": [
+                    {
+                        "id": 3316351273133,
+                        "name": "Input File",
+                        "type": "batch_input"
+                    }
+                ],
+                "output_list": [
+                    {
+                        "id": 336311213,
+                        "name": "Shell Output",
+                        "type": "batch_input"
+                    }
+                ],
+                "x": 61,
+                "y": 406
+            },
+            {
+                "id": 1203088,
+                "name": "File Sort",
+                "type": "data_io.sort_files",
+                "params": {},
+                "input_list": [
+                    {
+                        "id": 3316351273,
+                        "name": "Input File",
+                        "type": "batch_input"
+                    }
+                ],
+                "output_list": [
+                    {
+                        "id": 3223631121,
+                        "name": "Files",
+                        "type": "files"
+                    },
+                    {
+                        "id": 3223631121213,
+                        "name": "Files",
+                        "type": "files"
+                    },
+                    {
+                        "id": 322363112123213,
+                        "name": "Files",
+                        "type": "files"
+                    },
+                    {
+                        "id": 3223631123331213,
+                        "name": "Files",
+                        "type": "files"
+                    }
+                ],
+                "x": 237,
+                "y": 323
+            },
+            {
+                "id": 1212993,
+                "name": "Merge File",
+                "type": "picard.merge",
+                "params": {},
+                "input_list": [
+                    {
+                        "id": 33635127388,
+                        "name": "File",
+                        "type": "batch_input"
+                    }
+                ],
+                "output_list": [
+                    {
+                        "id": 33631121666,
+                        "name": "Merged File",
+                        "type": "batch_input"
+                    }
+                ],
+                "x": 621,
+                "y": 311
+            }
+        ],
+        "connections": [
+            {
+                "source": 1189999,
+                "target": 3363571,
+                "output": 33631121,
+                "input": 336357,
+                "id": "1189999_3363571_33631121_336357"
+            },
+            {
+                "source": 3363571,
+                "target": 1212993,
+                "output": 33635721321,
+                "input": 33635127388,
+                "id": "3363571_1212993_33635721321_33635127388"
+            },
+            {
+                "source": 1203088,
+                "target": 3363571,
+                "output": 3223631121,
+                "input": 336357213,
+                "id": "1203088_3363571_3223631121_336357213"
+            },
+            {
+                "source": 11899993,
+                "target": 1203088,
+                "output": 336311213,
+                "input": 3316351273,
+                "id": "11899993_1203088_336311213_3316351273"
+            }
+        ]
+    }
 }

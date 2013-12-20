@@ -6,7 +6,7 @@ var isLinkDraw = false;
 var source_node,target_node,output_node,input_node,selected_link,selected_link_h,temp_node,near_node,selected_node;
 var nodedrag = false;
 var radius = 40;
-var NodePanData ={step_list:[],connections:[]};
+var VisualPipeline ={step_list:[],connections:[]};
 var popupTitle = "Title";
 var popupMessage = "Message";
 
@@ -141,7 +141,6 @@ function zoom() {
 var drag_line,drag_line_s;
 
     eventRect.on('mousemove', function() {
-
         if(isLinkDraw){
             var p = d3.mouse(this);
             var sourceX,sourceY;
@@ -173,10 +172,10 @@ var drag_line,drag_line_s;
 
 var computeTransitionPath = function( d) {
     var temp = d;
-    source_node_t = NodePanData.step_list.filter(function(e){
+    source_node_t = VisualPipeline.step_list.filter(function(e){
         return e.id == temp.source;
     })[0];
-    target_node_t = NodePanData.step_list.filter(function(e){
+    target_node_t = VisualPipeline.step_list.filter(function(e){
         return e.id == temp.target;
     })[0];
     output_node_t = source_node_t.output_list.filter(function(e){
@@ -243,7 +242,7 @@ function resetParameters(){
 var isLoop = function(_source,_target){
     var loop_val = false;
     function recurs(id){
-        var tempLi = NodePanData.connections.filter(function(e){
+        var tempLi = VisualPipeline.connections.filter(function(e){
             return e.target == id;
         });
         for(l in tempLi){
@@ -265,7 +264,7 @@ var addPath = function(){
         if(source_node != target_node){
             var connection = {source: source_node.id, target: target_node.id,output:output_node.id,input:input_node.id};
             connection.id = source_node.id+"_"+target_node.id+"_"+output_node.id+"_"+input_node.id;
-            var isExist = NodePanData.connections.filter(function(e){
+            var isExist = VisualPipeline.connections.filter(function(e){
                 return e.id == connection.id;
             });
             //here is check for already exist connection
@@ -276,13 +275,13 @@ var addPath = function(){
                 }else{
                     if(input_node.type == output_node.type){
                         if(selected_link){
-                            var index = NodePanData.connections.indexOf(selected_link);
+                            var index = VisualPipeline.connections.indexOf(selected_link);
                             selected_link = undefined;
-                            NodePanData.connections.splice(index,1);
+                            VisualPipeline.connections.splice(index,1);
                             restart();
                         }
 
-                        NodePanData.connections.push(connection);
+                        VisualPipeline.connections.push(connection);
                         resetParameters();
                         restart();
                     }else{
@@ -303,39 +302,39 @@ var addPath = function(){
 //Remove node from pane
 //id of the node which you want to remove
 function removeTool(id){
-    var relatedConnection = NodePanData.connections.filter(function(e){
+    var relatedConnection = VisualPipeline.connections.filter(function(e){
         return e.source == id || e.target == id;
     });
     for(v in relatedConnection){
-        var index = NodePanData.connections.indexOf(relatedConnection[v]);
-        NodePanData.connections.splice(index,1);
+        var index = VisualPipeline.connections.indexOf(relatedConnection[v]);
+        VisualPipeline.connections.splice(index,1);
     }
     var removeNode,index_node;
-    for(b in NodePanData.step_list){
-        if(NodePanData.step_list[b].id == id){
-            removeNode = NodePanData.step_list[b]
+    for(b in VisualPipeline.step_list){
+        if(VisualPipeline.step_list[b].id == id){
+            removeNode = VisualPipeline.step_list[b]
             index_node = b;
             break
         }
     }
-    NodePanData.step_list.splice(index_node,1);
+    VisualPipeline.step_list.splice(index_node,1);
     restart();
 }
 
 function removeConnection(id){
-    var connection = NodePanData.connections.filter(function(e){
+    var connection = VisualPipeline.connections.filter(function(e){
         return e.id == id;
     })[0];
     if(connection){
-        var index = NodePanData.connections.indexOf(connection);
-        NodePanData.connections.splice(index,1);
+        var index = VisualPipeline.connections.indexOf(connection);
+        VisualPipeline.connections.splice(index,1);
         resetParameters();
         restart();
     }
 }
 
 function getPreviousConnection(id){
-    var connection = NodePanData.connections.filter(function(e){
+    var connection = VisualPipeline.connections.filter(function(e){
         return e.input == id;
     });
     return connection;
@@ -417,7 +416,7 @@ function restart() {
         });
 
     //Add data to node
-    gStates = gStates.data(NodePanData.step_list);
+    gStates = gStates.data(VisualPipeline.step_list);
     var gState = gStates.enter()
         .append("g")
         .attr({
@@ -437,7 +436,7 @@ function restart() {
                     var tempRemove = getPreviousConnection(input_node.id);
                     if(tempRemove.length > 0){
                         selected_link = tempRemove[0];
-                        source_node = NodePanData.step_list.filter(function(e){
+                        source_node = VisualPipeline.step_list.filter(function(e){
                             return e.id == selected_link.source;
                         })[0];
 
@@ -446,8 +445,8 @@ function restart() {
                         })[0];
 
                         temp_node = output_node.id;
-                        var index = NodePanData.connections.indexOf(tempRemove[0]);
-                        NodePanData.connections.splice(index,1);
+                        var index = VisualPipeline.connections.indexOf(tempRemove[0]);
+                        VisualPipeline.connections.splice(index,1);
                         input_node = undefined;
                         target_node = undefined;
                         selected_link = undefined;
@@ -680,7 +679,7 @@ function restart() {
         var type = "input";
         if(!isInput) type = "output";
 
-        var conn = NodePanData.connections.filter(function(e){
+        var conn = VisualPipeline.connections.filter(function(e){
             return e[type] == d.id;
         });
         if(conn.length > 0){
@@ -697,7 +696,7 @@ function restart() {
         var type = "input";
         if(!isInput) type = "output";
 
-        var conn = NodePanData.connections.filter(function(e){
+        var conn = VisualPipeline.connections.filter(function(e){
             return e[type] == d.id;
         });
         if(conn.length > 0){
@@ -933,6 +932,7 @@ function restart() {
             hideToolTips();
             d3.select(this.parentNode).classed("hover", false);
             if(!isLinkDraw){
+                temp_node = undefined;
                 d3.select(this).style('fill',function(d){return getConnectionImage(d,false);})
                 lightOffEligible();
             }
@@ -1014,7 +1014,7 @@ function restart() {
     gStates.exit().remove();
 
     //Add connections Data and append it to group
-    gTransitions = gTransitions.data( NodePanData.connections);
+    gTransitions = gTransitions.data( VisualPipeline.connections);
     gTransitions.enter().append( 'path')
         .attr('id',function(d){ return d.id;})
         .attr( 'class', 'transition')
@@ -1023,7 +1023,7 @@ function restart() {
 
     var timer;
     //Shadow connections
-    gTransitions_b = gTransitions_b.data( NodePanData.connections);
+    gTransitions_b = gTransitions_b.data( VisualPipeline.connections);
     gTransitions_b.enter().append( 'path')
         .attr('id',function(d){ return d.id;})
         .attr( 'class', 'transition_b')
@@ -1151,18 +1151,18 @@ function removeSelected(){
 }
 
 function loadDataToPan(json){
-    if(json.NodePanData && json.NodePanData.step_list){
-        NodePanData.step_list = [];
-        NodePanData.connections = [];
-        NodePanData.step_list = json.NodePanData.step_list;
+    if(json.VisualPipeline && json.VisualPipeline.step_list){
+        VisualPipeline.step_list = [];
+        VisualPipeline.connections = [];
+        VisualPipeline.step_list = json.VisualPipeline.step_list;
         restart();
-        if(json.NodePanData.connections){
-            for(x in json.NodePanData.connections){
-                var temp = json.NodePanData.connections[x];
+        if(json.VisualPipeline.connections){
+            for(x in json.VisualPipeline.connections){
+                var temp = json.VisualPipeline.connections[x];
                 if(!temp.id){
                     temp.id = temp.source+"_"+temp.target+"_"+temp.output+"_"+temp.input;
                 }
-                NodePanData.connections.push(temp);
+                VisualPipeline.connections.push(temp);
                 restart();
             }
         }
@@ -1171,14 +1171,34 @@ function loadDataToPan(json){
 
 function getJson(){
     var _data = {};
-    _data.NodePanData = NodePanData;
-    $("#inputArea").val(JSON.stringify(_data));
+    var _st = JSON.stringify(VisualPipeline);
+    _data.VisualPipeline = JSON.parse(_st);
+    $("#inputArea").val(JSON.stringify(cleanJsonData(_data)));
     $("#saveDialog").dialog({modal: true, height: 400, width: 600 });
 }
 
+function cleanJsonData(json){
+      if(json && json.VisualPipeline && json.VisualPipeline.step_list){
+          var list = json.VisualPipeline.step_list;
+          for(m in list){
+              var mn = list[m];
+              for( _in in mn.input_list){
+                  delete mn.input_list[_in].x;
+                  delete mn.input_list[_in].y;
+              }
+
+              for( _op in mn.output_list){
+                  delete mn.output_list[_op].x;
+                  delete mn.output_list[_op].y;
+              }
+          }
+      }
+    return json;
+}
+
 function loadData(){
-    if($("#inputArea").val().length > 0){
-        var json = JSON.parse($("#inputArea").val());
+    if($("#loadDataInput").val().length > 0){
+        var json = JSON.parse($("#loadDataInput").val());
         loadDataToPan(json);
     }
     $("#loadDialog").dialog('close');
@@ -1233,7 +1253,7 @@ function insertData(){
             obj.y = (posY/scale)-(translates[1]/scale);
             var tempObj = JSON.parse(JSON.stringify(obj));
             tempObj.id = obj.id+"D"+Date.now();
-            NodePanData.step_list.push(tempObj);
+            VisualPipeline.step_list.push(tempObj);
             restart();
         }
     });
