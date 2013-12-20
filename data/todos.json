@@ -1,5 +1,34 @@
 {"todos": [
     {
+        "id": "966436D1387530186566",
+        "name": "BWA",
+        "type": "data_io.sort_files",
+        "params": {
+            "alignment_mode": "--local",
+            "b2_preset": "--very-sensitive",
+            "b2_qc_filter": true
+        },
+        "input_list": [
+            {
+                "id": 336311555127,
+                "name": "Read Sequence",
+                "type": "batch_input"
+            },
+            {
+                "id": 3363235455127,
+                "name": "Fasta Reference",
+                "type": "batch_input"
+            }
+        ],
+        "output_list": [
+            {
+                "id": 3363341121,
+                "name": "Aligned",
+                "type": "batch_input"
+            }
+        ]
+    },
+    {
       "id": 336357,
       "name": "Reference Genome",
       "type": "data_io.input_file",

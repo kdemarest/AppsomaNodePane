@@ -1219,26 +1219,6 @@ function insertData(){
         restart();
     });
 
-    $('.dragElement').draggable({
-        cursorAt: {
-            top: 40,
-            left: 40
-        },
-        cursor: 'move',
-        helper: function (event) {
-            var elem = this.id;
-            selected.id = this.id
-            var dragSVG = '<svg xmlns="http://www.w3.org/2000/svg" class="drangNode">' +
-                '<g class="node" transform="translate(44,44)">' +
-                '<circle r="45" class="outer"/>' +
-                '<circle r="37" class="inner"/>' +
-                '<text text-anchor="middle" y="4">' + this.id + '</text>' +
-                '</g>' +
-                '</svg>';
-            return dragSVG;
-        }
-    });
-
     $("#nodeEditor").droppable({
         // tolerance can be set to 'fit', 'intersect', 'pointer', or 'touch'
         tolerance: 'intersect',
@@ -1273,6 +1253,29 @@ function insertData(){
     //for now just add the mock data
     d3.json("data/todos.json", function(error, json) {
         ToolList = json.todos;
+        for(v in ToolList){
+            var html =  '<li class="dragElement" id="'+v+'">'+ToolList[v].name+'</li>'
+            $('#tools').append(html);
+        }
+        $('.dragElement').draggable({
+            cursorAt: {
+                top: 40,
+                left: 40
+            },
+            cursor: 'move',
+            helper: function (event) {
+                var elem = this.id;
+                selected.id = this.id
+                var dragSVG = '<svg xmlns="http://www.w3.org/2000/svg" class="drangNode">' +
+                    '<g class="node" transform="translate(44,44)">' +
+                    '<circle r="45" class="outer"/>' +
+                    '<circle r="37" class="inner"/>' +
+                    '<text text-anchor="middle" y="4">' + this.id + '</text>' +
+                    '</g>' +
+                    '</svg>';
+                return dragSVG;
+            }
+        });
     });
 
     //Call node pane data

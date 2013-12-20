@@ -11,6 +11,7 @@
     float: left;
     height: 90%;
     width: 300px;
+    overflow: auto;
 }
 .list {
     /*overflow: auto;*/
