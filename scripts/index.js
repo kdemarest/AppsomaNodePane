@@ -144,6 +144,7 @@ var drag_line,drag_line_s;
     eventRect.on('mousemove', function() {
         if(isLinkDraw){
             var p = d3.mouse(this);
+            setcursor('pointer');
             var sourceX,sourceY;
             if(source_node){
                 sourceX = (source_node.x+output_node.x);
@@ -228,6 +229,10 @@ function updateSVG(){
     svg.attr("transform", "translate("+translates+")scale("+scale+")");
 }
 
+function setcursor(cursor){
+    d3.select("body").style("cursor", cursor);
+}
+
 function resetParameters(){
     source_node = undefined;
     target_node = undefined;
@@ -237,7 +242,7 @@ function resetParameters(){
     temp_node = undefined;
     near_node = undefined;
     isLinkDraw = false;
-
+    setcursor('default');
     drag_line
         .classed('hidden', true)
         .attr('d',"M 0 0 C 0 0 0 0 0 0");
