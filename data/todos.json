@@ -40,36 +40,36 @@
       },
       "input_list":[
           {
-            "id": 336357,
+            "id": 33632357,
             "name": "Genome2",
             "type": "1"
           },
           {
-            "id": 3363566,
+            "id": 3363533366,
             "name": "Genome3",
             "type": "1"
           },
           {
-            "id": 336357123,
+            "id": 336357213123123,
             "name": " Genome4",
             "type": "1"
           },
           {
-            "id": 336357213,
+            "id": 336355567213,
             "name": " Genome5",
             "type": "1"
           }
       ],
       "output_list":[
           {
-            "id": 33635721321,
+            "id": 3363325721321,
             "name": " Genome Out 2",
             "type": "2"
           }
       ]
     },
     {
-      "id": 608683,
+      "id": 60856683,
       "name": "Splice Junction Annotations",
       "type": "data_io.input_file",
       "params": {
@@ -80,21 +80,21 @@
       },
       "input_list":[
           {
-            "id": 33635127,
+            "id": 3369635127,
             "name": "Reference Genome2",
             "type": "2"
           }          
       ],
       "output_list":[
           {
-            "id": 33631121,
+            "id": 3363541121,
             "name": "Reference Genome Out 3",
             "type": "3"
           }
       ]
     },
     {
-      "id": 1189999,
+      "id": 118985999,
       "name": "Reads",
       "type": "data_io.batch_input",
       "params": {
@@ -102,21 +102,21 @@
       },
        "input_list":[
           {
-            "id": 33635127,
+            "id": 3323635127,
             "name": "Reference Genome2",
             "type": "2"
           }          
       ],
       "output_list":[
           {
-            "id": 33631121,
+            "id": 336311321,
             "name": "Reference Genome Out 3",
             "type": "3"
           }
       ]
     },
     {
-      "id": 966436,
+      "id": 96643336,
       "name": "Bowtie 2",
       "type": "bowtie2",
       "params": {
@@ -126,159 +126,159 @@
       },
       "input_list":[
           {
-            "id": 3363115127,
+            "id": 133363115127,
             "name": "Reference Genome2",
             "type": "2"
           }          
       ],
       "output_list":[
           {
-            "id": 3363341121,
+            "id": 336334112231,
             "name": "Reference Genome Out 3",
             "type": "3"
           }
       ]
     },
     {
-      "id": 1188222,
+      "id": 1188223122,
       "name": "SAM to BAM",
       "type": "samtools.sam2bam",
       "params": {},
       "input_list":[
           {
-            "id": 3363512117,
+            "id": 3363512111237,
             "name": "Reference Genome2",
             "type": "2"
           }          
       ],
       "output_list":[
           {
-            "id": 3363112781,
+            "id": 336323112781,
             "name": "Reference Genome Out 3",
             "type": "3"
           }
       ]
     },
     {
-      "id": 1203088,
+      "id": 120332088,
       "name": "Picard Sort",
       "type": "picard.sort",
       "params": {},
       "input_list":[
           {
-            "id": 3316351273,
+            "id": 3316351275463,
             "name": "Reference Genome2",
             "type": "2"
           }          
       ],
       "output_list":[
           {
-            "id": 3223631121,
+            "id": 322366431121,
             "name": "Reference Genome Out 3",
-            "type": "3"
+            "type": "2"
           }
       ]
     },
     {
-      "id": 1212993,
+      "id": 12129966543,
       "name": "Picard Merge",
       "type": "picard.merge",
       "params": {},
       "input_list":[
           {
-            "id": 33635127388,
+            "id": 336351244567388,
             "name": "Reference Genome2",
             "type": "2"
           }          
       ],
       "output_list":[
           {
-            "id": 33631121666,
+            "id": 33631124561666,
             "name": "Reference Genome Out 3",
-            "type": "3"
+            "type": "2"
           }
       ]
     },
     {
-      "id": 1359558,
+      "id": 1359124558,
       "name": "Picard Index",
       "type": "picard.bamindex",
       "params": {},
       "input_list":[
           {
-            "id": 33635156827,
+            "id": 3363512856827,
             "name": "Reference Genome2",
             "type": "2"
           }          
       ],
       "output_list":[
           {
-            "id": 33631789121,
+            "id": 3363178589121,
             "name": "Reference Genome Out 3",
-            "type": "3"
+            "type": "2"
           }
       ]
     },
     {
-      "id": 1373879,
+      "id": 1373872319,
       "name": "AlignmentSummaryMetrics",
       "type": "picard.CollectAlignmentSummaryMetrics",
       "params": {}
     },
     {
-      "id": 1380335,
+      "id": 1380335452,
       "name": "Metrics",
       "type": "data_io.output_file",
       "params": {},
       "input_list":[
           {
-            "id": 33635474127,
+            "id": 336350474127,
             "name": "Reference Genome2",
-            "type": "2"
+            "type": "3"
           }          
       ],
       "output_list":[
           {
-            "id": 33631963121,
+            "id": 336301963121,
             "name": "Reference Genome Out 3",
-            "type": "3"
+            "type": "2"
           }
       ]
     },
     {
-      "id": 1383254,
+      "id": 138003254,
       "name": "Aligned Reads",
       "type": "data_io.output_file",
       "params": {},
       "input_list":[
           {
-            "id": 33631115127,
+            "id": 336301115127,
             "name": "Reference Genome2",
-            "type": "2"
+            "type": "3"
           }          
       ],
       "output_list":[
           {
-            "id": 3363122121,
+            "id": 33631202121,
             "name": "Reference Genome Out 3",
             "type": "3"
           }
       ]
     },
     {
-      "id": 1611848,
+      "id": 16110848,
       "name": "Picard Mark Duplicates",
       "type": "picard.dedupe",
       "params": {}
     },
     {
-      "id": 1931395,
+      "id": 193001395,
       "name": "Picard Sort",
       "type": "picard.sort",
       "params": {}
     },
     {
-      "id": 283331,
+      "id": 28300331,
       "name": "STAR",
       "type": "star",
       "params": {
@@ -287,7 +287,7 @@
       }
     },
     {
-      "id": 450814,
+      "id": 40050814,
       "name": "Set Metadata",
       "type": "sbgtools.metaedit",
       "params": {
@@ -295,19 +295,19 @@
       }
     },
     {
-      "id": 537571,
+      "id": 53750071,
       "name": "SAMtools SAM to BAM",
       "type": "samtools.sam2bam",
       "params": {}
     },
     {
-      "id": 575792,
+      "id": 57500792,
       "name": "Chimeric Output",
       "type": "data_io.output_file",
       "params": {}
     },
     {
-      "id": 658245,
+      "id": 65800245,
       "name": "Splice Junctions Output",
       "type": "data_io.output_file",
       "params": {}

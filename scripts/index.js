@@ -9,6 +9,7 @@ var radius = 40;
 var VisualPipeline ={step_list:[],connections:[]};
 var popupTitle = "Title";
 var popupMessage = "Message";
+var _css = ""
 
 var viewport = d3.select('#nodePane')
     .append("svg")
@@ -62,7 +63,7 @@ defs1.append('svg:pattern')
     .attr('x', 50)
     .attr('y', 50)
     .append('image')
-    .attr('xlink:href', 'images/container_default.png')
+    .attr('xlink:href', 'http://webashlar.com/Demos/checkboxes/images/container_default.png')
     .attr('x', 20)
     .attr('y', 20)
     .attr('width', 100)
@@ -77,7 +78,7 @@ defs2.append('svg:pattern')
     .attr('x', 50)
     .attr('y', 50)
     .append('image')
-    .attr('xlink:href', 'images/container_selected.png')
+    .attr('xlink:href', 'http://webashlar.com/Demos/checkboxes/images/container_selected.png')
     .attr('x', 20)
     .attr('y', 20)
     .attr('width', 100)
@@ -92,7 +93,7 @@ defs3.append('svg:pattern')
     .attr('x', 8)
     .attr('y', 8)
     .append('image')
-    .attr('xlink:href', 'images/terminal_default.png')
+    .attr('xlink:href', 'http://webashlar.com/Demos/checkboxes/images/terminal_default.png')
     .attr('x', 4)
     .attr('y', 4)
     .attr('width', 16)
@@ -107,7 +108,7 @@ defs4.append('svg:pattern')
     .attr('x', 8)
     .attr('y', 8)
     .append('image')
-    .attr('xlink:href', 'images/terminal_drop.png')
+    .attr('xlink:href', 'http://webashlar.com/Demos/checkboxes/images/terminal_drop.png')
     .attr('x', 4)
     .attr('y', 4)
     .attr('width', 16)
@@ -122,7 +123,7 @@ defs5.append('svg:pattern')
     .attr('x', 8)
     .attr('y', 8)
     .append('image')
-    .attr('xlink:href', 'images/terminal_connect.png')
+    .attr('xlink:href', 'http://webashlar.com/Demos/checkboxes/images/terminal_connect.png')
     .attr('x', 4)
     .attr('y', 4)
     .attr('width', 16)
@@ -349,22 +350,22 @@ function getPreviousConnection(id){
 //Function for center image of node that we can add or replace image url or callback
 //according to requirement.
 function getImageType(type){
-    var img = "images/folder.png";
+    var img = "http://webashlar.com/Demos/checkboxes/images/folder.png";
     switch (type){
         case "data_io.batch_input":
-            img = "images/note.png";
+            img = "http://webashlar.com/Demos/checkboxes/images/note.png";
             break;
         case "data_io.sort_files":
-            img = "images/sorting.png";
+            img = "http://webashlar.com/Demos/checkboxes/images/sorting.png";
             break;
         case "data_io.compress":
-            img = "images/compress.png";
+            img = "http://webashlar.com/Demos/checkboxes/images/compress.png";
             break;
         case "data_io.input_file":
-            img = "images/folder.png";
+            img = "http://webashlar.com/Demos/checkboxes/images/folder.png";
             break;
         case "picard.merge":
-            img = "images/merge.png";
+            img = "http://webashlar.com/Demos/checkboxes/images/merge.png";
             break;
         default :
     }
@@ -960,7 +961,7 @@ function restart() {
     var controls = gState.append("g").attr("class","controls");
 
     controls.append("image")
-        .attr("xlink:href","images/run.png")
+        .attr("xlink:href","http://webashlar.com/Demos/checkboxes/images/run.png")
         .attr("x", -50)
         .attr("y", -70)
         .attr("width",25)
@@ -974,7 +975,7 @@ function restart() {
         });
 
     controls.append("image")
-        .attr("xlink:href","images/info.png")
+        .attr("xlink:href","http://webashlar.com/Demos/checkboxes/images/info.png")
         .attr("x", -25)
         .attr("y", -70)
         .attr("width",25)
@@ -991,7 +992,7 @@ function restart() {
         });
 
     controls.append("image")
-        .attr("xlink:href","images/edit.png")
+        .attr("xlink:href","http://webashlar.com/Demos/checkboxes/images/edit.png")
         .attr("x", 0)
         .attr("y", -70)
         .attr("width",25)
@@ -1005,7 +1006,7 @@ function restart() {
         });
 
     controls.append("image")
-        .attr("xlink:href","images/remove.png")
+        .attr("xlink:href","http://webashlar.com/Demos/checkboxes/images/remove.png")
         .attr("x",25)
         .attr("y", -70)
         .attr("width",25)
@@ -1049,7 +1050,7 @@ function restart() {
 
     var remove_line = svg.append('g').attr('class','linkRemove').append("image")
         .attr('class','removeline hidden')
-        .attr("xlink:href","images/close_default.png")
+        .attr("xlink:href","http://webashlar.com/Demos/checkboxes/images/close_default.png")
         .attr("x", -50)
         .attr("y", -50)
         .attr("width",28)
@@ -1290,12 +1291,26 @@ function insertData(){
             loadDataToPan(json);
     });
 
+    /*
+      we need to load this css for our svg when we save it we can append it to svg
+      On browser we have css but when we save our svg and sending to server we need add required
+      css with svg tag so we can load svg as it's.
+    * */
+    $.when($.get("css/svg.css")).done(function(response) {
+        _css  = '<style type="text/css"><![CDATA[ '+ response +']]></style>';
+    });
+
 function generateSVG(){
-    var xml_1 = d3.select("svg")
-            .attr("version", 1.1)
-            .attr("xmlns", "http://www.w3.org/2000/svg")
-            .node().parentNode.innerHTML;
-   return xml_1;
+    // adding links for xmlns that we need to load svg.
+    var xml_1 = d3.select("svg").node().parentNode.innerHTML;
+    var xmlLinks = 'version="1.1" baseProfile="basic" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" ';
+    var mystring = xml_1+"";
+    var SVG_TAG = "svg";
+    var _links = mystring.indexOf(SVG_TAG)+SVG_TAG.length+1;
+    mystring = mystring.replace('<svg','<svg '+xmlLinks+'');
+    var _svgtag = mystring.substr(0,mystring.lastIndexOf("</svg>"));
+    _svgtag = _svgtag+" "+_css+'</svg>';
+    return _svgtag;
 }
 
 function getData(){

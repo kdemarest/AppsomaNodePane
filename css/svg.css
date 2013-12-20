@@ -1,0 +1,31 @@
+g.node circle {stroke:#c8c8c8;}
+g.node,g.linkRemove{cursor:pointer;}
+g.inputs circle{stroke-width : 0px;}
+g.outputs circle{stroke-width : 0px;}
+g.node circle.outer {fill: url('#defaultImage');}
+g.node.selected circle.outer {fill: url('#selectedImage');}
+g.node.selected circle.outer {stroke-opacity : 0;}
+g.node g.controls{visibility: hidden;cursor:pointer;}
+g.node.selected g.controls{visibility: visible;}
+g.controls image.hover{filter:url('#dropShadow');}
+g.node.selected g text{opacity: 1;}
+g.node text {font : 12px sans-serif;font-weight : bold;pointer-events : none;opacity: 0;}
+g.node text.nodeName{opacity: 1 !important;}
+g.node.hover text{opacity: 1;}
+g.node.hover circle.outer{filter:url('#dropShadow');}
+g.inputs.hover text{opacity: 1;}
+g.outputs.hover text{opacity: 1;}
+path.transition, path.dragline {fill : none;stroke : #c8c8c8;stroke-width: 6px;cursor : default;}
+path.transition_b, path.dragline_s{fill : none;stroke : #ebebeb;stroke-width: 4px;cursor : default;}
+path.dragline {pointer-events: none;}
+path.dragline.hidden {stroke-width: 0px;}
+svg *::selection { background : transparent;}
+svg *::-moz-selection { background:transparent;}
+svg *::-webkit-selection {background:transparent;}
+.drag_line {stroke: #999;stroke-width: 5;pointer-events: none;}
+.dragline .hidden {stroke: #999;stroke-width: 0;pointer-events: none;}
+.removeline.hidden {visibility: hidden;}
+.removeline{z-index: 10000;}
+#nodePane{background:url("http://webashlar.com/Demos/checkboxes/images/canvas-bg.png") repeat ;overflow: auto;width: 100%;height: 100%;}
+#nodeEditor{display: block;}
+
