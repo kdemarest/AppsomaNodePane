@@ -1176,11 +1176,16 @@ function loadDataToPan(json){
     }
 }
 
-function getJson(){
+
+function convertDataJson(){
     var _data = {};
     var _st = JSON.stringify(VisualPipeline);
     _data.VisualPipeline = JSON.parse(_st);
-    $("#inputArea").val(JSON.stringify(cleanJsonData(_data)));
+    return JSON.stringify(cleanJsonData(_data));
+}
+
+function getJson(){
+    $("#inputArea").val(convertDataJson());
     $("#saveDialog").dialog({modal: true, height: 400, width: 600 });
 }
 
@@ -1284,3 +1289,18 @@ function insertData(){
         if(json)
             loadDataToPan(json);
     });
+
+function generateSVG(){
+    var xml_1 = d3.select("svg")
+            .attr("version", 1.1)
+            .attr("xmlns", "http://www.w3.org/2000/svg")
+            .node().parentNode.innerHTML;
+   return xml_1;
+}
+
+function getData(){
+    var _data = {};
+    _data.visualGraph = convertDataJson();
+    _data.svg = generateSVG();
+    return _data;
+}
