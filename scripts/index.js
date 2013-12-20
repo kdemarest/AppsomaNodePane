@@ -30,7 +30,7 @@ var eventRect = viewport.append('rect')
     .attr('fill', 'none')
     .attr('pointer-events', 'all');
 
-var zoomeffect = d3.behavior.zoom().scaleExtent([1,4]).on("zoom", zoom);
+var zoomeffect = d3.behavior.zoom().scaleExtent([0.5,3]).on("zoom", zoom);
 var svg =  viewport
     .call(zoomeffect)
     .append("g").attr('id','root');
@@ -212,11 +212,18 @@ function updateSVG(){
     if(h<500) h = 500;
     var extraWidth =  translates[0] > 0 ?translates[0]:0;
     var extraHeight = translates[1] > 0 ?translates[1]:0;
-
-    eventRect.attr("width",(w+extraWidth)*scale)
-        .attr("height",(h+extraHeight)*scale);
-    viewport.attr("height",(h+extraHeight)*scale)
-        .attr("width",(w+extraWidth)*scale);
+    var fh = (h+extraHeight)*scale ;
+    var fw = (w+extraWidth)*scale;
+    if(fh < $(".nodePaneContainer").height()){
+        fh = $(".nodePaneContainer").height();
+    }
+    if(fw < $(".nodePaneContainer").width()){
+        fw = $(".nodePaneContainer").width();
+    }
+    eventRect.attr("width",fw)
+        .attr("height",fh);
+    viewport.attr("height",fh)
+        .attr("width",fw);
     svg.attr("transform", "translate("+translates+")scale("+scale+")");
 }
 
