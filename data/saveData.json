@@ -50,7 +50,7 @@
               "output_list": [
                   {
                       "id": 33631121,
-                      "name": "Batch Input",
+                      "name": "Batch Output",
                       "type": "batch_input",
                       "x": 47.87975935699461,
                       "y": 3.3953856800497393
@@ -78,7 +78,7 @@
               "output_list": [
                   {
                       "id": 336311213,
-                      "name": "Shell Input",
+                      "name": "Shell Output",
                       "type": "batch_input",
                       "x": 47.87975935699461,
                       "y": 3.3953856800497393

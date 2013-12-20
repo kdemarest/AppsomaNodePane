@@ -3,7 +3,7 @@ var scale = 1;
 var ToolList = {};
 var selected = {};
 var isLinkDraw = false;
-var source_node,target_node,output_node,input_node,selected_link,selected_link_h,temp_node,near_node;
+var source_node,target_node,output_node,input_node,selected_link,selected_link_h,temp_node,near_node,selected_node;
 var nodedrag = false;
 var radius = 40;
 var NodePanData ={step_list:[],connections:[]};
@@ -168,6 +168,7 @@ var drag_line,drag_line_s;
         }
     }).on("mousedown", function () {
         d3.selectAll('g.selected').classed("selected", false);
+        selected_node = undefined;
     });
 
 var computeTransitionPath = function( d) {
@@ -394,7 +395,7 @@ function restart() {
                 selection = d3.select(this);
                 selection.classed("selected", true);
             }
-
+            selected_node = d;
             selection.attr("transform", function (d, i) {
                 d.x += d3.event.dx;
                 d.y += d3.event.dy;
@@ -494,6 +495,7 @@ function restart() {
                 g = this;
             d3.selectAll('g.selected').classed("selected", false);
             d3.select(g).classed("selected", true);
+            selected_node = d;
             if(g.parentNode)
                 g.parentNode.appendChild(g);
         })
@@ -1009,9 +1011,6 @@ function restart() {
             d3.select(this).classed("hover", false);
         });
 
-
-
-
     gStates.exit().remove();
 
     //Add connections Data and append it to group
@@ -1136,6 +1135,19 @@ var showPopup = function(persistent) {
 
 function hideToolTips(){
     $('div.qtip:visible').qtip('hide');
+}
+
+$(document).keydown(function(e){
+    if (e.keyCode == 46) {
+        removeSelected();
+    }
+});
+
+function removeSelected(){
+    if(selected_node){
+        removeTool(selected_node.id);
+        selected_node = undefined;
+    }
 }
 
 function loadDataToPan(json){
