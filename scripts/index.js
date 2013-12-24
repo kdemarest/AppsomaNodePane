@@ -1055,17 +1055,64 @@ function restart() {
         .attr("xlink:href","http://webashlar.com/Demos/checkboxes/images/info.png")
         .attr("x", -25)
         .attr("y", -70)
+        .attr('id',function(d){
+            return d.id+"_tip";
+        })
         .attr("width",25)
         .attr("height",25)
         .on("click", function(d) {
-            var info = ""
-            if(d.params && d.params.descriptionText)
-                info=d.params.descriptionText;
-            popupMessageBox(d.name,info);
+//            var info = ""
+//            if(d.params && d.params.descriptionText)
+//                info=d.params.descriptionText;
+//            popupMessageBox(d.name,info);
         }).on("mouseover", function (d) {
             d3.select(this).classed("hover", true);
         }).on("mouseout", function () {
             d3.select(this).classed("hover", false);
+        }).call(function(d){
+            for(_d in d[0]){
+                var id = d[0][_d].id;
+                var _data = d[0][_d].__data__;
+                if(_data){
+                    $('#'+id+'').qtip({
+                        content: {
+                            text: function(){
+                                var info = "lorem ipsum"
+                                if(selected_node.params && selected_node.params.descriptionText)
+                                    info=selected_node.params.descriptionText;
+                                return info;
+                            },
+                            title: {
+                                text: function(){
+                                    if(selected_node)
+                                        return selected_node.name;
+                                    else
+                                        return "";
+                                },
+                                button: true
+                            }
+                        },
+                        show: 'click',
+                        hide: 'unfocus',
+                        events: {
+                            render: function(event, api) {
+                                if(!api.options.show.persistent) {
+                                    $(this).bind('mouseover mouseout', function(e) {
+                                        var lifespan = 2000;
+
+                                        clearTimeout(api.timer);
+                                        if (e.type !== 'mouseover') {
+                                            api.timer = setTimeout(function() { api.hide(e) }, lifespan);
+                                        }
+                                    })
+                                        .triggerHandler('mouseout');
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+
         });
 
     controls.append("image")
