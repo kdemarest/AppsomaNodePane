@@ -84,7 +84,6 @@ g.node.selected g text{
 g.node text {
     font : 12px sans-serif;
     font-weight : bold;
-    pointer-events : none;
     opacity: 0;
 }
 g.node text.nodeName{
@@ -178,3 +177,7 @@ svg *::-webkit-selection {
     display: block;
 }
 
+#editText{
+    position: absolute;
+    font-weight: bold;
+}

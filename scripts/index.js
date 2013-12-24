@@ -3,13 +3,15 @@ var scale = 1;
 var ToolList = {};
 var selected = {};
 var isLinkDraw = false;
+var isEdit = false;
 var source_node,target_node,output_node,input_node,selected_link,selected_link_h,temp_node,near_node,selected_node;
 var nodedrag = false;
 var radius = 40;
 var VisualPipeline ={step_list:[],connections:[]};
 var popupTitle = "Title";
 var popupMessage = "Message";
-var _css = ""
+var _css = "";
+var currentMouseEvent = undefined;
 
 var viewport = d3.select('#nodePane')
     .append("svg")
@@ -207,6 +209,8 @@ var computeTransitionPath = function( d) {
     });
 
 function updateSVG(){
+    $("#editText").remove();
+    d3.selectAll("text.nodeName").style("visibility","visible");
     var h = document.getElementById("root").getBBox().height;
     var w = document.getElementById("root").getBBox().width;
     if($(".nodePaneContainer").height() > h) h = $(".nodePaneContainer").height();
@@ -252,7 +256,9 @@ function resetParameters(){
     temp_node = undefined;
     near_node = undefined;
     isLinkDraw = false;
+    isEdit = false;
     setcursor('default');
+    $('#editText').remove();
     drag_line
         .classed('hidden', true)
         .attr('d',"M 0 0 C 0 0 0 0 0 0");
@@ -574,16 +580,6 @@ function restart() {
         .attr("width",40)
         .attr("height",40);
 
-    node.append("text")
-        .attr("class","nodeName")
-        .attr({
-            'text-anchor': 'middle',
-            y: (radius + 25)
-        })
-        .text(function (d) {
-            return d.name;
-        });
-
     node.append('circle')
         .attr('r',function(){return radius+35;})
         .attr("stroke-width",0)
@@ -662,6 +658,72 @@ function restart() {
                     }
                 }
             }
+        });
+
+    node.append("text")
+        .attr("class","nodeName")
+        .attr({
+            'text-anchor': 'middle',
+            y: (radius + 25)
+        })
+        .text(function (d) {
+            return d.name;
+        }).on('click',function(d){
+            var g = this;
+            var el = d3.select(g);
+            $('#editText').remove();
+            d3.selectAll("text.nodeName").style("visibility","visible");
+
+            d3.select(g).style("visibility","hidden");
+            var p = d3.mouse(g);
+            if($('#editText').length < 1){
+                $('<input>').attr({
+                    type: 'text',
+                    id: 'editText',
+                    name: 'editableText'
+                }).appendTo('#nodePane');
+
+                $( "#editText" ).focus(function() {
+                    isEdit = true;
+                });
+
+                $( "#editText" ).keypress(function(event) {
+                    isEdit = true;
+                    if(event.keyCode == 13){
+                        d.name = $( "#editText").val();
+                        el.text(function(d) { return d.name; });
+                        isEdit = false;
+                        restart();
+                    }
+                });
+
+                setTimeout(function(){
+                    $('#editText').attr('style',function(){
+                        e = window.event;
+                        if(!e){
+                            e = currentMouseEvent;
+                            var fx = (e.clientX-p[0]-60);
+                            var fy = (e.clientY-(p[1]/2)+10);
+                            return 'top:'+fy+'px; left:'+fx+'px';
+                        }
+//                var fx = (d.x+260)-($('#nodePane').scrollLeft());
+//                var fy = (d.y+radius+25)-($('#nodePane').scrollTop());
+                        var fx = (e.x-p[0]-60);
+                        var fy = (e.y-(p[1]/2)+15);
+                        return 'top:'+fy+'px; left:'+fx+'px';
+                    });
+                },0)
+
+                $( "#editText" ).blur(function() {
+                    d3.select(g).style("visibility","visible");
+                    isEdit = false;
+                    $(this).remove();
+                });
+            }
+
+            $('#editText').attr('value',function(){
+                return d.name;
+            });
         });
 
     node.append("title").text(function (d) {
@@ -1164,10 +1226,13 @@ $(document).keydown(function(e){
     if (e.keyCode == 46) {
         removeSelected();
     }
+    if (e.keyCode == 27 && isEdit) {
+        restart();
+    }
 });
 
 function removeSelected(){
-    if(selected_node){
+    if(selected_node && !isEdit){
         removeTool(selected_node.id);
         selected_node = undefined;
     }
@@ -1337,3 +1402,18 @@ function getData(){
     _data.svg = generateSVG();
     return _data;
 }
+
+/*
+* bind the click event of DOM for getting absolute position of mouse
+* on edit node label
+* */
+$(document).click(function(event) {
+    currentMouseEvent = event;
+});
+
+/*
+* reset svg on scroll
+* */
+$('#nodePane').scroll(function(){
+    updateSVG();
+});
