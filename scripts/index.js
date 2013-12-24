@@ -144,8 +144,8 @@ var drag_line,drag_line_s;
     eventRect.on('mousemove', function() {
         if(isLinkDraw){
             var p = d3.mouse(this);
-            setcursor('pointer');
             var sourceX,sourceY;
+            setcursor('pointer');
             if(source_node){
                 sourceX = (source_node.x+output_node.x);
                 sourceY = (source_node.y+output_node.y);
@@ -161,13 +161,14 @@ var drag_line,drag_line_s;
             drag_line.attr('d',path);
             drag_line_s.attr('d',path);
         }
-
     }).on("mouseup", function () {
         if(isLinkDraw){
             resetParameters();
             restart();
         }
+        setcursor('default');
     }).on("mousedown", function () {
+        setcursor('move');
         d3.selectAll('g.selected').classed("selected", false);
         selected_node = undefined;
     });
@@ -212,10 +213,19 @@ function updateSVG(){
     if($(".nodePaneContainer").width() > w) w = $(".nodePaneContainer").width();
     if(w<500) w = 500;
     if(h<500) h = 500;
+
     var extraWidth =  translates[0] > 0 ?translates[0]:0;
     var extraHeight = translates[1] > 0 ?translates[1]:0;
-    var fh = (h+extraHeight)*scale ;
-    var fw = (w+extraWidth)*scale;
+    var fh,fw;
+
+    if(scale<1){
+        fh = (h+extraHeight);
+        fw = (w+extraWidth);
+    }else{
+        fh = (h+extraHeight)*scale ;
+        fw = (w+extraWidth)*scale;
+    }
+
     if(fh < $(".nodePaneContainer").height()){
         fh = $(".nodePaneContainer").height();
     }
@@ -1226,35 +1236,37 @@ function insertData(){
     $("#loadDataInput").val("");
     $("#loadDialog").dialog({modal: true, height: 430, width: 600 });
 }
-    $( window ).resize(function() {
+
+$( window ).resize(function() {
+    restart();
+});
+
+$("#nodePane").droppable({
+    // tolerance can be set to 'fit', 'intersect', 'pointer', or 'touch'
+    tolerance: 'intersect',
+
+    over: function (event, ui) {
+        var posX = event.originalEvent.clientX - $(this).offset().left;
+        var posY = event.originalEvent.clientY - $(this).offset().top;
+    },
+
+    out: function (event, ui) {
+        // console.log("out");
+    },
+
+    drop: function (event, ui) {
+        var posX = event.originalEvent.clientX - $(this).offset().left + $(this).scrollLeft();
+        var posY = event.originalEvent.clientY - $(this).offset().top + $(this).scrollTop();
+        var obj = ToolList[selected.id];
+        obj.x = (posX/scale)-(translates[0]/scale);
+        obj.y = (posY/scale)-(translates[1]/scale);
+        var tempObj = JSON.parse(JSON.stringify(obj));
+        tempObj.id = obj.id+"D"+Date.now();
+        VisualPipeline.step_list.push(tempObj);
         restart();
-    });
+    }
+});
 
-    $("#nodeEditor").droppable({
-        // tolerance can be set to 'fit', 'intersect', 'pointer', or 'touch'
-        tolerance: 'intersect',
-
-        over: function (event, ui) {
-            var posX = event.originalEvent.clientX - $(this).offset().left;
-            var posY = event.originalEvent.clientY - $(this).offset().top;
-        },
-
-        out: function (event, ui) {
-            // console.log("out");
-        },
-
-        drop: function (event, ui) {
-            var posX = event.originalEvent.clientX - $(this).offset().left;
-            var posY = event.originalEvent.clientY - $(this).offset().top;
-            var obj = ToolList[selected.id];
-            obj.x = (posX/scale)-(translates[0]/scale);
-            obj.y = (posY/scale)-(translates[1]/scale);
-            var tempObj = JSON.parse(JSON.stringify(obj));
-            tempObj.id = obj.id+"D"+Date.now();
-            VisualPipeline.step_list.push(tempObj);
-            restart();
-        }
-    });
 
     //=================================================================//
     //  API call to server for get the data for "nodepane" and "tools" //
@@ -1268,6 +1280,7 @@ function insertData(){
             var html =  '<li class="dragElement" id="'+v+'">'+ToolList[v].name+'</li>'
             $('#tools').append(html);
         }
+
         $('.dragElement').draggable({
             cursorAt: {
                 top: 40,
