@@ -947,7 +947,7 @@ function restart() {
         });
 
     inputs.append("image")
-        .attr("xlink:href",'images/shim.png')
+        .attr("xlink:href",'http://www.webashlar.com/Demos/checkboxes/images/shim.png')
         .attr("x",4)
         .attr("y",-5)
         .attr("width",10)
@@ -1043,7 +1043,7 @@ function restart() {
         });
 
     output.append("image")
-        .attr("xlink:href",'images/shim.png')
+        .attr("xlink:href",'http://www.webashlar.com/Demos/checkboxes/images/shim.png')
         .attr("x",-14)
         .attr("y",-5)
         .attr("width",10)
