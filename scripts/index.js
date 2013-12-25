@@ -581,7 +581,7 @@ function restart() {
         .attr("height",40);
 
     node.append('circle')
-        .attr('r',function(){return radius+35;})
+        .attr('r',function(){return radius+45;})
         .attr("stroke-width",0)
         .style('fill','none')
         .attr('pointer-events', 'all')
@@ -874,7 +874,7 @@ function restart() {
     var inputs = gStates.selectAll('.inputs')
         .data(function(d){
             if(d.input_list){
-                var r = radius+8;
+                var r = radius+14;
                 var a = getStartingPoint(d.input_list.length,true);
                 for(t in d.input_list){
                     d.input_list[t].x = r*Math.sin(a);
@@ -943,6 +943,18 @@ function restart() {
             }
         });
 
+    inputs.append("image")
+        .attr("xlink:href",'images/shim.png')
+        .attr("x",4)
+        .attr("y",-5)
+        .attr("width",10)
+        .attr("height",10)
+        .attr("transform", function(d,i) {
+            var angle = Math.atan( (d.y/ d.x)) * ( 180/ Math.PI );
+            var rotation = "rotate(" + angle + ")";
+            return rotation;
+        });
+
     inputs.append("text")
         .attr({
             'text-anchor': 'end',
@@ -957,7 +969,7 @@ function restart() {
     var output = gStates.selectAll('.outputs')
         .data(function(d){
             if(d.output_list){
-                var r = radius+8;
+                var r = radius+14;
                 var a = getStartingPoint(d.output_list.length,false);
                 for(t in d.output_list){
                     d.output_list[t].x = r*Math.sin(a);
@@ -1024,6 +1036,18 @@ function restart() {
 
         });
 
+    output.append("image")
+        .attr("xlink:href",'images/shim.png')
+        .attr("x",-14)
+        .attr("y",-5)
+        .attr("width",10)
+        .attr("height",10)
+        .attr("transform", function(d,i) {
+            var angle = Math.atan((d.y/ d.x)) * ( 180/ Math.PI );
+            var rotation = "rotate(" + angle + ")";
+            return rotation;
+        });
+
     output.append("text")
         .attr({
             'text-anchor': 'start',
@@ -1040,7 +1064,7 @@ function restart() {
     controls.append("image")
         .attr("xlink:href","http://webashlar.com/Demos/checkboxes/images/run.png")
         .attr("x", -50)
-        .attr("y", -70)
+        .attr("y", -80)
         .attr("width",25)
         .attr("height",25)
         .on("click", function(d) {
@@ -1054,7 +1078,7 @@ function restart() {
     controls.append("image")
         .attr("xlink:href","http://webashlar.com/Demos/checkboxes/images/info.png")
         .attr("x", -25)
-        .attr("y", -70)
+        .attr("y", -80)
         .attr('id',function(d){
             return d.id+"_tip";
         })
@@ -1118,7 +1142,7 @@ function restart() {
     controls.append("image")
         .attr("xlink:href","http://webashlar.com/Demos/checkboxes/images/edit.png")
         .attr("x", 0)
-        .attr("y", -70)
+        .attr("y", -80)
         .attr("width",25)
         .attr("height",25)
         .on("click", function(d) {
@@ -1132,7 +1156,7 @@ function restart() {
     controls.append("image")
         .attr("xlink:href","http://webashlar.com/Demos/checkboxes/images/remove.png")
         .attr("x",25)
-        .attr("y", -70)
+        .attr("y", -80)
         .attr("width",25)
         .attr("height",25)
         .on("click", function(d) {
