@@ -33,7 +33,7 @@ var eventRect = viewport.append('rect')
     .attr('fill', 'none')
     .attr('pointer-events', 'all');
 
-var zoomeffect = d3.behavior.zoom().scaleExtent([0.5,3]).on("zoom", zoom);
+var zoomeffect = d3.behavior.zoom().scaleExtent([0.3,3]).on("zoom", zoom);
 var svg =  viewport
     .call(zoomeffect)
     .append("g").attr('id','root');
@@ -898,6 +898,9 @@ function restart() {
         }).on("mouseup", function (d) {
             isLinkDraw =false;
             input_node = d;
+            if(near_node){
+                input_node = near_node;
+            }
         });
 
     inputs.append('circle')
@@ -993,6 +996,9 @@ function restart() {
         }).on("mouseup", function (d) {
             isLinkDraw =false;
             output_node = d;
+            if(near_node){
+                output_node = near_node;
+            }
         });
 
     output.append('circle')
@@ -1474,6 +1480,11 @@ function getData(){
     return _data;
 }
 
+function resetZoom(){
+    zoomeffect.translate([0,0]);
+    zoomeffect.scale([1]);
+    zoomeffect.event(svg);
+}
 /*
 * bind the click event of DOM for getting absolute position of mouse
 * on edit node label
