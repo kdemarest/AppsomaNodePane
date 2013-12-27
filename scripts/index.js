@@ -36,6 +36,7 @@ var eventRect = viewport.append('rect')
 var zoomeffect = d3.behavior.zoom().scaleExtent([0.3,3]).on("zoom", zoom);
 var svg =  viewport
     .call(zoomeffect)
+    .on("dblclick.zoom", null)
     .append("g").attr('id','root');
 
 var defs = svg.append( 'defs' );
@@ -133,6 +134,9 @@ defs5.append('svg:pattern')
 
 /* Zoom function*/
 function zoom() {
+    if(isEdit){
+        $( "#editText" ).blur();
+    }
     if(!nodedrag && !isLinkDraw){
         translates = d3.event.translate;
         scale = d3.event.scale;
@@ -173,6 +177,9 @@ var drag_line,drag_line_s;
         setcursor('move');
         d3.selectAll('g.selected').classed("selected", false);
         selected_node = undefined;
+        if(isEdit){
+            $( "#editText" ).blur();
+        }
     });
 
 var computeTransitionPath = function( d) {
@@ -474,9 +481,9 @@ function restart() {
                 drag_line_s.classed('hidden', false).attr('d',path);
             }
         }).on("mouseup", function (d) {
-
             if(target_node){
                 source_node = d;
+                addPath();
             }else{
                 target_node = d;
                 if(input_node){
@@ -486,8 +493,8 @@ function restart() {
                         resetParameters();
                     }
                 }
+                addPath();
             }
-            addPath();
         }).on("click", function (d, i) {
             var e = d3.event,
                 g = this;
@@ -666,8 +673,8 @@ function restart() {
             var el = d3.select(g);
             $('#editText').remove();
             d3.selectAll("text.nodeName").style("visibility","visible");
-
             d3.select(g).style("visibility","hidden");
+            isEdit = true;
             var p = d3.mouse(g);
             if($('#editText').length < 1){
                 $('<input>').attr({
@@ -683,8 +690,10 @@ function restart() {
                 $( "#editText" ).keypress(function(event) {
                     isEdit = true;
                     if(event.keyCode == 13){
-                        d.name = $( "#editText").val();
-                        el.text(function(d) { return d.name; });
+                        if($( "#editText").val().trim().length > 0){
+                            d.name = $( "#editText").val();
+                            el.text(function(d) { return d.name; });
+                        }
                         isEdit = false;
                         restart();
                     }
@@ -692,31 +701,48 @@ function restart() {
 
                 setTimeout(function(){
                     $('#editText').attr('style',function(){
+                        var _temp = $("#nodePane").offset();
+                        var _right = _temp.left+$("#nodePane").width();
                         e = window.event;
                         if(!e){
                             e = currentMouseEvent;
                             var fx = (e.clientX-p[0]-60);
                             var fy = (e.clientY-(p[1]/2)+10);
+                            if(Math.abs((_right - fx) < 100)){
+                                var _scroll = $('#nodePane').scrollLeft();
+                                $(' #nodePane').scrollLeft(_scroll+80);
+                                fx = fx - 80;
+                            }
                             return 'top:'+fy+'px; left:'+fx+'px';
                         }
 //                var fx = (d.x+260)-($('#nodePane').scrollLeft());
 //                var fy = (d.y+radius+25)-($('#nodePane').scrollTop());
                         var fx = (e.x-p[0]-60);
                         var fy = (e.y-(p[1]/2)+15);
+                        if(Math.abs((_right - fx) < 100)){
+                            var _scroll = $('#nodePane').scrollLeft();
+                            $('#nodePane').scrollLeft(_scroll+80);
+                            fx = fx - 80;
+                        }
                         return 'top:'+fy+'px; left:'+fx+'px';
                     });
                 },0)
 
                 $( "#editText" ).blur(function() {
-                    d3.select(g).style("visibility","visible");
+                    if($( "#editText").val().trim().length > 0){
+                        d.name = $( "#editText").val();
+                        el.text(function(d) { return d.name; });
+                    }
                     isEdit = false;
-                    $(this).remove();
+                    restart();
                 });
             }
 
-            $('#editText').attr('value',function(){
-                return d.name;
-            });
+            setTimeout(function(){
+                $('#editText').focusWithoutScrolling().attr('value',function(){
+                    return d.name;
+                });
+            }, 1);
         });
 
     node.append("title").text(function (d) {
@@ -1491,6 +1517,23 @@ $(document).click(function(event) {
 /*
 * reset svg on scroll
 * */
-$('#nodePane').scroll(function(){
-    updateSVG();
+var prevLeft = 0;
+$('#nodePane').scroll(function(event){
+    var currentLeft = $(this).scrollLeft();
+    if(prevLeft != currentLeft) {
+        prevLeft = currentLeft;
+//        console.log("I scrolled horizontal.");
+    }else{
+//        console.log("I scrolled vertically.");
+    }
+    if(isEdit){
+        $( "#editText" ).blur();
+    }
 });
+
+$.fn.focusWithoutScrolling = function(){
+    var x = window.scrollX, y = window.scrollY;
+    this.focus();
+    window.scrollTo(x,y);
+    return this; //chainability
+};
