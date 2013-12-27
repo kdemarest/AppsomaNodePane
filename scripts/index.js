@@ -259,13 +259,8 @@ function resetParameters(){
     isEdit = false;
     setcursor('default');
     $('#editText').remove();
-    drag_line
-        .classed('hidden', true)
-        .attr('d',"M 0 0 C 0 0 0 0 0 0");
-
-    drag_line_s
-        .classed('hidden', true)
-        .attr('d',"M 0 0 C 0 0 0 0 0 0");
+    drag_line.classed('hidden', true).attr('d',"M 0 0 C 0 0 0 0 0 0");
+    drag_line_s.classed('hidden', true).attr('d',"M 0 0 C 0 0 0 0 0 0");
 }
 
 var isLoop = function(_source,_target){
@@ -461,28 +456,6 @@ function restart() {
                 source_node = d;
             }else{
                 target_node = d;
-                if(input_node){
-                    var tempRemove = getPreviousConnection(input_node.id);
-                    if(tempRemove.length > 0){
-                        selected_link = tempRemove[0];
-                        source_node = VisualPipeline.step_list.filter(function(e){
-                            return e.id == selected_link.source;
-                        })[0];
-
-                        output_node = source_node.output_list.filter(function(e){
-                            return e.id == selected_link.output;
-                        })[0];
-
-                        temp_node = output_node.id;
-                        var index = VisualPipeline.connections.indexOf(tempRemove[0]);
-                        VisualPipeline.connections.splice(index,1);
-                        input_node = undefined;
-                        target_node = undefined;
-                        selected_link = undefined;
-                        restart();
-                        lightUpEligible(output_node,false);
-                    }
-                }
             }
 
             if(isLinkDraw){
@@ -497,11 +470,8 @@ function restart() {
                 }
 
                 var path = "M "+sourceX+" "+sourceY+" C"+sourceX+" "+sourceY+" "+sourceX+" "+sourceY+" "+sourceX+" "+sourceY;
-                drag_line
-                    .classed('hidden', false)
-                    .attr('d',path);
-                drag_line_s.classed('hidden', false)
-                    .attr('d',path);
+                drag_line.classed('hidden', false).attr('d',path);
+                drag_line_s.classed('hidden', false).attr('d',path);
             }
         }).on("mouseup", function (d) {
 
@@ -539,6 +509,29 @@ function restart() {
                     sourceY = (target_node.y+input_node.y);
                 }
 
+                if(input_node){
+                    var tempRemove = getPreviousConnection(input_node.id);
+                    if(tempRemove.length > 0){
+                        selected_link = tempRemove[0];
+                        source_node = VisualPipeline.step_list.filter(function(e){
+                            return e.id == selected_link.source;
+                        })[0];
+
+                        output_node = source_node.output_list.filter(function(e){
+                            return e.id == selected_link.output;
+                        })[0];
+
+                        temp_node = output_node.id;
+                        var index = VisualPipeline.connections.indexOf(tempRemove[0]);
+                        VisualPipeline.connections.splice(index,1);
+                        input_node = undefined;
+                        target_node = undefined;
+                        selected_link = undefined;
+                        restart();
+                        lightUpEligible(output_node,false);
+                    }
+                }
+
                 var xn = p[0];
                 var yn = p[1];
 
@@ -548,8 +541,8 @@ function restart() {
                 }
 
                 var path = "M "+sourceX+" "+sourceY+" C"+xn+" "+sourceY+" "+sourceX+" "+yn+" "+xn+" "+yn;
-                drag_line.attr('d',path);
-                drag_line_s.attr('d',path);
+                drag_line.classed('hidden', false).attr('d',path);
+                drag_line_s.classed('hidden', false).attr('d',path);
             }
         })
         .on("mouseover", function(){
@@ -1202,6 +1195,16 @@ function restart() {
         });
     gTransitions_b.exit().remove();
 
+    drag_line = svg.append('g').attr('class','dragline_g')
+        .attr('pointer-events', 'none').append('path')
+        .attr('class','dragline hidden')
+        .attr('d', "M 0 0 C 0 0 0 0 0 0");
+
+    drag_line_s = svg.append('g').attr('class','dragline_s_g')
+        .attr('pointer-events', 'none').append('path')
+        .attr('class','dragline_s hidden')
+        .attr('d', "M 0 0 C 0 0 0 0 0 0");
+
     var remove_line = svg.append('g').attr('class','linkRemove').append("image")
         .attr('class','removeline hidden')
         .attr("xlink:href","http://webashlar.com/Demos/checkboxes/images/close_default.png")
@@ -1223,14 +1226,6 @@ function restart() {
             },1000);
         });
 
-    drag_line = svg.append('g').attr('class','dragline_g').append('path')
-        .attr('class','dragline hidden')
-        .attr('d', "M 0 0 C 0 0 0 0 0 0");
-
-    drag_line_s = svg.append('g').attr('class','dragline_s_g')
-        .attr('pointer-events', 'none').append('path')
-        .attr('class','dragline_s hidden')
-        .attr('d', "M 0 0 C 0 0 0 0 0 0");
 };
 
 //Popup Message function
