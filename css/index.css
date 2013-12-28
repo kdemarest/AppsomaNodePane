@@ -180,4 +180,20 @@ svg *::-webkit-selection {
 #editText{
     position: absolute;
     font-weight: bold;
+    z-index: 1000;
+}
+
+#UIModel{
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 1;
+    pointer-events: auto;
+    z-index: 999;
+    background-color: rgba(0,0,0,0.6);
+
 }

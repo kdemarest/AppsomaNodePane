@@ -217,6 +217,7 @@ var computeTransitionPath = function( d) {
 
 function updateSVG(){
     $("#editText").remove();
+    $("#UIModel").remove();
     d3.selectAll("text.nodeName").style("visibility","visible");
     var h = document.getElementById("root").getBBox().height;
     var w = document.getElementById("root").getBBox().width;
@@ -266,6 +267,7 @@ function resetParameters(){
     isEdit = false;
     setcursor('default');
     $('#editText').remove();
+    $("#UIModel").remove();
     drag_line.classed('hidden', true).attr('d',"M 0 0 C 0 0 0 0 0 0");
     drag_line_s.classed('hidden', true).attr('d',"M 0 0 C 0 0 0 0 0 0");
 }
@@ -676,7 +678,12 @@ function restart() {
             d3.select(g).style("visibility","hidden");
             isEdit = true;
             var p = d3.mouse(g);
+            var tempBlur = false;
             if($('#editText').length < 1){
+                $('<div>').attr({
+                    id: 'UIModel'
+                }).appendTo('body');
+
                 $('<input>').attr({
                     type: 'text',
                     id: 'editText',
@@ -708,7 +715,18 @@ function restart() {
                             e = currentMouseEvent;
                             var fx = (e.clientX-p[0]-60);
                             var fy = (e.clientY-(p[1]/2)+10);
-                            if(Math.abs((_right - fx) < 100)){
+
+                            if(Math.abs((_temp.left - fx)) < 50){
+                                tempBlur = true;
+                                var _scroll = $('#nodePane').scrollLeft();
+                                if(_scroll > 80){
+                                    $('#nodePane').scrollLeft(_scroll-80);
+                                    fx = fx + 80;
+                                }
+                            }
+
+                            if(Math.abs((_right - fx)) < 120){
+                                tempBlur = true;
                                 var _scroll = $('#nodePane').scrollLeft();
                                 $(' #nodePane').scrollLeft(_scroll+80);
                                 fx = fx - 80;
@@ -719,7 +737,18 @@ function restart() {
 //                var fy = (d.y+radius+25)-($('#nodePane').scrollTop());
                         var fx = (e.x-p[0]-60);
                         var fy = (e.y-(p[1]/2)+15);
-                        if(Math.abs((_right - fx) < 100)){
+
+                        if(Math.abs((_temp.left - fx)) < 50){
+                            tempBlur = true;
+                            var _scroll = $('#nodePane').scrollLeft();
+                            if(_scroll > 80){
+                                $('#nodePane').scrollLeft(_scroll-80);
+                                fx = fx + 80;
+                            }
+                        }
+
+                        if(Math.abs((_right - fx)) < 120){
+                            tempBlur = true;
                             var _scroll = $('#nodePane').scrollLeft();
                             $('#nodePane').scrollLeft(_scroll+80);
                             fx = fx - 80;
@@ -729,12 +758,21 @@ function restart() {
                 },0)
 
                 $( "#editText" ).blur(function() {
-                    if($( "#editText").val().trim().length > 0){
-                        d.name = $( "#editText").val();
-                        el.text(function(d) { return d.name; });
+                    if(tempBlur){
+                        setTimeout(function(){
+                            $('#editText').focusWithoutScrolling().attr('value',function(){
+                                tempBlur = false;
+                                return d.name;
+                            });
+                        }, 1);
+                    }else{
+                        if($( "#editText").val().trim().length > 0){
+                            d.name = $( "#editText").val();
+                            el.text(function(d) { return d.name; });
+                        }
+                        isEdit = false;
+                        restart();
                     }
-                    isEdit = false;
-                    restart();
                 });
             }
 
