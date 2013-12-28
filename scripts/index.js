@@ -2,6 +2,7 @@ var translates = [0,0];
 var scale = 1;
 var ToolList = {};
 var selected = {};
+var lastSavedPoints ={};
 var isLinkDraw = false;
 var isEdit = false;
 var source_node,target_node,output_node,input_node,selected_link,selected_link_h,temp_node,near_node,selected_node;
@@ -396,8 +397,29 @@ function getImageType(type){
     }
     return img;
 }
+
+function checkOverrideNode(d){
+    for(_n in VisualPipeline.step_list){
+        var _node = VisualPipeline.step_list[_n];
+        if(_node.id != d.id){
+            if(Math.pow((d.x - _node.x),2) + Math.pow((d.y - _node.y),2) <= Math.pow(100,2)){
+                console.log(lastSavedPoints);
+                _node_t = VisualPipeline.step_list.filter(function(e){
+                    return e.id == d.id;
+                })[0];
+                _node_t.x = parseFloat(lastSavedPoints.x);
+                _node_t.y = parseFloat(lastSavedPoints.y);
+                resetParameters();
+                restart();
+                break;
+            }
+        }
+    }
+    lastSavedPoints = {};
+}
+
 function restart() {
-    updateSVG();
+
     // Remove all old elements from svg only node and links not the drag line and rect
     svg.selectAll("g.node").remove();
     svg.selectAll("g.links").remove();
@@ -443,8 +465,14 @@ function restart() {
             updateSVG();
             d3.event.sourceEvent.stopPropagation();
         })
+        .on("dragstart", function (d) {
+            lastSavedPoints.x = d.x+"";
+            lastSavedPoints.y = d.y+"";
+            d3.event.sourceEvent.stopPropagation();
+        })
         .on("dragend", function (d) {
             nodedrag = false;
+            checkOverrideNode(d)
             d3.event.sourceEvent.stopPropagation();
         });
 
@@ -1290,6 +1318,7 @@ function restart() {
             },1000);
         });
 
+    updateSVG();
 };
 
 //Popup Message function
@@ -1463,11 +1492,27 @@ $("#nodePane").droppable({
         obj.y = (posY/scale)-(translates[1]/scale);
         var tempObj = JSON.parse(JSON.stringify(obj));
         tempObj.id = obj.id+"D"+Date.now();
-        VisualPipeline.step_list.push(tempObj);
-        restart();
+        addToolToNodePane(tempObj)
+//        VisualPipeline.step_list.push(tempObj);
+//        restart();
     }
 });
 
+function addToolToNodePane(_node){
+    var _recurse = function(_node_){
+         for(_n in VisualPipeline.step_list){
+            var _node_temp = JSON.parse(JSON.stringify(VisualPipeline.step_list[_n]));
+                if(Math.pow((_node_.x - _node_temp.x),2) + Math.pow((_node_.y - _node_temp.y),2) <= Math.pow(100,2)){
+                    _node_.y = parseFloat((_node_temp.y + 140)+"");
+                    _recurse(_node_);
+                }
+        }
+    }
+    _recurse(_node);
+
+    VisualPipeline.step_list.push(_node);
+    restart();
+}
 
     //=================================================================//
     //  API call to server for get the data for "nodepane" and "tools" //
