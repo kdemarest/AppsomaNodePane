@@ -181,6 +181,11 @@ svg *::-webkit-selection {
     position: absolute;
     font-weight: bold;
     z-index: 1000;
+    padding: 2px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    outline: 0;
 }
 
 #UIModel{
@@ -194,6 +199,6 @@ svg *::-webkit-selection {
     opacity: 1;
     pointer-events: auto;
     z-index: 999;
-    background-color: rgba(0,0,0,0.6);
+    background-color: rgba(64,64,64,0.6);
 
 }
