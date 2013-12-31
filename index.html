@@ -8,7 +8,6 @@
     <script type="text/javascript" src="js/d3.v3.min.js" charset="utf-8"></script>
     <script type="text/javascript" src="js/jquery.qtip.min.js"></script>
 
-
     <link href="css/index.css" rel="stylesheet">
     <link href="css/jquery.qtip.min.css" rel="stylesheet">
     <link href="css/jquery-ui.css" rel="stylesheet">
@@ -16,18 +15,46 @@
 
 <body>
 <div class="container">
-    <div class="todoList">
-        <div >
-            <ul id="tools">
-            </ul>
-        </div>
-    </div>
-
     <div class="nodePaneContainer">
-
         <div id="nodePane"></div>
         <div id="Popup_div"></div>
     </div>
+
+    <div class="sidePanel">
+        <div id="tabs" class="tabs-bottom">
+            <ul>
+                <li><a href="#toolPanel">Tool Pane</a></li>
+                <li><a href="#parameterPanel">Parameters</a></li>
+            </ul>
+            <div class="tabs-spacer"></div>
+            <div id="toolPanel">
+                <div class="panelHeader">
+                    <span class="title">Tool Pane</span>
+                </div>
+                <div class="panelBody">
+                    <div>
+                        <div class="category">Category 1</div>
+                        <div class="category_body" id="tools">
+                        </div>
+                    </div>
+                    <div>
+                        <div class="category">Category 2</div>
+                        <div class="category_body"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="parameterPanel">
+                <div class="panelHeader">
+                    <span class="title">Properties</span>
+                </div>
+                <div class="panelBody">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <div class="clear"></div>
     <div style="margin-top: 10px;width: auto;height: 10%">
         <div>

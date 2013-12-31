@@ -13,7 +13,7 @@ var popupTitle = "Title";
 var popupMessage = "Message";
 var _css = "";
 var currentMouseEvent = undefined;
-
+var dragElementOnSVG = false;
 var viewport = d3.select('#nodePane')
     .append("svg")
     .attr("id","nodeEditor")
@@ -1407,6 +1407,10 @@ function loadDataToPan(json){
     if(json.VisualPipeline && json.VisualPipeline.step_list){
         VisualPipeline.step_list = [];
         VisualPipeline.connections = [];
+        VisualPipeline.signature = {};
+        if(json.VisualPipeline.signature){
+            VisualPipeline.signature = json.VisualPipeline.signature;
+        }
         VisualPipeline.step_list = json.VisualPipeline.step_list;
         restart();
         if(json.VisualPipeline.connections){
@@ -1478,13 +1482,16 @@ $("#nodePane").droppable({
     over: function (event, ui) {
         var posX = event.originalEvent.clientX - $(this).offset().left;
         var posY = event.originalEvent.clientY - $(this).offset().top;
+        dragElementOnSVG = true;
     },
 
     out: function (event, ui) {
         // console.log("out");
+        dragElementOnSVG = false;
     },
 
     drop: function (event, ui) {
+        dragElementOnSVG = true;
         var posX = event.originalEvent.clientX - $(this).offset().left + $(this).scrollLeft();
         var posY = event.originalEvent.clientY - $(this).offset().top + $(this).scrollTop();
         var obj = ToolList[selected.id];
@@ -1523,14 +1530,34 @@ function addToolToNodePane(_node){
     d3.json("data/todos.json", function(error, json) {
         ToolList = json.todos;
         for(v in ToolList){
-            var html =  '<li class="dragElement" id="'+v+'">'+ToolList[v].name+'</li>'
+            var html =  '<div class="toolElement"><div class="toolId"><span>'+ToolList[v].name+'</span></div>' +
+                '<div class="dragElement" id="'+v+'"></div>'+
+                '</div>';
+
             $('#tools').append(html);
         }
 
+        $('.toolElement').dblclick(function(){
+            alert("double click");
+        });
+
         $('.dragElement').draggable({
             cursorAt: {
-                top: 40,
-                left: 40
+                top: 32,
+                left: 32
+            },
+            revert: function(){
+              if(dragElementOnSVG){
+                  return false;
+              }
+              return true;
+            },
+            start: function( event, ui ) {
+                $(this).addClass("emptyDrag");
+                dragElementOnSVG = false;
+            },
+            stop:function( event, ui ) {
+                $(this).removeClass("emptyDrag");
             },
             cursor: 'move',
             helper: function (event) {
@@ -1543,7 +1570,10 @@ function addToolToNodePane(_node){
                     '<text text-anchor="middle" y="4">' + this.id + '</text>' +
                     '</g>' +
                     '</svg>';
-                return dragSVG;
+
+                var html = "<div class='dragNodeElement'><div>";
+                return html;
+//                return dragSVG;
             }
         });
     });
@@ -1620,3 +1650,44 @@ $.fn.focusWithoutScrolling = function(){
     window.scrollTo(x,y);
     return this; //chainability
 };
+
+
+    $('.category').click(function() {
+        if($(this).next().is(':hidden') != true) {
+            $(this).removeClass('active');
+            $(this).next().slideUp("normal");
+        } else {
+//            $('.category').removeClass('active');
+//            $('.category_body').slideUp('normal');
+            if($(this).next().is(':hidden') == true) {
+                $(this).addClass('active');
+                $(this).next().slideDown('normal');
+            }
+        }
+    });
+
+    $('.category_body').hide();
+
+$( "#tabs" ).tabs({
+    activate:function(event,ui){
+        var _selectTab = $("#tabs li.ui-tabs-active")[0];
+        var tab = $(_selectTab).attr("aria-controls");
+        if(tab.toString() == "parameterPanel"){
+            console.log("parameterPanel");
+            if(selected_node){
+
+            }else{
+               if(VisualPipeline.signature){
+//                   appendParameters(VisualPipeline.signature);
+               }
+            }
+        }
+    }
+});
+//// fix the classes
+//$( ".tabs-bottom .ui-tabs-nav, .tabs-bottom .ui-tabs-nav > *" )
+//    .removeClass( "ui-corner-all ui-corner-top" )
+//    .addClass( "ui-corner-bottom" );
+
+// move the nav to the bottom
+$( ".tabs-bottom .ui-tabs-nav" ).appendTo( ".tabs-bottom" );

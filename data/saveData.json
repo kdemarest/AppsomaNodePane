@@ -164,6 +164,16 @@
                 "input": 3316351273,
                 "id": "11899993_1203088_336311213_3316351273"
             }
-        ]
+        ],
+        "signature": {
+            "name": "Test Pipeline",
+            "version": "2.3",
+            "author": "vbjain",
+            "brief": "mybriefdescription",
+            "description": "mydesc",
+            "license": "mylicense",
+            "category":"pipeCategoryId",
+            "vmi": "myvmi"
+        }
     }
 }

@@ -1,3 +1,6 @@
+*{
+ font-family: sans-serif Calibri;
+}
 .container {
     height: 95%;
     margin: auto;
@@ -6,12 +9,13 @@
     position: absolute;
     width: 97%;
 }
-.todoList {
+.sidePanel {
     border: 1px solid;
     float: left;
     height: 90%;
     width: 300px;
-    overflow: auto;
+    overflow: hidden;
+    background:url("../images/canvas-bg.png") repeat ;
 }
 .list {
     /*overflow: auto;*/
@@ -22,17 +26,16 @@
     border: 1px solid;
     overflow: hidden;
     height: 90%;
-    margin-left: 320px;
+    margin-right: 10px;
     width: -webkit-calc(93% - 255px);
     width: -moz-calc(93% - 255px);
     width: calc(93% - 255px);
+    float: left;
 }
 .clear {
     clear: both;
 }
-.dragElement {
-    padding: 10px;
-}
+
 .drangNode {
     overflow: visible;
     width: 90px;
@@ -200,5 +203,130 @@ svg *::-webkit-selection {
     pointer-events: auto;
     z-index: 999;
     background-color: rgba(64,64,64,0.6);
+}
+
+/*==========================*/
+/*=====CSS for accordion====*/
+.panelHeader{
+    height: 25px;
+    padding: 5px;
+    position:relative;
+    width: 290px;
+    background-color: rgb(244,244,244);
+}
+
+.panelFooter{
+    padding: 5px;
+    width: 290px;
+    position:relative;
+    height:25px;
+    background-color: rgb(244,244,244);
+}
+.panelHeader .title{
+    font-size: 20px;
+    font-weight: bold;
+    margin-left: 10px;
+    text-align: left;
+}
+
+.panelBody{
+    margin-bottom: 5px;
+    height: -webkit-calc(100% - 35px);
+    height: -moz-calc(100% - 35px);
+    height: calc(100% - 35px);
+    overflow:auto;
+}
+/**/
+#tabs,#parameterPanel,#toolPanel{
+    padding: 0 !important;
+    height: -webkit-calc(100% - 15px);
+    height: -moz-calc(100% - 15px);
+    height: calc(100% - 15px);
+    position: static;
+    width: 100%;
+}
+
+.category{
+    height: auto;
+    margin: 5px auto;
+    padding: 5px;
+    border: 1px rgb(158,158,158) solid;
+    cursor: pointer;
+    background: rgb(255,255,255); /* Old browsers */
+    background: -moz-linear-gradient(top,  rgba(255,255,255,1) 0%, rgba(242,242,242,1) 49%, rgba(224,224,224,1) 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(255,255,255,1)), color-stop(49%,rgba(242,242,242,1)), color-stop(100%,rgba(224,224,224,1))); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  rgba(255,255,255,1) 0%,rgba(242,242,242,1) 49%,rgba(224,224,224,1) 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  rgba(255,255,255,1) 0%,rgba(242,242,242,1) 49%,rgba(224,224,224,1) 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  rgba(255,255,255,1) 0%,rgba(242,242,242,1) 49%,rgba(224,224,224,1) 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  rgba(255,255,255,1) 0%,rgba(242,242,242,1) 49%,rgba(224,224,224,1) 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#e0e0e0',GradientType=0 ); /* IE6-9 */
 
 }
+
+.category.active{
+    background: rgb(244,244,244); /* Old browsers */
+    background: -moz-linear-gradient(top,  rgba(244,244,244,1) 0%, rgba(196,196,196,1) 48%, rgba(160,160,160,1) 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(244,244,244,1)), color-stop(48%,rgba(196,196,196,1)), color-stop(100%,rgba(160,160,160,1))); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  rgba(244,244,244,1) 0%,rgba(196,196,196,1) 48%,rgba(160,160,160,1) 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  rgba(244,244,244,1) 0%,rgba(196,196,196,1) 48%,rgba(160,160,160,1) 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  rgba(244,244,244,1) 0%,rgba(196,196,196,1) 48%,rgba(160,160,160,1) 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  rgba(244,244,244,1) 0%,rgba(196,196,196,1) 48%,rgba(160,160,160,1) 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f4f4f4', endColorstr='#a0a0a0',GradientType=0 ); /* IE6-9 */
+}
+
+.category_body{
+    height: auto;
+    margin: 0px auto auto;
+    padding: 0.002em 0px;
+}
+
+.toolElement {
+    border: 1px rgb(158,158,158) solid;
+    cursor: pointer;
+    margin: 3px auto;
+    padding: 5px;
+    background-color: rgba(158,158,158,0.1);
+    height: 25px;
+}
+.toolElement .toolId{
+    float: left;
+}
+.toolElement .dragElement{
+    -webkit-border-radius: 999px;
+    -moz-border-radius: 999px;
+    border-radius: 999px;
+    behavior: url(PIE.htc);
+    cursor: move;
+
+    width: 22px;
+    height: 22px;
+    background: #ccc;
+    border: 1px solid #666666;
+    float: right;
+    background: url("../images/container_default.png") repeat scroll 0 0 / 22px auto rgba(0, 0, 0, 0);
+}
+
+
+.dragNodeElement{
+    -webkit-border-radius: 999px;
+    -moz-border-radius: 999px;
+    border-radius: 999px;
+    behavior: url(PIE.htc);
+    cursor: move;
+
+    width: 64px;
+    height: 64px;
+    background: #ccc;
+    /*border: 1px solid #666666;*/
+    background: url("../images/container_default.png") repeat scroll 0 0 / 64px auto rgba(0, 0, 0, 0);
+}
+.emptyDrag{
+    background: #000 !important;
+    background-image: none !important;
+}
+
+/*#tabs .tabs-spacer { float: left; height: 200px; }*/
+.tabs-bottom .ui-tabs-nav { clear: left; padding: 0 .2em .2em .2em; }
+.tabs-bottom .ui-tabs-nav li { top: auto; bottom: 0; margin: 0 .2em 1px 0; border-bottom: auto; border-top: 0; width: 138px; border-radius: 7px;cursor: pointer; }
+.tabs-bottom .ui-tabs-nav li a{ font-size: 12px;text-align: center;width: 112px; cursor: pointer !important;}
+.tabs-bottom .ui-tabs-nav li.ui-tabs-active { margin-top: -1px; padding-top: 1px;}
