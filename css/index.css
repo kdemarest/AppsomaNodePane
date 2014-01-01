@@ -225,7 +225,7 @@ svg *::-webkit-selection {
 .panelHeader .title{
     font-size: 20px;
     font-weight: bold;
-    margin-left: 10px;
+    margin-left: 5px;
     text-align: left;
 }
 
@@ -250,8 +250,13 @@ svg *::-webkit-selection {
     height: auto;
     margin: 5px auto;
     padding: 5px;
-    border: 1px rgb(158,158,158) solid;
+    border: 1px rgb(242,242,242) solid;
     cursor: pointer;
+
+    font-weight: bold;
+    padding-left: 10px;
+    font-size: 15px;
+
     background: rgb(255,255,255); /* Old browsers */
     background: -moz-linear-gradient(top,  rgba(255,255,255,1) 0%, rgba(242,242,242,1) 49%, rgba(224,224,224,1) 100%); /* FF3.6+ */
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(255,255,255,1)), color-stop(49%,rgba(242,242,242,1)), color-stop(100%,rgba(224,224,224,1))); /* Chrome,Safari4+ */
@@ -281,7 +286,7 @@ svg *::-webkit-selection {
 }
 
 .toolElement {
-    border: 1px rgb(158,158,158) solid;
+    border: 1px rgb(242,242,242) solid;
     cursor: pointer;
     margin: 3px auto;
     padding: 5px;
@@ -291,6 +296,14 @@ svg *::-webkit-selection {
 .toolElement .toolId{
     float: left;
 }
+
+.toolId .toolTitle{
+    margin-left: 5px;
+    vertical-align: middle;
+    font-size: 13px;
+    font-weight: bold;
+}
+
 .toolElement .dragElement{
     -webkit-border-radius: 999px;
     -moz-border-radius: 999px;
@@ -302,27 +315,58 @@ svg *::-webkit-selection {
     height: 22px;
     background: #ccc;
     border: 1px solid #666666;
-    float: right;
+    float: left;
     background: url("../images/container_default.png") repeat scroll 0 0 / 22px auto rgba(0, 0, 0, 0);
 }
-
+.dragNode{
+    width: auto;
+    position: absolute;
+    cursor: move;
+}
 
 .dragNodeElement{
     -webkit-border-radius: 999px;
     -moz-border-radius: 999px;
     border-radius: 999px;
     behavior: url(PIE.htc);
-    cursor: move;
 
     width: 64px;
     height: 64px;
     background: #ccc;
-    /*border: 1px solid #666666;*/
+    margin: auto;
     background: url("../images/container_default.png") repeat scroll 0 0 / 64px auto rgba(0, 0, 0, 0);
 }
 .emptyDrag{
     background: #000 !important;
     background-image: none !important;
+}
+
+.dragNodeTitle{
+    width: 64px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 12px;
+    position: absolute;
+    word-wrap: break-word;
+}
+
+.row{
+    margin: 5px 0px;
+    clear: both;
+    min-height: 20px;
+    font-size: 15px;
+    padding-left: 10px;
+}
+
+.row .values{
+    float: left;
+    margin-left: 10px;
+}
+
+.row .keys{
+    float: left;
+    text-transform:capitalize;
+    font-weight: bold;
 }
 
 /*#tabs .tabs-spacer { float: left; height: 200px; }*/

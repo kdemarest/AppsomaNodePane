@@ -178,6 +178,7 @@ var drag_line,drag_line_s;
         setcursor('move');
         d3.selectAll('g.selected').classed("selected", false);
         selected_node = undefined;
+        showPropertiesPane(true);
         if(isEdit){
             $( "#editText" ).blur();
         }
@@ -352,6 +353,7 @@ function removeTool(id){
         }
     }
     VisualPipeline.step_list.splice(index_node,1);
+    selected_node = undefined;
     restart();
 }
 
@@ -403,7 +405,7 @@ function checkOverrideNode(d){
         var _node = VisualPipeline.step_list[_n];
         if(_node.id != d.id){
             if(Math.pow((d.x - _node.x),2) + Math.pow((d.y - _node.y),2) <= Math.pow(100,2)){
-                console.log(lastSavedPoints);
+//                console.log(lastSavedPoints);
                 _node_t = VisualPipeline.step_list.filter(function(e){
                     return e.id == d.id;
                 })[0];
@@ -489,6 +491,8 @@ function restart() {
                 return d.id;
             }
         }).on("mousedown", function (d) {
+            selected_node = d;
+            showPropertiesPane(false);
             if(output_node){
                 source_node = d;
             }else{
@@ -531,6 +535,7 @@ function restart() {
             d3.selectAll('g.selected').classed("selected", false);
             d3.select(g).classed("selected", true);
             selected_node = d;
+            showPropertiesPane(false);
             if(g.parentNode)
                 g.parentNode.appendChild(g);
         })
@@ -1251,7 +1256,8 @@ function restart() {
         .attr("width",25)
         .attr("height",25)
         .on("click", function(d) {
-            removeTool(d.id);
+            removeSelected();
+            d3.event.stopPropagation();
         }).on("mouseover", function (d) {
             d3.select(this).classed("hover", true);
         }).on("mouseout", function () {
@@ -1400,6 +1406,7 @@ function removeSelected(){
     if(selected_node && !isEdit){
         removeTool(selected_node.id);
         selected_node = undefined;
+        showPropertiesPane(true);
     }
 }
 
@@ -1530,9 +1537,12 @@ function addToolToNodePane(_node){
     d3.json("data/todos.json", function(error, json) {
         ToolList = json.todos;
         for(v in ToolList){
-            var html =  '<div class="toolElement"><div class="toolId"><span>'+ToolList[v].name+'</span></div>' +
-                '<div class="dragElement" id="'+v+'"></div>'+
-                '</div>';
+            var html =  '<div class="toolElement" title="'+ToolList[v].name+'">' +
+                            '<div class="dragElement" id="'+v+'"></div>' +
+                                '<div class="toolId">' +
+                                    '<span class="toolTitle">'+ToolList[v].name+'</span>' +
+                                '</div>' +
+                            '</div>';
 
             $('#tools').append(html);
         }
@@ -1563,17 +1573,19 @@ function addToolToNodePane(_node){
             helper: function (event) {
                 var elem = this.id;
                 selected.id = this.id
-                var dragSVG = '<svg xmlns="http://www.w3.org/2000/svg" class="drangNode">' +
-                    '<g class="node" transform="translate(44,44)">' +
-                    '<circle r="45" class="outer"/>' +
-                    '<circle r="37" class="inner"/>' +
-                    '<text text-anchor="middle" y="4">' + this.id + '</text>' +
-                    '</g>' +
-                    '</svg>';
-
-                var html = "<div class='dragNodeElement'><div>";
-                return html;
+//                var dragSVG = '<svg xmlns="http://www.w3.org/2000/svg" class="drangNode">' +
+//                    '<g class="node" transform="translate(44,44)">' +
+//                    '<circle r="45" class="outer"/>' +
+//                    '<circle r="37" class="inner"/>' +
+//                    '<text text-anchor="middle" y="4">' + this.id + '</text>' +
+//                    '</g>' +
+//                    '</svg>';
 //                return dragSVG;
+                var html = "<div class='dragNode'>" +
+                    "<div class='dragNodeElement'></div>" +
+                    "<div class='dragNodeTitle'>"+$(this.parentNode)[0].title+"</div>"+
+                    "</div>";
+                return html;
             }
         });
     });
@@ -1673,17 +1685,87 @@ $( "#tabs" ).tabs({
         var _selectTab = $("#tabs li.ui-tabs-active")[0];
         var tab = $(_selectTab).attr("aria-controls");
         if(tab.toString() == "parameterPanel"){
-            console.log("parameterPanel");
-            if(selected_node){
-
-            }else{
-               if(VisualPipeline.signature){
-//                   appendParameters(VisualPipeline.signature);
-               }
-            }
+            showPropertiesPane(false);
         }
     }
 });
+
+function showPropertiesPane(isFocus){
+    if(selected_node){
+        setPropertiesPane(getNodeProperty(selected_node));
+    }else{
+        setPropertiesPane(getPipelineProperty(VisualPipeline));
+    }
+    changeTab(!isFocus);
+}
+
+function changeTab(isParameter){
+    if(isParameter){
+        $("#tabs").tabs( "option", "active", -1 );
+    }else{
+        $("#tabs").tabs( "option", "active", 0 );
+    }
+}
+
+
+function setPropertiesPane(obj){
+    $("#parameterBody").html("");
+    var html = "";
+    function recurseHTML(_obj,isRecur){
+        for(var k in _obj){
+            if(_obj[k].__proto__ == Object.prototype){
+                if(Object.keys(_obj[k]).length != 0){
+                    html +="<div><div class='category_par category'>"+k+"</div><div class='category_body_par category_body'>"
+                    recurseHTML(_obj[k],true);
+                }
+            }else{
+                html +="<div class='row'>" +
+                    "<div class='keys'>"+k+":</div>"+
+                    "<div class='values'>"+_obj[k]+"</div>"+
+                    "</div>";
+
+            }
+        }
+        if(isRecur){
+            html +="</div></div>";
+        }
+    }
+
+    recurseHTML(obj,false);
+
+    $("#parameterBody").html(html);
+
+    $('.category_par').click(function() {
+        if($(this).next().is(':hidden') != true) {
+            $(this).removeClass('active');
+            $(this).next().slideUp(300);
+        } else {
+            if($(this).next().is(':hidden') == true) {
+                $(this).addClass('active');
+                $(this).next().slideDown(300);
+            }
+        }
+    });
+    $('.category_body_par').hide();
+}
+
+function getNodeProperty(_node){
+    var obj = {};
+    for( p in _node){
+        if(p != "x" && p != "y" && p != "input_list" && p != "output_list"){
+            obj[p] = _node[p];
+        }
+    }
+    return JSON.parse(JSON.stringify(obj))
+}
+
+function getPipelineProperty(_node){
+    var obj = {};
+    if(_node.signature){
+        obj = _node.signature;
+    }
+    return JSON.parse(JSON.stringify(obj))
+}
 //// fix the classes
 //$( ".tabs-bottom .ui-tabs-nav, .tabs-bottom .ui-tabs-nav > *" )
 //    .removeClass( "ui-corner-all ui-corner-top" )
