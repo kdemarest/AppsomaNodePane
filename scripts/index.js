@@ -8,12 +8,139 @@ var isEdit = false;
 var source_node,target_node,output_node,input_node,selected_link,selected_link_h,temp_node,near_node,selected_node;
 var nodedrag = false;
 var radius = 40;
-var VisualPipeline ={step_list:[],connections:[]};
+var VisualPipeline ={step_list:[],connections:[],signature:{}};
 var popupTitle = "Title";
 var popupMessage = "Message";
 var _css = "";
 var currentMouseEvent = undefined;
 var dragElementOnSVG = false;
+
+//=================================================================//
+//  API call to server for get the data for "toolList data" //
+//=================================================================//
+
+//Call for left tool list
+//for now just add the mock data
+//ToolData is required for NodePane because Nodes inside NodePane needs data from ToolData
+d3.json("data/ToolData.json", function(error, json) {
+    if(json.CategoryList && json.Tools){
+        ToolList = json.Tools;
+        var _categories = Object.keys(json.CategoryList);
+        for(_c in _categories ){
+            var _category = _categories[_c];
+            var html = "";
+            html +="<div>"
+            html +="<div class='category'>"+_category+"</div><div class='category_body'>";
+            for( _t in ToolList){
+                if(_t){
+                    var _tool = ToolList[_t];
+                    if(_tool.signature.category == _category){
+                         html +=  '<div class="toolElement" title="'+_tool.signature.name+'">' +
+                            '<div class="dragToolElement" name="'+_tool.id+'"></div>' +
+                            '<div class="toolId"><span class="toolTitle">'+_tool.signature.name+'</span>' +
+                            '</div></div>';
+                    }
+                }
+            }
+            html +="</div></div>"
+            $('#toolBody').append(html);
+        }
+    }
+
+
+    /**
+     * Bind Sliding effects on category
+     * */
+    $('.category').click(function() {
+        if($(this).next().is(':hidden') != true) {
+            $(this).removeClass('active');
+            $(this).next().slideUp("normal");
+        } else {
+            if($(this).next().is(':hidden') == true) {
+                $(this).addClass('active');
+                $(this).next().slideDown('normal');
+            }
+        }
+    });
+    $('.category_body').hide();
+
+    /**
+     * Bind drag effects on each tool element
+     * */
+    $('.toolElement').dblclick(function(){
+        alert("double click");
+    });
+
+    $('.dragToolElement').draggable({
+        cursorAt: {
+            top: 32,
+            left: 32
+        },
+        revert: function(){
+            if(dragElementOnSVG){
+                return false;
+            }
+            return true;
+        },
+        start: function( event, ui ) {
+            $(this).addClass("emptyDrag");
+            dragElementOnSVG = false;
+        },
+        stop:function( event, ui ) {
+            $(this).removeClass("emptyDrag");
+        },
+        cursor: 'move',
+        helper: function (event) {
+            selected.id = $(this).attr('name');
+            var html = "<div class='dragNode'>" +
+                "<div class='dragNodeElement'></div>" +
+                "<div class='dragNodeTitle'>"+$(this.parentNode)[0].title+"</div>"+
+                "</div>";
+            return html;
+        }
+    });
+});
+
+
+
+$("#nodePane").droppable({
+    // tolerance can be set to 'fit', 'intersect', 'pointer', or 'touch'
+    tolerance: 'intersect',
+
+    over: function (event, ui) {
+        var posX = event.originalEvent.clientX - $(this).offset().left;
+        var posY = event.originalEvent.clientY - $(this).offset().top;
+        dragElementOnSVG = true;
+    },
+
+    out: function (event, ui) {
+        dragElementOnSVG = false;
+    },
+
+    drop: function (event, ui) {
+        dragElementOnSVG = true;
+        var posX = event.originalEvent.clientX - $(this).offset().left + $(this).scrollLeft();
+        var posY = event.originalEvent.clientY - $(this).offset().top + $(this).scrollTop();
+        var obj = {};
+        if(ToolList[selected.id]){
+            var _tool = JSON.parse(JSON.stringify(ToolList[selected.id]))
+            obj.id = _tool.id+"D"+Date.now();
+            obj.toolid =  _tool.id;
+            obj.name = _tool.signature.name;
+            obj.type = _tool.type;
+            obj.params = {};
+            obj.layout = {};
+            obj.layout.x = (posX/scale)-(translates[0]/scale);
+            obj.layout.y = (posY/scale)-(translates[1]/scale);
+            var tempObj = JSON.parse(JSON.stringify(obj));
+            addToolToNodePane(tempObj)
+        }else{
+            dragElementOnSVG = false;
+        }
+        selected = {};
+    }
+});
+
 var viewport = d3.select('#nodePane')
     .append("svg")
     .attr("id","nodeEditor")
@@ -154,11 +281,11 @@ var drag_line,drag_line_s;
             var sourceX,sourceY;
             setcursor('pointer');
             if(source_node){
-                sourceX = (source_node.x+output_node.x);
-                sourceY = (source_node.y+output_node.y);
+                sourceX = (source_node.layout.x+output_node.x);
+                sourceY = (source_node.layout.y+output_node.y);
             }else{
-                sourceX = (target_node.x+input_node.x);
-                sourceY = (target_node.y+input_node.y);
+                sourceX = (target_node.layout.x+input_node.x);
+                sourceY = (target_node.layout.y+input_node.y);
             }
 
             var xn =  (p[0]/scale) - (translates[0]/scale);
@@ -199,10 +326,10 @@ var computeTransitionPath = function( d) {
         return e.id == temp.input;
     })[0];
     if(source_node_t && target_node_t && output_node_t && input_node_t){
-        sourceX = (source_node_t.x+output_node_t.x),
-            sourceY = (source_node_t.y+output_node_t.y),
-            targetX = (target_node_t.x+input_node_t.x),
-            targetY = (target_node_t.y+input_node_t.y);
+        sourceX = (source_node_t.layout.x+output_node_t.x),
+            sourceY = (source_node_t.layout.y+output_node_t.y),
+            targetX = (target_node_t.layout.x+input_node_t.x),
+            targetY = (target_node_t.layout.y+input_node_t.y);
 //        M x1  y1C  x2  y1   x1  y2   x2 y2
         return "M "+sourceX+" "+sourceY+" C"+targetX+" "+sourceY+" "+sourceX+" "+targetY+" "+targetX+" "+targetY;
     }
@@ -223,10 +350,10 @@ function updateSVG(){
     d3.selectAll("text.nodeName").style("visibility","visible");
     var h = document.getElementById("root").getBBox().height;
     var w = document.getElementById("root").getBBox().width;
-    if($(".nodePaneContainer").height() > h) h = $(".nodePaneContainer").height();
-    if($(".nodePaneContainer").width() > w) w = $(".nodePaneContainer").width();
-    if(w<500) w = 500;
-    if(h<500) h = 500;
+    if($(".nodePaneContainer").height() > h) h = $(".nodePaneContainer").height() - 20;
+    if($(".nodePaneContainer").width() > w) w = $(".nodePaneContainer").width() - 20;
+    if(w<100) w = 100;
+    if(h<100) h = 100;
 
     var extraWidth =  translates[0] > 0 ?translates[0]:0;
     var extraHeight = translates[1] > 0 ?translates[1]:0;
@@ -298,7 +425,7 @@ var addPath = function(){
     if(source_node && target_node && input_node && output_node){
         if(source_node != target_node){
             var connection = {source: source_node.id, target: target_node.id,output:output_node.id,input:input_node.id};
-            connection.id = source_node.id+"_"+target_node.id+"_"+output_node.id+"_"+input_node.id;
+            connection.id = source_node.id+"_"+target_node.id+"_"+Date.now();
             var isExist = VisualPipeline.connections.filter(function(e){
                 return e.id == connection.id;
             });
@@ -404,13 +531,12 @@ function checkOverrideNode(d){
     for(_n in VisualPipeline.step_list){
         var _node = VisualPipeline.step_list[_n];
         if(_node.id != d.id){
-            if(Math.pow((d.x - _node.x),2) + Math.pow((d.y - _node.y),2) <= Math.pow(100,2)){
-//                console.log(lastSavedPoints);
+            if(Math.pow((d.layout.x - _node.layout.x),2) + Math.pow((d.layout.y - _node.layout.y),2) <= Math.pow(100,2)){
                 _node_t = VisualPipeline.step_list.filter(function(e){
                     return e.id == d.id;
                 })[0];
-                _node_t.x = parseFloat(lastSavedPoints.x);
-                _node_t.y = parseFloat(lastSavedPoints.y);
+                _node_t.layout.x = parseFloat(lastSavedPoints.x);
+                _node_t.layout.y = parseFloat(lastSavedPoints.y);
                 resetParameters();
                 restart();
                 break;
@@ -453,9 +579,9 @@ function restart() {
             }
             selected_node = d;
             selection.attr("transform", function (d, i) {
-                d.x += d3.event.dx;
-                d.y += d3.event.dy;
-                return "translate(" + [d.x, d.y] + ")"
+                d.layout.x += d3.event.dx;
+                d.layout.y += d3.event.dy;
+                return "translate(" + [d.layout.x, d.layout.y] + ")"
             })
             // reappend dragged element as last
             // so that its stays on top
@@ -468,8 +594,8 @@ function restart() {
             d3.event.sourceEvent.stopPropagation();
         })
         .on("dragstart", function (d) {
-            lastSavedPoints.x = d.x+"";
-            lastSavedPoints.y = d.y+"";
+            lastSavedPoints.x = d.layout.x+"";
+            lastSavedPoints.y = d.layout.y+"";
             d3.event.sourceEvent.stopPropagation();
         })
         .on("dragend", function (d) {
@@ -484,7 +610,7 @@ function restart() {
         .append("g")
         .attr({
             "transform": function (d) {
-                return "translate(" + [d.x, d.y] + ")";
+                return "translate(" + [d.layout.x, d.layout.y] + ")";
             },
             'class': 'node',
             'id': function(d){
@@ -503,11 +629,11 @@ function restart() {
                 var p = d3.mouse(this);
                 var sourceX,sourceY;
                 if(source_node){
-                    sourceX = (source_node.x+output_node.x);
-                    sourceY = (source_node.y+output_node.y);
+                    sourceX = (source_node.layout.x+output_node.x);
+                    sourceY = (source_node.layout.y+output_node.y);
                 }else{
-                    sourceX = (target_node.x+input_node.x);
-                    sourceY = (target_node.y+input_node.y);
+                    sourceX = (target_node.layout.x+input_node.x);
+                    sourceY = (target_node.layout.y+input_node.y);
                 }
 
                 var path = "M "+sourceX+" "+sourceY+" C"+sourceX+" "+sourceY+" "+sourceX+" "+sourceY+" "+sourceX+" "+sourceY;
@@ -544,11 +670,11 @@ function restart() {
                 var p = d3.mouse(this.parentNode);
                 var sourceX,sourceY;
                 if(source_node){
-                    sourceX = (source_node.x+output_node.x);
-                    sourceY = (source_node.y+output_node.y);
+                    sourceX = (source_node.layout.x+output_node.x);
+                    sourceY = (source_node.layout.y+output_node.y);
                 }else{
-                    sourceX = (target_node.x+input_node.x);
-                    sourceY = (target_node.y+input_node.y);
+                    sourceX = (target_node.layout.x+input_node.x);
+                    sourceY = (target_node.layout.y+input_node.y);
                 }
 
                 if(input_node){
@@ -578,8 +704,8 @@ function restart() {
                 var yn = p[1];
 
                 if(near_node){
-                    xn = (d.x+near_node.x);
-                    yn = (d.y+near_node.y);
+                    xn = (d.layout.x+near_node.x);
+                    yn = (d.layout.y+near_node.y);
                 }
 
                 var path = "M "+sourceX+" "+sourceY+" C"+xn+" "+sourceY+" "+sourceX+" "+yn+" "+xn+" "+yn;
@@ -963,16 +1089,21 @@ function restart() {
     //Append Inputs to the node
     var inputs = gStates.selectAll('.inputs')
         .data(function(d){
-            if(d.input_list){
+              var _inputs = JSON.parse(JSON.stringify(ToolList[d.toolid].input_list));
+              var _array = toArray(_inputs)
+              if(_array){
+                d.input_list = JSON.parse(JSON.stringify(_array));
                 var r = radius+14;
                 var a = getStartingPoint(d.input_list.length,true);
                 for(t in d.input_list){
+                    d.input_list[t].input_id = d.input_list[t].id+"";
+                    d.input_list[t].id = d.id+"_"+d.input_list[t].input_id;
                     d.input_list[t].x = r*Math.sin(a);
                     d.input_list[t].y = r*Math.cos(a);
                     a = a + 0.35;
                 }
                 return d.input_list;
-            }
+              }
             return [];
         }).enter()
         .append("g")
@@ -1014,10 +1145,7 @@ function restart() {
                 lightUpEligible(d,true);
                 $(this.parentNode).qtip({
                     content: {
-                        text: d.type,
-                        title: {
-                            text: d.name
-                        }
+                        text: d.description
                     },
                     position: {
                         my: 'top left',
@@ -1061,10 +1189,15 @@ function restart() {
     //Append Outputs to the node
     var output = gStates.selectAll('.outputs')
         .data(function(d){
-            if(d.output_list){
+            var _outputs = ToolList[d.toolid].output_list;
+            var _array = toArray(_outputs);
+            if(_array){
+                d.output_list = JSON.parse(JSON.stringify(_array));
                 var r = radius+14;
                 var a = getStartingPoint(d.output_list.length,false);
                 for(t in d.output_list){
+                    d.output_list[t].output_id = d.output_list[t].id+"";
+                    d.output_list[t].id = d.id+"_"+d.output_list[t].output_id;
                     d.output_list[t].x = r*Math.sin(a);
                     d.output_list[t].y = r*Math.cos(a);
                     a = a + 0.35;
@@ -1109,10 +1242,7 @@ function restart() {
                 lightUpEligible(d,false);
                 $(this.parentNode).qtip({
                     content: {
-                        text: d.type,
-                        title: {
-                            text: d.name
-                        }
+                        text: d.description
                     },
                     position: {
                         my: 'top right',
@@ -1181,58 +1311,11 @@ function restart() {
         .attr("width",25)
         .attr("height",25)
         .on("click", function(d) {
-//            var info = ""
-//            if(d.params && d.params.descriptionText)
-//                info=d.params.descriptionText;
-//            popupMessageBox(d.name,info);
+            displayNodeInfo(d.toolid);
         }).on("mouseover", function (d) {
             d3.select(this).classed("hover", true);
         }).on("mouseout", function () {
             d3.select(this).classed("hover", false);
-        }).call(function(d){
-            for(_d in d[0]){
-                var id = d[0][_d].id;
-                var _data = d[0][_d].__data__;
-                if(_data){
-                    $('#'+id+'').qtip({
-                        content: {
-                            text: function(){
-                                var info = "lorem ipsum"
-                                if(selected_node.params && selected_node.params.descriptionText)
-                                    info=selected_node.params.descriptionText;
-                                return info;
-                            },
-                            title: {
-                                text: function(){
-                                    if(selected_node)
-                                        return selected_node.name;
-                                    else
-                                        return "";
-                                },
-                                button: true
-                            }
-                        },
-                        show: 'click',
-                        hide: 'unfocus',
-                        events: {
-                            render: function(event, api) {
-                                if(!api.options.show.persistent) {
-                                    $(this).bind('mouseover mouseout', function(e) {
-                                        var lifespan = 2000;
-
-                                        clearTimeout(api.timer);
-                                        if (e.type !== 'mouseover') {
-                                            api.timer = setTimeout(function() { api.hide(e) }, lifespan);
-                                        }
-                                    })
-                                        .triggerHandler('mouseout');
-                                }
-                            }
-                        }
-                    });
-                }
-            }
-
         });
 
     controls.append("image")
@@ -1418,13 +1501,15 @@ function loadDataToPan(json){
         if(json.VisualPipeline.signature){
             VisualPipeline.signature = json.VisualPipeline.signature;
         }
-        VisualPipeline.step_list = json.VisualPipeline.step_list;
+        VisualPipeline.step_list = toArray(json.VisualPipeline.step_list);
         restart();
+
         if(json.VisualPipeline.connections){
+            json.VisualPipeline.connections = toArray(json.VisualPipeline.connections);
             for(x in json.VisualPipeline.connections){
                 var temp = json.VisualPipeline.connections[x];
                 if(!temp.id){
-                    temp.id = temp.source+"_"+temp.target+"_"+temp.output+"_"+temp.input;
+                    temp.id = temp.source+"_"+temp.target+"_"+Date.now();
                 }
                 VisualPipeline.connections.push(temp);
                 restart();
@@ -1432,7 +1517,6 @@ function loadDataToPan(json){
         }
     }
 }
-
 
 function convertDataJson(){
     var _data = {};
@@ -1451,16 +1535,11 @@ function cleanJsonData(json){
           var list = json.VisualPipeline.step_list;
           for(m in list){
               var mn = list[m];
-              for( _in in mn.input_list){
-                  delete mn.input_list[_in].x;
-                  delete mn.input_list[_in].y;
-              }
-
-              for( _op in mn.output_list){
-                  delete mn.output_list[_op].x;
-                  delete mn.output_list[_op].y;
-              }
+              delete mn.input_list;
+              delete mn.output_list;
           }
+          json.VisualPipeline.step_list = toObject(json.VisualPipeline.step_list);
+          json.VisualPipeline.connections = toObject(json.VisualPipeline.connections);
       }
     return json;
 }
@@ -1482,42 +1561,13 @@ $( window ).resize(function() {
     restart();
 });
 
-$("#nodePane").droppable({
-    // tolerance can be set to 'fit', 'intersect', 'pointer', or 'touch'
-    tolerance: 'intersect',
-
-    over: function (event, ui) {
-        var posX = event.originalEvent.clientX - $(this).offset().left;
-        var posY = event.originalEvent.clientY - $(this).offset().top;
-        dragElementOnSVG = true;
-    },
-
-    out: function (event, ui) {
-        // console.log("out");
-        dragElementOnSVG = false;
-    },
-
-    drop: function (event, ui) {
-        dragElementOnSVG = true;
-        var posX = event.originalEvent.clientX - $(this).offset().left + $(this).scrollLeft();
-        var posY = event.originalEvent.clientY - $(this).offset().top + $(this).scrollTop();
-        var obj = ToolList[selected.id];
-        obj.x = (posX/scale)-(translates[0]/scale);
-        obj.y = (posY/scale)-(translates[1]/scale);
-        var tempObj = JSON.parse(JSON.stringify(obj));
-        tempObj.id = obj.id+"D"+Date.now();
-        addToolToNodePane(tempObj)
-//        VisualPipeline.step_list.push(tempObj);
-//        restart();
-    }
-});
 
 function addToolToNodePane(_node){
     var _recurse = function(_node_){
          for(_n in VisualPipeline.step_list){
             var _node_temp = JSON.parse(JSON.stringify(VisualPipeline.step_list[_n]));
-                if(Math.pow((_node_.x - _node_temp.x),2) + Math.pow((_node_.y - _node_temp.y),2) <= Math.pow(100,2)){
-                    _node_.y = parseFloat((_node_temp.y + 140)+"");
+                if(Math.pow((_node_.layout.x - _node_temp.layout.x),2) + Math.pow((_node_.layout.y - _node_temp.layout.y),2) <= Math.pow(100,2)){
+                    _node_.layout.y = parseFloat((_node_temp.layout.y + 140)+"");
                     _recurse(_node_);
                 }
         }
@@ -1528,83 +1578,21 @@ function addToolToNodePane(_node){
     restart();
 }
 
-    //=================================================================//
-    //  API call to server for get the data for "nodepane" and "tools" //
-    //=================================================================//
+//Call node pane data
+// after data load it will draw the svg
+//    d3.json("data/saveData.json", function(error, json) {
+//        if(json)
+//            loadDataToPan(json);
+//    });
 
-    //Call for left tool list
-    //for now just add the mock data
-    d3.json("data/todos.json", function(error, json) {
-        ToolList = json.todos;
-        for(v in ToolList){
-            var html =  '<div class="toolElement" title="'+ToolList[v].name+'">' +
-                            '<div class="dragElement" id="'+v+'"></div>' +
-                                '<div class="toolId">' +
-                                    '<span class="toolTitle">'+ToolList[v].name+'</span>' +
-                                '</div>' +
-                            '</div>';
-
-            $('#tools').append(html);
-        }
-
-        $('.toolElement').dblclick(function(){
-            alert("double click");
-        });
-
-        $('.dragElement').draggable({
-            cursorAt: {
-                top: 32,
-                left: 32
-            },
-            revert: function(){
-              if(dragElementOnSVG){
-                  return false;
-              }
-              return true;
-            },
-            start: function( event, ui ) {
-                $(this).addClass("emptyDrag");
-                dragElementOnSVG = false;
-            },
-            stop:function( event, ui ) {
-                $(this).removeClass("emptyDrag");
-            },
-            cursor: 'move',
-            helper: function (event) {
-                var elem = this.id;
-                selected.id = this.id
-//                var dragSVG = '<svg xmlns="http://www.w3.org/2000/svg" class="drangNode">' +
-//                    '<g class="node" transform="translate(44,44)">' +
-//                    '<circle r="45" class="outer"/>' +
-//                    '<circle r="37" class="inner"/>' +
-//                    '<text text-anchor="middle" y="4">' + this.id + '</text>' +
-//                    '</g>' +
-//                    '</svg>';
-//                return dragSVG;
-                var html = "<div class='dragNode'>" +
-                    "<div class='dragNodeElement'></div>" +
-                    "<div class='dragNodeTitle'>"+$(this.parentNode)[0].title+"</div>"+
-                    "</div>";
-                return html;
-            }
-        });
-    });
-
-    //Call node pane data
-    // after data load it will draw the svg
-    d3.json("data/saveData.json", function(error, json) {
-        if(json)
-            loadDataToPan(json);
-    });
-
-    /*
-      we need to load this css for our svg when we save it we can append it to svg
-      On browser we have css but when we save our svg and sending to server we need add required
-      css with svg tag so we can load svg as it's.
-    * */
-    $.when($.get("css/svg.css")).done(function(response) {
-        _css  = '<style type="text/css"><![CDATA[ '+ response +']]></style>';
-    });
+/*
+  we need to load this css for our svg when we save it we can append it to svg
+  On browser we have css but when we save our svg and sending to server we need add required
+  css with svg tag so we can load svg as it's.
+* */
+$.when($.get("css/svg.css")).done(function(response) {
+    _css  = '<style type="text/css"><![CDATA[ '+ response +']]></style>';
+});
 
 function generateSVG(){
     // adding links for xmlns that we need to load svg.
@@ -1663,23 +1651,6 @@ $.fn.focusWithoutScrolling = function(){
     return this; //chainability
 };
 
-
-    $('.category').click(function() {
-        if($(this).next().is(':hidden') != true) {
-            $(this).removeClass('active');
-            $(this).next().slideUp("normal");
-        } else {
-//            $('.category').removeClass('active');
-//            $('.category_body').slideUp('normal');
-            if($(this).next().is(':hidden') == true) {
-                $(this).addClass('active');
-                $(this).next().slideDown('normal');
-            }
-        }
-    });
-
-    $('.category_body').hide();
-
 $( "#tabs" ).tabs({
     activate:function(event,ui){
         var _selectTab = $("#tabs li.ui-tabs-active")[0];
@@ -1692,9 +1663,9 @@ $( "#tabs" ).tabs({
 
 function showPropertiesPane(isFocus){
     if(selected_node){
-        setPropertiesPane(getNodeProperty(selected_node));
+        setPropertiesPane(getNodeProperty(selected_node),selected_node);
     }else{
-        setPropertiesPane(getPipelineProperty(VisualPipeline));
+        setPipelineProperties();
     }
     changeTab(!isFocus);
 }
@@ -1707,69 +1678,133 @@ function changeTab(isParameter){
     }
 }
 
-
-function setPropertiesPane(obj){
+function setPropertiesPane(obj,_node){
     $("#parameterBody").html("");
+    var _node_param = _node.params;
     var html = "";
-    function recurseHTML(_obj,isRecur){
-        for(var k in _obj){
-            if(_obj[k].__proto__ == Object.prototype){
-                if(Object.keys(_obj[k]).length != 0){
-                    html +="<div><div class='category_par category'>"+k+"</div><div class='category_body_par category_body'>"
-                    recurseHTML(_obj[k],true);
+    for(var k in obj){
+        var _param = obj[k];
+        html+="<div class='row' id='"+_param.id+"'>"
+        if(_param){
+            html+="<div class='keys'>"+_param.name+"</div>";
+            if(_node_param && Object.keys(_node_param).length > 0){
+                if(Object.keys(_node_param).indexOf(_param.id)>-1){
+                    html+="<div class='values'><span class='label'>"+_node_param[_param.id]+"</span><input class='editLabel' type='text' value='"+_node_param[_param.id]+"' ></div>";
+                }else{
+                    html+="<div class='values'><span class='label'>null</span><input class='editLabel' type='text' value='' ></div>";
                 }
             }else{
-                html +="<div class='row'>" +
-                    "<div class='keys'>"+k+":</div>"+
-                    "<div class='values'>"+_obj[k]+"</div>"+
-                    "</div>";
-
+                html+="<div class='values'><span class='label'>null</span><input class='editLabel' type='text' value='' ></div>";
             }
         }
-        if(isRecur){
-            html +="</div></div>";
-        }
+        html+="</div>"
     }
-
-    recurseHTML(obj,false);
-
     $("#parameterBody").html(html);
-
-    $('.category_par').click(function() {
-        if($(this).next().is(':hidden') != true) {
-            $(this).removeClass('active');
-            $(this).next().slideUp(300);
-        } else {
-            if($(this).next().is(':hidden') == true) {
-                $(this).addClass('active');
-                $(this).next().slideDown(300);
-            }
+    $('.label').click(function() {
+        if($(this).next().is(':hidden') == true) {
+            $(this).hide();
+            $(this).next().show();
+            $(this).next().focus();
         }
     });
-    $('.category_body_par').hide();
+    $('.editLabel').hide();
+
+    $( ".editLabel" ).keypress(function(event) {
+        if(event.keyCode == 13){
+            $(this).blur();
+        }
+    });
+
+    $( ".editLabel" ).blur(function() {
+        var ele = $(this)[0];
+        var _param_ = $(ele.parentNode.parentNode).attr("id");
+        if($(this).val().toString().trim().length > 0){
+            $(this).prev().html($(this).val().trim());
+            _node_param[_param_] = $(this).val().trim();
+        }else{
+            // remove parameter from node if it's empty
+            if(_node_param && Object.keys(_node_param).length > 0){
+                if(Object.keys(_node_param).indexOf(_param_) > -1){
+                    delete _node_param[_param_];
+                }
+            }
+        }
+        $(this).hide();
+        $(this).prev().show();
+    });
 }
 
 function getNodeProperty(_node){
-    var obj = {};
-    for( p in _node){
-        if(p != "x" && p != "y" && p != "input_list" && p != "output_list"){
-            obj[p] = _node[p];
-        }
-    }
-    return JSON.parse(JSON.stringify(obj))
+    var _obj = JSON.parse(JSON.stringify(ToolList[_node.toolid].param_list));
+    return JSON.parse(JSON.stringify(_obj))
 }
 
-function getPipelineProperty(_node){
-    var obj = {};
-    if(_node.signature){
-        obj = _node.signature;
+function setPipelineProperties(){
+    $("#parameterBody").html("");
+    var _PipelineData = VisualPipeline.signature;
+    var html = "";
+    for(var k in _PipelineData){
+        var _param = _PipelineData[k];
+        html+="<div class='row' id='info_"+k+"'>"+
+            "<div class='keys'>"+k+"</div>";
+            if(k == "description"){
+                html +="<div class='infoInput'><textarea name='infoAreaDesc'>"+_param+"</textarea></div>"
+            }else{
+                html +="<div class='infoInput'><textarea name='infoArea'>"+_param+"</textarea></div>"
+            }
+            html +="</div>";
     }
-    return JSON.parse(JSON.stringify(obj))
+    $("#parameterBody").html(html);
 }
-//// fix the classes
-//$( ".tabs-bottom .ui-tabs-nav, .tabs-bottom .ui-tabs-nav > *" )
-//    .removeClass( "ui-corner-all ui-corner-top" )
-//    .addClass( "ui-corner-bottom" );
+
+function toObject(arr) {
+    var rv = {};
+    for (var i = 0; i < arr.length; ++i)
+        rv[arr[i].id] = arr[i];
+
+    return rv;
+}
+
+function toArray(arr){
+    var _array = $.map(arr, function(value, index) {
+        return value;
+    });
+    return _array;
+}
+
+//display node details from ToolData
+function displayNodeInfo(_nodeid){
+    var _obj = JSON.parse(JSON.stringify(ToolList[_nodeid]));
+    if(_obj){
+        var html = "";
+        var _sig = _obj.signature;
+        html +="<div class='nodeInfoPage'>";
+
+        html += "<div class='nodeInfoHeader'>" +
+                    "<div class='nodeInfoTitle'>"+_sig.name+"</div>" +
+                    "<div class='nodeInfoExtra'>" +
+                        "<div class='nodeInfoVersion'>" +_sig.version +"</div>"+
+                        "<div class='nodeInfoAuthor'>" +_sig.author +"</div>"+
+                    "</div>"+
+                  "<div class='clear'></div></div>";
+
+        html += "<div class='nodeInfoBody'>"+_sig.description+"</div>"
+
+        html +="</div>";
+
+        $("#NodeDialog").html(html);
+        $("#NodeDialog").dialog({
+            modal: true
+        });
+    }
+}
 
 // move the nav to the bottom
 $( ".tabs-bottom .ui-tabs-nav" ).appendTo( ".tabs-bottom" );
+
+//Call node pane data
+// after data load it will draw the svg
+d3.json("data/savedJSON.json", function(error, json) {
+    if(json)
+        loadDataToPan(json);
+});

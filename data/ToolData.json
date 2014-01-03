@@ -1,0 +1,231 @@
+{
+  "Tools":{
+    "tool1":{
+      "id":"tool1",
+      "type": "app",
+      "input_list": {
+          "vcf":{
+            "description": "Input VCF file to be converted to Enlis .genome format file.",
+            "id": "vcf",
+            "type": "vcf",
+            "name": "Input VCF file"
+          }
+        },
+        "output_list": {
+          "genome":{
+            "description": "Converted Enlis .genome format file.",
+            "id": "genome",
+            "type": "enlis_genome",
+            "name": "Enlis file"
+          }
+        },
+        "param_list":{
+          "param1":{
+            "id":"param1",
+            "name":"Param1",
+            "type":"string",
+            "description": "First param"
+          },
+          "param2":{
+            "id":"param2",
+            "name":"Param2",
+            "type":"string",
+            "description": "Second param"
+          },
+          "param3":{
+            "id":"param3",
+            "name":"Param3",
+            "type":"string",
+            "description": "Third param"
+          }
+        },
+        "resource":{
+            "cpu": "3",
+            "memory": "512"
+        },
+        "signature":{
+          "name":"Tool 1",
+          "version":"version 1.2",
+          "author":"someuser",
+          "brief":"mybriefdescription",
+          "description":"multi line description",
+          "category":"category1"
+        }
+    },
+
+    "tool2":{
+      "id":"tool2",
+      "type": "app",
+      "input_list": {
+          "vcf":{
+            "description": "Input VCF file to be converted to Enlis .genome format file.",
+            "id": "vcf",
+            "type": "enlis_genome",
+            "name": "VCF file"
+          },
+          "vcf1":{
+              "description": "Input VCF file to be converted to Enlis .genome format file.",
+              "id": "vcf1",
+              "type": "enlis_genome",
+              "name": "VCF 1 file"
+          }
+        },
+        "output_list": {
+          "genome":{
+            "description": "Converted Enlis .genome format file.",
+            "id": "genome",
+            "type": "enlis_genome",
+            "name": "Enlis file"
+          }
+        },
+        "param_list":{
+          "param1":{
+            "id":"param1",
+            "name":"Param1",
+            "type":"string",
+            "description": "First param"
+          },
+          "param2":{
+            "id":"param2",
+            "name":"Param2",
+            "type":"string",
+            "description": "Second param"
+          },
+          "param3":{
+            "id":"param3",
+            "name":"Param3",
+            "type":"string",
+            "description": "Third param"
+          }
+        },
+        "resource":{
+            "cpu": "3",
+            "memory": "512"
+        },
+        "signature":{
+          "name":"Tool 2",
+          "version":"version 1.2",
+          "author":"someuser",
+          "brief":"mybriefdescription",
+          "description":"multi line description",
+          "category":"category1"
+        }
+    },
+
+    "tool3":{
+      "id":"tool3",
+      "type": "app",
+      "input_list": {
+          "vcf":{
+            "description": "Input VCF file to be converted to Enlis .genome format file.",
+            "id": "vcf",
+            "type": "vcf",
+            "name": "VCF file"
+          }
+        },
+        "output_list": {
+          "genome":{
+            "description": "Converted Enlis .genome format file.",
+            "id": "genome",
+            "type": "enlis_genome",
+            "name": "Enlis file"
+          }
+        },
+        "param_list":{
+          "param1":{
+            "id":"param1",
+            "name":"Param1",
+            "type":"string",
+            "description": "First param"
+          },
+          "param2":{
+            "id":"param2",
+            "name":"Param2",
+            "type":"string",
+            "description": "Second param"
+          },
+          "param3":{
+            "id":"param3",
+            "name":"Param3",
+            "type":"string",
+            "description": "Third param"
+          }
+        },
+        "resource":{
+            "cpu": "3",
+            "memory": "512"
+        },
+        "signature":{
+          "name":"Tool 3",
+          "version":"version 1.2",
+          "author":"someuser",
+          "brief":"mybriefdescription",
+          "description":"multi line description",
+          "category":"category2"
+        }
+    },
+
+    "tool4":{
+      "id":"tool4",
+      "type": "app",
+      "input_list": {
+          "vcf":{
+            "description": "Input VCF file to be converted to Enlis .genome format file.",
+            "id": "vcf",
+            "type": "vcf",
+            "name": "VCF file"
+          }
+        },
+        "output_list": {
+          "genome":{
+            "description": "Converted Enlis .genome format file.",
+            "id": "genome",
+            "type": "enlis_genome",
+            "name": "Enlis file"
+          }
+        },
+        "param_list":{
+          "param1":{
+            "id":"param1",
+            "name":"Param1",
+            "type":"string",
+            "description": "First param"
+          },
+          "param2":{
+            "id":"param2",
+            "name":"Param2",
+            "type":"string",
+            "description": "Second param"
+          },
+          "param3":{
+            "id":"param3",
+            "name":"Param3",
+            "type":"string",
+            "description": "Third param"
+          }
+        },
+        "resource":{
+            "cpu": "3",
+            "memory": "512"
+        },
+        "signature":{
+          "name":"Tool 4",
+          "version":"version 1.2",
+          "author":"someuser",
+          "brief":"mybriefdescription",
+          "description":"multi line description",
+          "category":"category2"
+        }
+    }
+  },
+  "CategoryList":{
+    "category1":{
+        "id":"category1",
+        "brief":"category1 description"
+    },
+    "category2":{
+        "id":"category2",
+        "brief":"category2 description"
+    }   
+  }
+}

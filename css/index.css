@@ -167,7 +167,7 @@ svg *::-webkit-selection {
 #Popup_div{
     position: absolute;
     top: 20px;
-    right: 30px;
+    left: 30px;
 }
 
 #Popup_div .qtip{
@@ -249,12 +249,12 @@ svg *::-webkit-selection {
 .category{
     height: auto;
     margin: 5px auto;
-    padding: 5px;
+    padding: 5px 5px 5px 10px;
     border: 1px rgb(242,242,242) solid;
     cursor: pointer;
 
     font-weight: bold;
-    padding-left: 10px;
+    text-transform:capitalize;
     font-size: 15px;
 
     background: rgb(255,255,255); /* Old browsers */
@@ -304,7 +304,7 @@ svg *::-webkit-selection {
     font-weight: bold;
 }
 
-.toolElement .dragElement{
+.toolElement .dragToolElement{
     -webkit-border-radius: 999px;
     -moz-border-radius: 999px;
     border-radius: 999px;
@@ -351,22 +351,62 @@ svg *::-webkit-selection {
 }
 
 .row{
-    margin: 5px 0px;
     clear: both;
-    min-height: 20px;
+    min-height: 25px;
     font-size: 15px;
-    padding-left: 10px;
+    border: 1px rgb(242,242,242) solid;
+    margin: 5px auto;
+    padding: 5px;
+    background-color: rgba(158,158,158,0.1);
 }
 
 .row .values{
-    float: left;
-    margin-left: 10px;
+    margin: 5px 0px;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 12px;
 }
 
 .row .keys{
-    float: left;
     text-transform:capitalize;
     font-weight: bold;
+}
+
+.infoInput textarea{
+    width: 250px;
+    resize: none;
+    padding: 10px;
+}
+
+textarea[name=infoArea]{
+    height: 60px;
+}
+textarea[name=infoAreaDesc]{
+    height: 150px;
+}
+
+.nodeInfoPage{
+    border: 1px rgb(242,242,242) solid;
+    padding: 10px;
+}
+.nodeInfoHeader{
+    height: 50px;
+    width: 100%;
+}
+.nodeInfoTitle{
+    font-weight: bold;
+    float: left;
+    font-size: 20px;
+}
+.nodeInfoExtra{
+    float: right;
+    font-size: 12px;
+}
+.nodeInfoBody{
+   font-size: 15px;
+}
+.clear{
+    clear: both;
 }
 
 /*#tabs .tabs-spacer { float: left; height: 200px; }*/
