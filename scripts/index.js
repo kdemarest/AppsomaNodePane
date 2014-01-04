@@ -1745,7 +1745,7 @@ function setPipelineProperties(){
     var html = "";
     for(var k in _PipelineData){
         var _param = _PipelineData[k];
-        html+="<div class='row' id='info_"+k+"'>"+
+        html+="<div class='row' param='"+k+"'>"+
             "<div class='keys'>"+k+"</div>";
             if(k == "description"){
                 html +="<div class='infoInput'><textarea name='infoAreaDesc'>"+_param+"</textarea></div>"
@@ -1755,6 +1755,25 @@ function setPipelineProperties(){
             html +="</div>";
     }
     $("#parameterBody").html(html);
+
+    var savePipelineInfo = function(ele,val){
+        if(val.length > 0){
+            _PipelineData[ele] = val;
+        }
+    }
+
+    $( ".infoInput textarea" ).change(function(){
+        var ele = $(this)[0];
+        var _param_ = $(ele.parentNode.parentNode).attr("param");
+        savePipelineInfo(_param_,$(this).val());
+    });
+
+    $( ".infoInput textarea" ).blur(function() {
+        var ele = $(this)[0];
+        var _param_ = $(ele.parentNode.parentNode).attr("param");
+        savePipelineInfo(_param_,$(this).val());
+    });
+
 }
 
 function toObject(arr) {
