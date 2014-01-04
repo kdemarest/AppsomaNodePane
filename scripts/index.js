@@ -266,6 +266,16 @@ function zoom() {
         $( "#editText" ).blur();
     }
     if(!nodedrag && !isLinkDraw){
+        if(d3.event.translate[0] < 0){
+            d3.event.translate[0] = 0;
+            zoomeffect.translate([0,d3.event.translate[1]]);
+        }
+
+        if(d3.event.translate[1] < 0){
+            d3.event.translate[1] = 0;
+            zoomeffect.translate([d3.event.translate[0],0]);
+        }
+
         translates = d3.event.translate;
         scale = d3.event.scale;
         svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
@@ -309,6 +319,7 @@ var drag_line,drag_line_s;
         if(isEdit){
             $( "#editText" ).blur();
         }
+//        d3.event.stopPropagation();
     });
 
 var computeTransitionPath = function( d) {
