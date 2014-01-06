@@ -68,7 +68,8 @@ d3.json("data/ToolData.json", function(error, json) {
      * Bind drag effects on each tool element
      * */
     $('.toolElement').dblclick(function(){
-        alert("double click");
+        var _ele = $(this).find(".dragToolElement").attr("name");
+        displayNodeInfo(_ele);
     });
 
     $('.dragToolElement').draggable({
