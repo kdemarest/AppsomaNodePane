@@ -68,10 +68,13 @@ d3.json("data/ToolData.json", function(error, json) {
      * Bind drag effects on each tool element
      * */
     $('.toolElement').dblclick(function(){
-        alert("double click");
+        var _ele = $(this).find(".dragToolElement").attr("name");
+        displayNodeInfo(_ele);
     });
 
     $('.dragToolElement').draggable({
+        appendTo: 'body',
+        containment:'document',
         cursorAt: {
             top: 32,
             left: 32
@@ -101,19 +104,23 @@ d3.json("data/ToolData.json", function(error, json) {
     });
 });
 
-
+$("#togglePanelButton").click(function(){
+    toggleSidePanel();
+});
 
 $("#nodePane").droppable({
     // tolerance can be set to 'fit', 'intersect', 'pointer', or 'touch'
     tolerance: 'intersect',
 
     over: function (event, ui) {
+        toggleSidePanel();
         var posX = event.originalEvent.clientX - $(this).offset().left;
         var posY = event.originalEvent.clientY - $(this).offset().top;
         dragElementOnSVG = true;
     },
 
     out: function (event, ui) {
+        toggleSidePanel();
         dragElementOnSVG = false;
     },
 
@@ -361,10 +368,6 @@ function updateSVG(){
     d3.selectAll("text.nodeName").style("visibility","visible");
     var h = document.getElementById("root").getBBox().height;
     var w = document.getElementById("root").getBBox().width;
-    if($(".nodePaneContainer").height() > h) h = $(".nodePaneContainer").height() - 20;
-    if($(".nodePaneContainer").width() > w) w = $(".nodePaneContainer").width() - 20;
-    if(w<100) w = 100;
-    if(h<100) h = 100;
 
     var extraWidth =  translates[0] > 0 ?translates[0]:0;
     var extraHeight = translates[1] > 0 ?translates[1]:0;
@@ -378,17 +381,18 @@ function updateSVG(){
         fw = (w+extraWidth)*scale;
     }
 
-    if(fh < $(".nodePaneContainer").height()){
-        fh = $(".nodePaneContainer").height();
-    }
-    if(fw < $(".nodePaneContainer").width()){
-        fw = $(".nodePaneContainer").width();
-    }
+    if($(".nodePaneContainer").height() > fh) fh = $(".nodePaneContainer").height()-18;
+    if($(".nodePaneContainer").width() > fw) fw = $(".nodePaneContainer").width()-18;
+
+    if(fw<100) fw = 100;
+    if(fh<100) fh = 100;
+
     eventRect.attr("width",fw)
         .attr("height",fh);
     viewport.attr("height",fh)
         .attr("width",fw);
     svg.attr("transform", "translate("+translates+")scale("+scale+")");
+    resetPanelPosition();
 }
 
 function setcursor(cursor){
@@ -1831,6 +1835,37 @@ function displayNodeInfo(_nodeid){
 
 // move the nav to the bottom
 $( ".tabs-bottom .ui-tabs-nav" ).appendTo( ".tabs-bottom" );
+
+$.fn.hasVerticalScrollBar = function() {
+    return this.get(0).scrollHeight > this.height();
+}
+
+$.fn.hasHorizontalScrollBar = function() {
+    return this.get(0).scrollWidth > this.width();
+}
+
+function resetPanelPosition(){
+    var _ch,_cw;
+    if($('#nodePane').hasVerticalScrollBar()){
+        _cw = 51;
+    }else{
+        _cw = 35;
+    }
+    if($('#nodePane').hasHorizontalScrollBar()){
+        _ch = $(".nodePaneContainer").height()-16;
+    }else{
+        _ch = $(".nodePaneContainer").height();
+    }
+    $(".sidePanel").css({height:_ch+"px"});
+    $(".sidePanel").css({right:_cw+"px"});
+}
+
+function toggleSidePanel(){
+    resetPanelPosition();
+    $(".sidePanel").toggle('slide', {
+        direction: 'right'
+    });
+}
 
 //Call node pane data
 // after data load it will draw the svg
