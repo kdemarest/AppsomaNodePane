@@ -7,7 +7,9 @@
     min-width: 900px;
     padding: 10px;
     position: absolute;
-    width: 97%;
+    width: -webkit-calc(100% - 30px);
+    width: -moz-calc(100% - 30px);
+    width: calc(100% - 30px);
 }
 .sidePanel {
     border: 1px solid;
@@ -414,17 +416,18 @@ textarea[name=infoAreaDesc]{
 }
 
 /*#tabs .tabs-spacer { float: left; height: 200px; }*/
-.tabs-bottom .ui-tabs-nav { clear: left; padding: 0 .2em .2em .2em; height: 24px;  overflow: hidden;}
+/*clear: left;*/
+.tabs-bottom .ui-tabs-nav {  padding: 0 .2em .2em .2em; height: 24px;  overflow: hidden; border-radius: 0px !important;width: 292px;}
 .tabs-bottom .ui-tabs-nav li { top: auto; bottom: 0; margin: 0 .2em 1px 0; border-bottom: auto; border-top: 0; width: 138px; border-radius: 7px;cursor: pointer; }
 .tabs-bottom .ui-tabs-nav li a{ font-size: 12px;text-align: center;width: 112px; cursor: pointer !important;}
-.tabs-bottom .ui-tabs-nav li.ui-tabs-active { margin-top: -1px; padding-top: 1px;}
+.tabs-bottom .ui-tabs-nav li.ui-tabs-active { margin-top: -1px; padding-top: 1px; margin-left: 4px;}
 
 #togglePanelButton{
     background-image: url("../images/colleps.png");
-    background-size: 12px auto;
+    background-size: 16px 16px;
     cursor: pointer;
     float: left;
-    height: 12px;
+    height: 16px;
     margin-left: -10px;
-    width: 12px;
+    width: 16px;
 }
