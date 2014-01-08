@@ -11,11 +11,15 @@
 }
 .sidePanel {
     border: 1px solid;
-    float: left;
-    height: 90%;
+    /*height: 90%;*/
+    border-radius: 5px;
+    height: 85%;
     width: 300px;
-    overflow: hidden;
     background:url("../images/canvas-bg.png") repeat ;
+    position: absolute;
+    right: 35px;
+    top: 10px;
+    display: none;
 }
 .list {
     /*overflow: auto;*/
@@ -27,10 +31,10 @@
     overflow: hidden;
     height: 90%;
     margin-right: 10px;
-    width: -webkit-calc(93% - 255px);
-    width: -moz-calc(93% - 255px);
-    width: calc(93% - 255px);
     float: left;
+    width: -webkit-calc(100% - 25px);
+    width: -moz-calc(100% - 25px);
+    width: calc(100% - 25px);
 }
 .clear {
     clear: both;
@@ -243,7 +247,7 @@ svg *::-webkit-selection {
     height: -moz-calc(100% - 15px);
     height: calc(100% - 15px);
     position: static;
-    width: 100%;
+    width: 300px;
 }
 
 .category{
@@ -410,7 +414,17 @@ textarea[name=infoAreaDesc]{
 }
 
 /*#tabs .tabs-spacer { float: left; height: 200px; }*/
-.tabs-bottom .ui-tabs-nav { clear: left; padding: 0 .2em .2em .2em; }
+.tabs-bottom .ui-tabs-nav { clear: left; padding: 0 .2em .2em .2em; height: 24px;  overflow: hidden;}
 .tabs-bottom .ui-tabs-nav li { top: auto; bottom: 0; margin: 0 .2em 1px 0; border-bottom: auto; border-top: 0; width: 138px; border-radius: 7px;cursor: pointer; }
 .tabs-bottom .ui-tabs-nav li a{ font-size: 12px;text-align: center;width: 112px; cursor: pointer !important;}
 .tabs-bottom .ui-tabs-nav li.ui-tabs-active { margin-top: -1px; padding-top: 1px;}
+
+#togglePanelButton{
+    background-image: url("../images/colleps.png");
+    background-size: 12px auto;
+    cursor: pointer;
+    float: left;
+    height: 12px;
+    margin-left: -10px;
+    width: 12px;
+}

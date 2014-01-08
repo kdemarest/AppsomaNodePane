@@ -73,6 +73,8 @@ d3.json("data/ToolData.json", function(error, json) {
     });
 
     $('.dragToolElement').draggable({
+        appendTo: 'body',
+        containment:'document',
         cursorAt: {
             top: 32,
             left: 32
@@ -102,19 +104,23 @@ d3.json("data/ToolData.json", function(error, json) {
     });
 });
 
-
+$("#togglePanelButton").click(function(){
+    toggleSidePanel();
+});
 
 $("#nodePane").droppable({
     // tolerance can be set to 'fit', 'intersect', 'pointer', or 'touch'
     tolerance: 'intersect',
 
     over: function (event, ui) {
+        toggleSidePanel();
         var posX = event.originalEvent.clientX - $(this).offset().left;
         var posY = event.originalEvent.clientY - $(this).offset().top;
         dragElementOnSVG = true;
     },
 
     out: function (event, ui) {
+        toggleSidePanel();
         dragElementOnSVG = false;
     },
 
@@ -1821,6 +1827,12 @@ function displayNodeInfo(_nodeid){
 
 // move the nav to the bottom
 $( ".tabs-bottom .ui-tabs-nav" ).appendTo( ".tabs-bottom" );
+
+function toggleSidePanel(){
+    $(".sidePanel").toggle('slide', {
+        direction: 'right'
+    });
+}
 
 //Call node pane data
 // after data load it will draw the svg
